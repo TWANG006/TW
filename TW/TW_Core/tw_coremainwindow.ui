@@ -71,6 +71,15 @@
     <property name="title">
      <string>&amp;DIC&amp;&amp;DVC</string>
     </property>
+    <widget class="QMenu" name="menuDIC_Algorithms">
+     <property name="title">
+      <string>DIC Algorithms</string>
+     </property>
+     <addaction name="actionPaDIC_CUDA"/>
+     <addaction name="actionPaDIC_CPU_multi_core"/>
+    </widget>
+    <addaction name="menuDIC_Algorithms"/>
+    <addaction name="actionDVC_Algorithms"/>
    </widget>
    <widget class="QMenu" name="menu_Image_Processing">
     <property name="title">
@@ -157,6 +166,27 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+W</string>
+   </property>
+  </action>
+  <action name="actionDVC_Algorithms">
+   <property name="text">
+    <string>DVC Algorithms</string>
+   </property>
+  </action>
+  <action name="actionPaDIC_CUDA">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>paDIC (CUDA)...</string>
+   </property>
+  </action>
+  <action name="actionPaDIC_CPU_multi_core">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>paDIC (CPU multi-core)...</string>
    </property>
   </action>
  </widget>

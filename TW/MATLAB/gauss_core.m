@@ -1,6 +1,6 @@
-imSize = 100;                                     % image size n x n
-sigma = 8;                                    % gaussian standard deviation in pixels
-trim = 0.005;                                     % trim off gaussian values smaller than this
+imSize = 256;                                     % image size n x n
+sigma = 16;                                        % gaussian standard deviation in pixels
+                                                  % trim off gaussian values smaller than this
 
 X = 1:imSize;                                     % X is a vector from 1 to imSize
 X0 = (X/imSize)-0.5;                              % rescale X to -0.5 to 0.5
@@ -8,6 +8,7 @@ X0 = (X/imSize)-0.5;                              % rescale X to -0.5 to 0.5
 [Xm, Ym] = meshgrid(X0,X0);                       % 2D squre matrix
                                                                             
 s = sigma / imSize;                               % s scaled to fit the image size
+trim = s * 1.2;
 
 Gauss = exp(-(((Xm.^2)+(Ym.^2)) ./ (2* s^2)));    % formula for 2D gaussian
                                                   % f(x,y) = A*exp(-((x-x0)^2/2*thetax^2 
