@@ -1,5 +1,5 @@
-imSize = 256;                                     % image size n x n
-sigma = 16;                                        % gaussian standard deviation in pixels
+imSize = 100;                                     % image size n x n
+sigma = 10;                                        % gaussian standard deviation in pixels
                                                   % trim off gaussian values smaller than this
 
 X = 1:imSize;                                     % X is a vector from 1 to imSize
@@ -15,7 +15,7 @@ Gauss = exp(-(((Xm.^2)+(Ym.^2)) ./ (2* s^2)));    % formula for 2D gaussian
                                                   %           + (y-y0)^2/2*thetay^2))
                                                   % Here A=1, x0=y0=0, thetax=thetay=s
 
-Gauss(Gauss < trim) = 0;                          % Trim the values below 0.005
+Gauss(Gauss < exp(-((((1.2*s)^2)+((1.2*s)^2)) ./ (2* s^2)))) = 0;                          % Trim the values below 0.005
 GF = fspecial('gaussian', [5,5], 1) ;             % hsize = (4*sigma+1)x(4*sigma+1)    
 
 GN_1 = randn(imSize,imSize)*sqrt(0.04*0.04);      % Gaussian noise 4%
