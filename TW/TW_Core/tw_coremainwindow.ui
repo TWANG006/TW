@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>919</width>
-    <height>709</height>
+    <width>967</width>
+    <height>598</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,13 +17,19 @@
    <iconset resource="tw_coremainwindow.qrc">
     <normaloff>:/TW_CoreMainWindow/icons/App.ico</normaloff>:/TW_CoreMainWindow/icons/App.ico</iconset>
   </property>
-  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QMdiArea" name="mdiArea"/>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>919</width>
+     <width>967</width>
      <height>23</height>
     </rect>
    </property>
@@ -96,7 +102,23 @@
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOpen"/>
+  </widget>
   <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="tw_coremainwindow.qrc">
+     <normaloff>:/TW_CoreMainWindow/icons/Open.ico</normaloff>:/TW_CoreMainWindow/icons/Open.ico</iconset>
+   </property>
    <property name="text">
     <string>Open...</string>
    </property>
@@ -104,7 +126,10 @@
     <string>Open Image(s) from disk...</string>
    </property>
    <property name="shortcut">
-    <string extracomment="Ctrl+O">Ctrl+O</string>
+    <string>Ctrl+O</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionCapture_From_Camra">
