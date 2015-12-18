@@ -5,15 +5,28 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TW_Core", "TW_Core\TW_Core.vcxproj", "{B12702AD-ABFB-343A-A199-8E24837244A3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TW_Engine", "TW_Engine\TW_Engine.vcxproj", "{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TW_EngineTester", "TW_EngineTester\TW_EngineTester.vcxproj", "{25B2620E-7AB0-4A3C-8A22-60ADD1041659}"
+	ProjectSection(ProjectDependencies) = postProject
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0} = {51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://twang006.visualstudio.com/defaultcollection
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = TW_Core\\TW_Core.vcxproj
 		SccProjectName1 = TW_Core
 		SccLocalPath1 = TW_Core
+		SccProjectUniqueName2 = TW_Engine\\TW_Engine.vcxproj
+		SccProjectName2 = TW_Engine
+		SccLocalPath2 = TW_Engine
+		SccProjectUniqueName3 = TW_EngineTester\\TW_EngineTester.vcxproj
+		SccProjectName3 = TW_EngineTester
+		SccLocalPath3 = TW_EngineTester
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -30,6 +43,22 @@ Global
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.Build.0 = Release|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.ActiveCfg = Release|x64
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.Build.0 = Release|x64
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}.Debug|Win32.Build.0 = Debug|Win32
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}.Debug|x64.ActiveCfg = Debug|x64
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}.Debug|x64.Build.0 = Debug|x64
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}.Release|Win32.ActiveCfg = Release|Win32
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}.Release|Win32.Build.0 = Release|Win32
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}.Release|x64.ActiveCfg = Release|x64
+		{51858E79-40FA-4C9D-81A3-7EF4A0EF14E0}.Release|x64.Build.0 = Release|x64
+		{25B2620E-7AB0-4A3C-8A22-60ADD1041659}.Debug|Win32.ActiveCfg = Debug|Win32
+		{25B2620E-7AB0-4A3C-8A22-60ADD1041659}.Debug|Win32.Build.0 = Debug|Win32
+		{25B2620E-7AB0-4A3C-8A22-60ADD1041659}.Debug|x64.ActiveCfg = Debug|x64
+		{25B2620E-7AB0-4A3C-8A22-60ADD1041659}.Debug|x64.Build.0 = Debug|x64
+		{25B2620E-7AB0-4A3C-8A22-60ADD1041659}.Release|Win32.ActiveCfg = Release|Win32
+		{25B2620E-7AB0-4A3C-8A22-60ADD1041659}.Release|Win32.Build.0 = Release|Win32
+		{25B2620E-7AB0-4A3C-8A22-60ADD1041659}.Release|x64.ActiveCfg = Release|x64
+		{25B2620E-7AB0-4A3C-8A22-60ADD1041659}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
