@@ -5,39 +5,39 @@
 
 namespace TW
 {
-namespace Timing
-{
+	namespace Timing
+	{
 
-class __declspec(dllexport) StopWatch
-{
-public:
-	StopWatch();
-	~StopWatch();
+		class __declspec(dllexport) StopWatch
+		{
+		public:
+			StopWatch();
+			~StopWatch();
 
-	void start();				//! Start timer
-	void stop();				//! Stop timer
-	void reset();				//! Reset timer
+			void start();				//! Start timer
+			void stop();				//! Stop timer
+			void reset();				//! Reset timer
 
-	//! Get elapsed time after calling start() or time between
-	//! stop() and start()
-	double getElapsedTime();	
+			//! Get elapsed time after calling start() or time between
+			//! stop() and start()
+			double getElapsedTime();
 
-	//! Average time = TotalTime / number of stops
-	double getAverageTime();
-	
-private:
-	LARGE_INTEGER m_startTime;	//! Start time
-	LARGE_INTEGER m_endTime;	//! End time
+			//! Average time = TotalTime / number of stops
+			double getAverageTime();
 
-	double m_dElapsedTime;		//! Time elapsed between the last start and stop
-	double m_dTotalTime;			//! Time elapsed between all starts and stops
-	bool m_isRunning;			//! Judge if timer is still running
-	int m_iNumClockSessions;	//! Number of starts and stops
-	double m_dFreq;				//! Frequency
-	bool m_isFreqSet;			//! Judge if the frequency is set 
-};
+		private:
+			LARGE_INTEGER m_startTime;	//! Start time
+			LARGE_INTEGER m_endTime;	//! End time
 
-}	// namespace Timing
+			double m_dElapsedTime;		//! Time elapsed between the last start and stop
+			double m_dTotalTime;			//! Time elapsed between all starts and stops
+			bool m_isRunning;			//! Judge if timer is still running
+			int m_iNumClockSessions;	//! Number of starts and stops
+			double m_dFreq;				//! Frequency
+			bool m_isFreqSet;			//! Judge if the frequency is set 
+		};
+
+	}	// namespace Timing
 }	// namespace TW
 
 #endif // !ENGINE_STOPWATCH_H
