@@ -41,5 +41,8 @@
     <ClInclude Include="FFTCC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TW_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

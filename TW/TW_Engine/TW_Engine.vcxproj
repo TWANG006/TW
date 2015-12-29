@@ -152,6 +152,7 @@
     <ClInclude Include="FFTCC.h" />
     <ClInclude Include="MemManager.h" />
     <ClInclude Include="StopWatch.h" />
+    <ClInclude Include="TW_utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
