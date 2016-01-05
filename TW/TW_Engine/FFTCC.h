@@ -5,13 +5,14 @@
 #include <memory>
 
 namespace TW{
-	namespace Algrithm{
+	namespace Algorithm{
 
 		class __declspec(dllexport) Fftcc
 		{
 		public:
 			Fftcc(
-				const std::vector<float>& vecRefROI,
+				const int iROIWidth,
+				const int iROIHeight,
 				const int iSubsetX = 16,
 				const int iSubsetY = 16,
 				const int iGridSpaceX = 5,
@@ -19,7 +20,7 @@ namespace TW{
 				const int iMarginX = 3,
 				const int iMarginY = 3);
 
-			virtual ~Fftcc();
+			virtual ~Fftcc(){}
 
 			//!- non-copyable class
 			Fftcc() = delete;
@@ -36,6 +37,7 @@ namespace TW{
 			inline int getNumPOIs() const { return (m_iNumPOIX*m_iNumPOIY); }
 
 		protected:
+			int m_iROIWidth, m_iROIHeight;
 			int m_iSubsetX, m_iSubsetY;			//!- subsetSize = (2*m_iSubsetX+1)*(2*m_iSubsetY+1)
 			int m_iGridSpaceX, m_iGridSpaceY;	//!- Number of pixels between each two POIs
 			int m_iMarginX, m_iMarginY;			//!- Extra safe margin set for the ROI
