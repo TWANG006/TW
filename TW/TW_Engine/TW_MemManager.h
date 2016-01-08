@@ -1,13 +1,11 @@
-#ifndef MEM_MANAGER_H
-#define MEM_MANAGER_H
+#ifndef TW_MEM_MANAGER_H
+#define TW_MEM_MANAGER_H
 
 #include <cstdio>
 #include <cstdlib>
 #include <cuda_runtime.h>
 
 namespace TW{
-	namespace MemManager{
-
 		//!= Host memory allo/deallo-cation methods.
 		template<typename T>
 		void hcreateptr(T*& ptr, size_t size);
@@ -46,9 +44,8 @@ namespace TW{
 		template<typename T>
 		void cudestroyptr(T****&ptr);
 
-#include "MemManager.cpp"
+#include "TW_MemManager.cpp"
 
-	} //!- Namespace MemManager
 } //!- Namespace TW
 
 

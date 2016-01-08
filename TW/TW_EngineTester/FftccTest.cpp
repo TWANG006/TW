@@ -1,17 +1,20 @@
-#include "FFTCC.h"
+#include "TW_FFTCC2D.h"
 
 #include <gtest\gtest.h>
 
-using namespace TW::Algorithm;
+using namespace TW;
 
-TEST(Fftcc, Constructor)
+TEST(Fftcc2D, Constructor)
 {
-	Fftcc * fftcc = new Fftcc(
-		100,
-		100);
+	Fftcc2D * fftcc = new Fftcc2D(
+		10,
+		10);
 
-	EXPECT_EQ(fftcc->getNumPOIsX(), fftcc->getNumPOIsY());
+	Fftcc2D fftcc1 (Fftcc2D(10, 10));
+
+	EXPECT_EQ(fftcc->getNumPOIsX(), fftcc1.getNumPOIsY());
 
 	delete fftcc;
 	fftcc = nullptr;
+
 }

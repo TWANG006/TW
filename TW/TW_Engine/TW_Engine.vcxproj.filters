@@ -21,27 +21,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="StopWatch.cpp">
+    <ClCompile Include="TW_MemManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MemManager.cpp">
+    <ClCompile Include="TW_StopWatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FFTCC.cpp">
+    <ClCompile Include="TW_FFTCC2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="StopWatch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MemManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FFTCC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TW_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TW_MemManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TW_StopWatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TW.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TW_FFTCC2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

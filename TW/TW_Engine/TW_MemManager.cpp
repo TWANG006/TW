@@ -1,4 +1,4 @@
-//!= Host memory allo/deallo-cation methods.
+//!- Host memory allo/deallo-cation methods.
 template<typename T>
 void hcreateptr(T*& ptr, size_t size)
 {
