@@ -147,16 +147,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="TW_FFTCC2D.cpp" />
+    <ClCompile Include="TW_paDIC_FFTCC2D.cpp" />
     <ClCompile Include="TW_MemManager.cpp" />
     <ClCompile Include="TW_StopWatch.cpp" />
+    <ClCompile Include="TW_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="helper_cuda.h" />
     <ClInclude Include="TW.h" />
-    <ClInclude Include="TW_FFTCC2D.h" />
+    <ClInclude Include="TW_paDIC_cuFFTCC2D.h" />
+    <ClInclude Include="TW_paDIC_FFTCC2D.h" />
     <ClInclude Include="TW_MemManager.h" />
     <ClInclude Include="TW_StopWatch.h" />
     <ClInclude Include="TW_utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="TW_cuUtils.cu" />
+    <CudaCompile Include="TW_paDIC_cuFFTCC2D.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

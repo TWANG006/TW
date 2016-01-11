@@ -4,6 +4,9 @@
 #define TW_PI 3.14159265358979323846
 #define TW_TWOPI 6.28318530717958647692
 
+#define BLOCK_SIZE_256 256
+#define BLOCK_SIZE_128 128
+
 //!- Macro for library dll export utility
 #ifdef _WIN32
 #    ifdef TW_LIB_DLL_EXPORTS_MODE
@@ -28,6 +31,8 @@
 
 
 #include <string>
+#include <cufft.h>
+#include <cfloat>
 
 namespace TW
 {
@@ -35,9 +40,11 @@ namespace TW
 #ifdef TW_USE_DOUBLE
 	using intentisy_t = double;
 	using real_t = double;
+	using cudafftComplex = cufftDoubleComplex;
 #else
 	using intensity_t = float;
 	using real_t = float;
+	using cudafftComplex = cufftComplex;
 #endif // TW_USE_DOUBLE
 	using int_t = int;
 	using uint_t = unsigned int;

@@ -27,7 +27,10 @@
     <ClCompile Include="TW_StopWatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TW_FFTCC2D.cpp">
+    <ClCompile Include="TW_paDIC_FFTCC2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TW_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,8 +47,22 @@
     <ClInclude Include="TW.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TW_FFTCC2D.h">
+    <ClInclude Include="TW_paDIC_cuFFTCC2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TW_paDIC_FFTCC2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helper_cuda.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="TW_paDIC_cuFFTCC2D.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="TW_cuUtils.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

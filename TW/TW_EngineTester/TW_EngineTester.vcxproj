@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClCompile Include="ClockTests.cpp" />
     <ClCompile Include="FftccTest.cpp" />
+    <ClCompile Include="GPUutils_test.cpp" />
     <ClCompile Include="gtest-all.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemAllocatorTest.cpp" />
