@@ -27,7 +27,7 @@ using namespace TW;
 
 TEST(cuFFTCC2D1, cuFFTCC2D)
 {
-	cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_00.bmp", CV_8UC1);
+	cv::Mat mat = cv::imread("Example1\\fu_0.bmp", CV_8UC1);
 
 	auto m_iWidth = mat.cols;
 	auto m_iHeight = mat.rows;
@@ -47,16 +47,11 @@ TEST(cuFFTCC2D1, cuFFTCC2D)
 
 	fcc->InitializeFFTCC(iU, iV, fZNCC, matnew);
 
-	cv::Mat mat1 = cv::imread("Example2\\crop_oht_cfrp_00.bmp", CV_8UC1);
+	cv::Mat mat1 = cv::imread("Example1\\fu_20.bmp", CV_8UC1);
 	cv::Mat mat1new = mat1(cv::Range(1, m_iHeight - 2), cv::Range(1, m_iWidth - 2));
+
 	fcc->ComputeFFTCC(iU, iV, fZNCC, mat1new);
 
-	
-	std::cout << iU[10][48] << ", " << iV[90][48] << ", " << fZNCC[90][48] << "\n";
-
-	mat1 = cv::imread("Example2\\crop_oht_cfrp_04.bmp", CV_8UC1);
-	mat1new = mat1(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1));
-	fcc->ComputeFFTCC(iU, iV, fZNCC, mat1new);
 	for (int i = 0; i < fcc->GetNumPOIsY(); i++)
 	{
 		for (int j = 0; j < fcc->GetNumPOIsX(); j++)

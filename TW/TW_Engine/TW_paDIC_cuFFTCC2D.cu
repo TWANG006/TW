@@ -223,12 +223,20 @@ namespace TW{
 			
 			//!- Precompute the POI postions, since this is invariant during the entile
 			// computation.
+
+			int_t *POIXY;
+
 			cuComputePOIPostions(
 				m_cuHandle.m_d_iPOIXY,
+				POIXY,
 				m_iNumPOIX, m_iNumPOIY,
 				m_iMarginX, m_iMarginY,
 				m_iSubsetX, m_iSubsetY,
 				m_iGridSpaceX, m_iGridSpaceY);
+
+			std::cout << POIXY[0] << "," << POIXY[1] << std::endl;
+
+			free(POIXY);
 
 			//!- Allocate pinned-host memory
 			cucreateptr<int_t>(iU, m_iNumPOIX, m_iNumPOIY);
