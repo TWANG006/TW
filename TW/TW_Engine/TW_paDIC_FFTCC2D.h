@@ -6,6 +6,11 @@
 #include <vector>
 #include <memory>
 
+#include <opencv2\core.hpp>
+#include <opencv2\highgui.hpp>
+#include <opencv2\imgproc.hpp>
+#include <opencv2\core\cuda.hpp>
+
 namespace TW{
 	namespace paDIC{
 
@@ -25,7 +30,7 @@ namespace TW{
 			/// \param iGirdSpaceY number of pixels between two POIs in y direction
 			/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
 			/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
-			Fftcc2D(
+			Fftcc2D(// TODO: Add ROI start index
 				const int_t iROIWidth, const int_t iROIHeight,
 				const int_t iSubsetX = 16, const int_t iSubsetY = 16,
 				const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
@@ -45,14 +50,43 @@ namespace TW{
 			//	iU, iV, ZNCC) = 0;
 
 			//!- Pure virtual functions
-			virtual void initializeFFTCC() = 0;
-			virtual void computeFFTCC() = 0;
-			virtual void destroyFFTCC() = 0;
+			virtual void InitializeFFTCC(
+				// Output
+				int_t**& iU,
+				int_t**& iV,
+				real_t**& fZNCC,
+				// Input
+				const cv::Mat& refImg) = 0;
+			virtual void ComputeFFTCC(
+				// Output
+				int_t**& iU,
+				int_t**& iV,
+				real_t**& fZNCC,
+				// Input
+				const cv::Mat& tarImg) = 0;
+			virtual void DestroyFFTCC() = 0;
+			
+			//!- Virtual Functions
+			virtual void cuInitializeFFTCC(
+				// Output
+				int_t**& i_d_U,
+				int_t**& i_d_V,
+				real_t**& f_d_ZNCC,
+				// Input
+				const cv::Mat& refImg);
+			virtual void cuComputeFFTCC(
+				// Output
+				int_t**& i_d_U,
+				int_t**& i_d_V,
+				real_t**& f_d_ZNCC,
+				// Input
+				const cv::Mat& refImg);
 
 			//!- Inlined getters & setters
-			inline int_t getNumPOIsX() const { return m_iNumPOIX; }
-			inline int_t getNumPOIsY() const { return m_iNumPOIY; }
-			inline int_t getNumPOIs() const { return (m_iNumPOIX*m_iNumPOIY); }
+			inline int_t GetNumPOIsX() const { return m_iNumPOIX; }
+			inline int_t GetNumPOIsY() const { return m_iNumPOIY; }
+			inline int_t GetNumPOIs() const { return (m_iNumPOIX*m_iNumPOIY); }
+			inline int_t GetROISize() const { return (m_iROIWidth* m_iROIHeight); }
 			/*void Fftcc2D::setROI(const int_t& iROIWidth, const int_t& iROIHeight);
 			void Fftcc2D::setSubset(const int_t& iSubsetX, const int_t& iSubsetY);
 			void Fftcc2D::setGridSpace(const int_t& iGridSpaceX, const int_t& iGridSpaceY);

@@ -1,19 +1,189 @@
 #include "TW_paDIC_cuFFTCC2D.h"
+
+#include <iostream>
 #include <stdexcept>
+
+#include "TW_MemManager.h"
+#include "TW_utils.h"
+
+#include <cuda.h>
+#include <device_launch_parameters.h>
+#include "helper_cuda.h"
+
 
 namespace TW{
 	namespace paDIC{
 
+		// !-----------------------------CUDA Kernel Functions -----------------------------------
+		
+		/// \brief Compute complex numbers' multiplication and scale for a whole set of subsets used 
+		/// in the parallel FFTCC algoirthm to ultimately acclerate the computation.
+		///
+		/// \param *w_a array which hold the FFT-transformed values for all the subsets in refImg
+		/// \param *w_b array which hold the FFT-transformed values for all the subsets in tarImg
+		/// \param m_iFFTSubH subset height of the FFT-CC subset
+		/// \param m_iFFTSubW subset width of the FFT-CC subset
+		/// \param m_dModf normalization parameter of refImg
+		/// \param m_dModg normalization parameter of tarImg
+		/// \param *w_c the result array
+		__global__ void complexMulandScale_kernel(
+			// Inputs
+			const cudafftComplex *w_a, const cudafftComplex *w_b,
+			int_t m_iFFTSubH, int_t m_iFFTSubW,
+			real_t *m_dModf, real_t *m_dModg,
+			// Output
+			cudafftComplex*w_c)
+		{
+			auto tid = threadIdx.x;
+			auto bid = blockIdx.x;
+			auto dim = blockDim.x;
+			auto size = m_iFFTSubW * (m_iFFTSubH / 2 + 1);
+			const cufftComplex * a = w_a + bid*size;
+			const cufftComplex * b = w_b + bid*size;
+			cufftComplex * c = w_c + bid*size;
+
+			for (auto i = tid; i < size; i += dim)
+			{
+				c[i] = ComplexScale(ComplexMul(a[i], b[i]), 1.0 / (sqrt(m_dModf[bid] * m_dModg[bid]) * m_iFFTSubW * m_iFFTSubH));
+			}
+		}
+
+		__global__ void findMax(real_t*w_SubsetC,
+			int_t m_iFFTSubH, int_t m_iFFTSubW,
+			int_t m_iSubsetX, int_t m_iSubsetY,
+			//return val
+			int_t *m_iU, int_t *m_iV,
+			real_t *m_dZNCC
+			)
+		{
+			auto tid = threadIdx.x;
+			auto dim = blockDim.x;
+			auto bid = blockIdx.x;
+			__shared__ real_t sdata[BLOCK_SIZE_256];
+			__shared__ int_t sind[BLOCK_SIZE_256];
+
+			auto size = m_iFFTSubW * m_iFFTSubH;
+			real_t * m_SubsetC = w_SubsetC + bid*(m_iFFTSubW * m_iFFTSubH);
+			real_t data = m_SubsetC[tid];
+			auto ind = tid;
+			for (auto id = tid + dim; id<size; id += dim)
+			{
+				if (data<m_SubsetC[id])
+				{
+					data = m_SubsetC[id];
+					ind = id;
+				}
+			}
+			reduceToMaxBlock<BLOCK_SIZE_256, float>(sdata, sind, data, ind, tid);
+
+			//blockReduceMax<BLOCK_SIZE_256, float>(data, ind, tid);
+
+			ind = sind[0];
+			int_t peakx = ind%m_iFFTSubW;
+			int_t peaky = ind / m_iFFTSubW;
+			if (peakx>m_iSubsetX)
+				peakx -= m_iFFTSubW;
+			if (peaky>m_iSubsetY)
+				peaky -= m_iFFTSubH;
+			if (tid == 0)
+			{
+				m_iU[bid] = peakx;
+				m_iV[bid] = peaky;
+				m_dZNCC[bid] = sdata[0];
+				//m_dZNCC[bid] = data;
+			}
+		}
+
+
+		__global__ void cufft_prepare_kernel(
+			// Inputs
+			int_t*m_dPXY,
+			uchar *m_dR, uchar *m_dT,
+			int_t m_iFFTSubH, int_t m_iFFTSubW,
+			int_t m_iSubsetX, int_t m_iSubsetY,
+			int_t m_iHeight, int_t m_iWidth,
+			// Outputs
+			real_t *w_Subset1, real_t * w_Subset2,
+			real_t *m_dMod1, real_t *m_dMod2)
+		{
+			__shared__ float sm[BLOCK_SIZE_256];
+			auto bid = blockIdx.x;
+			auto dim = blockDim.x;
+			auto tid = threadIdx.x;
+			real_t d_tempt;
+			real_t d_sumR, d_sumT;
+			real_t d_aveR, d_aveT;
+			d_sumR = 0;
+			d_sumT = 0;
+			real_t *m_Subset1 = w_Subset1 + bid*(m_iFFTSubW * m_iFFTSubH);
+			real_t *m_Subset2 = w_Subset2 + bid*(m_iFFTSubW * m_iFFTSubH);
+			auto size = m_iFFTSubH*m_iFFTSubW;
+			for (auto id = tid; id<size; id += dim)
+			{
+				int_t l = id / m_iFFTSubW;
+				int_t m = id%m_iFFTSubW;
+				d_tempt = real_t(m_dR[(int_t(m_dPXY[bid * 2] - m_iSubsetY + l))*m_iWidth + int_t(m_dPXY[bid * 2 + 1] - m_iSubsetX + m)]);
+				m_Subset1[id] = d_tempt;
+				d_sumR += d_tempt / size;
+
+				d_tempt = real_t(m_dT[(int_t(m_dPXY[bid * 2] - m_iSubsetY + l))*m_iWidth + int_t(m_dPXY[bid * 2 + 1] - m_iSubsetX + m)]);
+				m_Subset2[id] = d_tempt;
+				d_sumT += d_tempt / size;
+			}
+
+			/*d_aveR = blockReduceSum<BLOCK_SIZE_256, float>(d_sumR);
+			d_aveT = blockReduceSum<BLOCK_SIZE_256, float>(d_sumT);*/
+
+			reduceBlock<BLOCK_SIZE_256, real_t>(sm, d_sumR, tid);
+			d_aveR = sm[0];
+			__syncthreads();
+			reduceBlock<BLOCK_SIZE_256, real_t>(sm, d_sumT, tid);
+			d_aveT = sm[0];
+			__syncthreads();
+
+			d_sumR = 0;
+			d_sumT = 0;
+			for (auto id = tid; id<size; id += dim)
+			{
+				d_tempt = m_Subset1[id] - d_aveR;
+				m_Subset1[id] = d_tempt;
+				d_sumR += pow(d_tempt, 2);
+
+				d_tempt = m_Subset2[id] - d_aveT;
+				m_Subset2[id] = d_tempt;
+				d_sumT += pow(d_tempt, 2);
+			}
+
+			/*d_aveR = blockReduceSum<BLOCK_SIZE_256, float>(d_sumR);
+			d_aveT = blockReduceSum<BLOCK_SIZE_256, float>(d_sumT);*/
+
+			reduceBlock<BLOCK_SIZE_256, float>(sm, d_sumR, tid);
+			if (tid == 0)
+				d_aveR = sm[0];
+			reduceBlock<BLOCK_SIZE_256, float>(sm, d_sumT, tid);
+			if (tid == 0)
+				d_aveT = sm[0];
+
+			if (tid == 0)
+			{
+				m_dMod1[bid] = d_aveR;
+				m_dMod2[bid] = d_aveT;
+			}
+
+		}
+
+		// ------------------------------CUDA Kernel Functions End-------------------------------!
+
 		cuFFTCC2D::cuFFTCC2D(
-			const int iROIWidth,
-			const int iROIHeight,
-			const int iSubsetX,
-			const int iSubsetY,
-			const int iGridSpaceX,
-			const int iGridSpaceY,
-			const int iMarginX,
-			const int iMarginY)
-			:Fftcc2D(
+			const int_t iROIWidth,
+			const int_t iROIHeight,
+			const int_t iSubsetX,
+			const int_t iSubsetY,
+			const int_t iGridSpaceX,
+			const int_t iGridSpaceY,
+			const int_t iMarginX,
+			const int_t iMarginY)
+			: Fftcc2D(
 			iROIWidth,
 			iROIHeight,
 			iSubsetX,
@@ -22,18 +192,243 @@ namespace TW{
 			iGridSpaceY,
 			iMarginX,
 			iMarginY)
+			, isLowLevelApiCalled(false)
+			, isDestroyed(false)
 		{
 			if (!recomputeNumPOI())
 				throw std::logic_error("Number of POIs is below 0!");
 		}
 
-		void cuFFTCC2D::initializeFFTCC()
-		{}
+		cuFFTCC2D::~cuFFTCC2D()
+		{
+			if (!isDestroyed)
+				DestroyFFTCC();
+		}
 
-		void cuFFTCC2D::computeFFTCC()
-		{}
 
-		void cuFFTCC2D::destroyFFTCC()
-		{}
+		void cuFFTCC2D::InitializeFFTCC(
+			// Output
+			int_t**& iU,
+			int_t**& iV,
+			real_t**& fZNCC,
+			// Input
+			const cv::Mat& refImg)
+		{
+			//!- Check if the low level api is called or not
+			if (isLowLevelApiCalled)
+			{
+				std::cout << "The low-level GPU APIs are already initialized!\n";
+				return;
+			}
+			
+			//!- Precompute the POI postions, since this is invariant during the entile
+			// computation.
+			cuComputePOIPostions(
+				m_cuHandle.m_d_iPOIXY,
+				m_iNumPOIX, m_iNumPOIY,
+				m_iMarginX, m_iMarginY,
+				m_iSubsetX, m_iSubsetY,
+				m_iGridSpaceX, m_iGridSpaceY);
+
+			//!- Allocate pinned-host memory
+			cucreateptr<int_t>(iU, m_iNumPOIX, m_iNumPOIY);
+			cucreateptr<int_t>(iV, m_iNumPOIX, m_iNumPOIY);
+			cucreateptr<real_t>(fZNCC, m_iNumPOIX, m_iNumPOIY);
+			
+			int_t iPOINum = GetNumPOIs();
+			int_t iROISize = GetROISize();
+			int_t iFFTSubW = m_iSubsetX * 2, iFFTSubH = m_iSubsetY * 2;
+			int_t iFFTSize = iFFTSubW * iFFTSubH;
+			int_t iFFTFreqSize = iFFTSubW * (iFFTSubH / 2 + 1);
+
+			//!- Allocate device memory
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_fRefImg, 
+				sizeof(uchar)*iROISize));
+			checkCudaErrors(cudaMemcpy(
+				m_cuHandle.m_d_fRefImg,
+				refImg.data,
+				sizeof(uchar)*iROISize,
+				cudaMemcpyHostToDevice));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_fTarImg, 
+				sizeof(uchar)*iROISize));
+					
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_iU, 
+				sizeof(int_t)*iPOINum));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_iV, 
+				sizeof(int_t)*iPOINum));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_fZNCC, 
+				sizeof(real_t)*iPOINum));
+
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_dev_FreqDom1, 
+				sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_dev_FreqDom2, 
+				sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_dev_FreqDomfg,
+				sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
+
+			//!- Initialize the CUFFT plan
+			int dim[2] = { iFFTSubW, iFFTSubH };
+			int idim[2] = { iFFTSubW, iFFTSubH };
+			int odim[2] = { iFFTSubW, (iFFTSubH / 2 + 1) };
+
+			cufftPlanMany(
+				&(m_cuHandle.m_forwardPlanXY), 
+				2, dim,
+				idim, 1, iFFTSize,
+				odim, 1, iFFTFreqSize,
+				CUFFT_R2C, iPOINum);
+
+			cufftPlanMany(
+				&(m_cuHandle.m_reversePlanXY), 
+				2, dim,
+				odim, 1, iFFTFreqSize,
+				idim, 1, iFFTSize,
+				CUFFT_C2R, iPOINum);
+
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_fSubset1, 
+				sizeof(real_t)*iPOINum*iFFTSize));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_fSubset2, 
+				sizeof(real_t)*iPOINum*iFFTSize));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_fSubsetC,
+				sizeof(real_t)*iPOINum*iFFTSize));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_fMod1, 
+				sizeof(real_t)*iPOINum));
+			checkCudaErrors(cudaMalloc(
+				(void**)&m_cuHandle.m_d_fMod2, 
+				sizeof(real_t)*iPOINum));
+
+			cudaDeviceSynchronize();
+
+		}
+
+		void cuFFTCC2D::ComputeFFTCC(
+			// Output
+			int_t**& iU,
+			int_t**& iV,
+			real_t**& fZNCC,
+			// Input
+			const cv::Mat& tarImg)
+		{
+			checkCudaErrors(cudaMemcpyAsync(
+				m_cuHandle.m_d_fTarImg,
+				tarImg.data,
+				sizeof(uchar)*GetROISize(),
+				cudaMemcpyHostToDevice));
+
+			auto iFFTSubH = m_iSubsetX * 2;
+			auto iFFTSubW = m_iSubsetY * 2;
+
+			cufft_prepare_kernel << <GetNumPOIs(), BLOCK_SIZE_256 >> >(
+				m_cuHandle.m_d_iPOIXY,
+				m_cuHandle.m_d_fRefImg,
+				m_cuHandle.m_d_fTarImg,
+				iFFTSubH, iFFTSubW,
+				m_iSubsetX, m_iSubsetY,
+				m_iROIWidth, m_iROIHeight,
+				m_cuHandle.m_d_fSubset1,
+				m_cuHandle.m_d_fSubset2,
+				m_cuHandle.m_d_fMod1,
+				m_cuHandle.m_d_fMod2);
+			getLastCudaError("Error in calling cufft_prepare_kernel");
+
+			cufftExecR2C(
+				m_cuHandle.m_forwardPlanXY, 
+				m_cuHandle.m_d_fSubset1, 
+				m_cuHandle.m_dev_FreqDom1);
+			cufftExecR2C(
+				m_cuHandle.m_forwardPlanXY, 
+				m_cuHandle.m_d_fSubset2,
+				m_cuHandle.m_dev_FreqDom2);
+
+			complexMulandScale_kernel << <GetNumPOIs(), BLOCK_SIZE_256 >> >(
+				m_cuHandle.m_dev_FreqDom1,
+				m_cuHandle.m_dev_FreqDom2,
+				iFFTSubH, iFFTSubW,
+				m_cuHandle.m_d_fMod1,
+				m_cuHandle.m_d_fMod2,
+				m_cuHandle.m_dev_FreqDomfg);
+
+			cufftExecC2R(
+				m_cuHandle.m_reversePlanXY, 
+				m_cuHandle.m_dev_FreqDomfg, 
+				m_cuHandle.m_d_fSubsetC);
+
+			findMax << <GetNumPOIs(), BLOCK_SIZE_256 >> >(
+				m_cuHandle.m_d_fSubsetC,
+				iFFTSubH, iFFTSubW,
+				m_iSubsetX, m_iSubsetY,
+				m_cuHandle.m_d_iU,
+				m_cuHandle.m_d_iV,
+				m_cuHandle.m_d_fZNCC);
+
+			checkCudaErrors(cudaMemcpy(iU[0], m_cuHandle.m_d_iU, sizeof(int)*GetNumPOIs(), cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(iV[0], m_cuHandle.m_d_iV, sizeof(int)*GetNumPOIs(), cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(fZNCC[0], m_cuHandle.m_d_fZNCC, sizeof(float)*GetNumPOIs(), cudaMemcpyDeviceToHost));
+
+			cudaDeviceSynchronize();
+		}
+
+
+		void cuFFTCC2D::cuInitializeFFTCC(
+			// Output
+			int_t**& i_d_U,
+			int_t**& i_d_V,
+			real_t**& f_d_ZNCC,
+			// Input
+			const cv::Mat& refImg)
+		{
+			// TODO: low level GPU APIs
+		}
+
+		void cuFFTCC2D::cuComputeFFTCC(
+			// Output
+			int_t**& i_d_U,
+			int_t**& i_d_V,
+			real_t**& f_d_ZNCC,
+			// Input
+			const cv::Mat& refImg)
+		{
+			// TODO: low level GPU APIs
+		}
+
+		void cuFFTCC2D::DestroyFFTCC()
+		{
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fRefImg));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fTarImg));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fMod1));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fMod2));
+
+			checkCudaErrors(cudaFree(m_cuHandle.m_dev_FreqDom1));
+			checkCudaErrors(cudaFree(m_cuHandle.m_dev_FreqDom2));
+			checkCudaErrors(cudaFree(m_cuHandle.m_dev_FreqDomfg));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubset1));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubset2));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubsetC));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fZNCC));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_iU));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_iV));
+
+			cufftDestroy(m_cuHandle.m_forwardPlanXY);
+			cufftDestroy(m_cuHandle.m_reversePlanXY);
+
+			isDestroyed = true;
+		}
+
+		void cuFFTCC2D::resetRefImg(const cv::Mat& refImg)
+		{
+
+		}
 	}
 }
