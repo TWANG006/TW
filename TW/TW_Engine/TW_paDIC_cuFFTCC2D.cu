@@ -208,9 +208,9 @@ namespace TW{
 
 		void cuFFTCC2D::InitializeFFTCC(
 			// Output
-			int_t**& iU,
-			int_t**& iV,
-			real_t**& fZNCC,
+			int_t*& iU,
+			int_t*& iV,
+			real_t*& fZNCC,
 			// Input
 			const cv::Mat& refImg)
 		{
@@ -224,26 +224,26 @@ namespace TW{
 			//!- Precompute the POI postions, since this is invariant during the entile
 			// computation.
 
-			int_t *POIXY;
+			int *pxy;
 
 			cuComputePOIPostions(
 				m_cuHandle.m_d_iPOIXY,
-				POIXY,
+				pxy,
 				m_iNumPOIX, m_iNumPOIY,
 				m_iMarginX, m_iMarginY,
 				m_iSubsetX, m_iSubsetY,
 				m_iGridSpaceX, m_iGridSpaceY);
 
-			std::cout << POIXY[0] << "," << POIXY[1] << std::endl;
+			std::cout << pxy[0] << ", " << pxy[1] << std::endl;
+			free(pxy);
 
-			free(POIXY);
+			//!- Allocate pinned-host 
 
-			//!- Allocate pinned-host memory
-			cucreateptr<int_t>(iU, m_iNumPOIX, m_iNumPOIY);
-			cucreateptr<int_t>(iV, m_iNumPOIX, m_iNumPOIY);
-			cucreateptr<real_t>(fZNCC, m_iNumPOIX, m_iNumPOIY);
-			
 			int_t iPOINum = GetNumPOIs();
+			hcreateptr<int_t>(iU, iPOINum);
+			hcreateptr<int_t>(iV, iPOINum);
+			hcreateptr<real_t>(fZNCC, iPOINum);
+	
 			int_t iROISize = GetROISize();
 			int_t iFFTSubW = m_iSubsetX * 2, iFFTSubH = m_iSubsetY * 2;
 			int_t iFFTSize = iFFTSubW * iFFTSubH;
@@ -323,13 +323,13 @@ namespace TW{
 
 		void cuFFTCC2D::ComputeFFTCC(
 			// Output
-			int_t**& iU,
-			int_t**& iV,
-			real_t**& fZNCC,
+			int_t*& iU,
+			int_t*& iV,
+			real_t*& fZNCC,
 			// Input
 			const cv::Mat& tarImg)
 		{
-			checkCudaErrors(cudaMemcpyAsync(
+			checkCudaErrors(cudaMemcpy(
 				m_cuHandle.m_d_fTarImg,
 				tarImg.data,
 				sizeof(uchar)*GetROISize(),
@@ -381,9 +381,9 @@ namespace TW{
 				m_cuHandle.m_d_iV,
 				m_cuHandle.m_d_fZNCC);
 
-			checkCudaErrors(cudaMemcpy(iU[0], m_cuHandle.m_d_iU, sizeof(int)*GetNumPOIs(), cudaMemcpyDeviceToHost));
-			checkCudaErrors(cudaMemcpy(iV[0], m_cuHandle.m_d_iV, sizeof(int)*GetNumPOIs(), cudaMemcpyDeviceToHost));
-			checkCudaErrors(cudaMemcpy(fZNCC[0], m_cuHandle.m_d_fZNCC, sizeof(float)*GetNumPOIs(), cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(iU, m_cuHandle.m_d_iU, sizeof(int)*GetNumPOIs(), cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(iV, m_cuHandle.m_d_iV, sizeof(int)*GetNumPOIs(), cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(fZNCC, m_cuHandle.m_d_fZNCC, sizeof(float)*GetNumPOIs(), cudaMemcpyDeviceToHost));
 
 			cudaDeviceSynchronize();
 		}

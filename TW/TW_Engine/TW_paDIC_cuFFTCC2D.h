@@ -74,18 +74,18 @@ namespace TW{
 			/// \param refImg input reference image
 			virtual void InitializeFFTCC(
 				// Output
-				int_t**& iU,
-				int_t**& iV,
-				real_t**& fZNCC,
+				int_t*& iU,
+				int_t*& iV,
+				real_t*& fZNCC,
 				// Input
 				const cv::Mat& refImg) override;
 			
 			/// \brief
 			virtual void ComputeFFTCC(
 				// Output
-				int_t**& iU,
-				int_t**& iV,
-				real_t**& fZNCC,
+				int_t*& iU,
+				int_t*& iV,
+				real_t*& fZNCC,
 				// Input
 				const cv::Mat& tarImg) override;
 

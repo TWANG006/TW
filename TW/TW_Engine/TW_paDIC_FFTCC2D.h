@@ -52,16 +52,16 @@ namespace TW{
 			//!- Pure virtual functions
 			virtual void InitializeFFTCC(
 				// Output
-				int_t**& iU,
-				int_t**& iV,
-				real_t**& fZNCC,
+				int_t*& iU,
+				int_t*& iV,
+				real_t*& fZNCC,
 				// Input
 				const cv::Mat& refImg) = 0;
 			virtual void ComputeFFTCC(
 				// Output
-				int_t**& iU,
-				int_t**& iV,
-				real_t**& fZNCC,
+				int_t*& iU,
+				int_t*& iV,
+				real_t*& fZNCC,
 				// Input
 				const cv::Mat& tarImg) = 0;
 			virtual void DestroyFFTCC() = 0;

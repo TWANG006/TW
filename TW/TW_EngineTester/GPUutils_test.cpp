@@ -12,19 +12,19 @@ TEST(POIpos1, POI_Position)
 
 	cuComputePOIPostions(
 		d, h,
-		4, 4,
-		3, 3,
+		157, 157,
+		5, 5,
 		16, 16,
-		5, 5);
+		3, 3);
 
 	for (auto i = 0; i < 4; i++)
 	{
 
 		for (auto j = 0; j < 4; j++)
 		{
-			qDebug() << h[(i * 4 + j)*2] << ", " << h[(i * 4 + j) * 2 + 1];
+			std::cout<<" [ "<< h[(i * 4 + j)*2] << ", " << h[(i * 4 + j) * 2 + 1]<<"]";
 		}
-		qDebug() << "\n";
+		std::cout << "\n";
 	}
 
 	cudaFree(d);
