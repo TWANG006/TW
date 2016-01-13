@@ -28,21 +28,26 @@ using namespace TW;
 
 TEST(cuFFTCC2D1, cuFFTCC2D)
 {
-	cv::Mat mat = cv::imread("Example1\\fu_0.bmp", CV_LOAD_IMAGE_GRAYSCALE);
+	cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_00.bmp ");
 
 	auto m_iWidth = mat.cols;
 	auto m_iHeight = mat.rows;
 
-	cv::Mat matnew = mat(cv::Range(1, m_iHeight - 2), cv::Range(1, m_iWidth - 2));
+	cv::Mat matnew(cv::Size(m_iWidth-2,m_iHeight-2),CV_8UC1);
 
+	cv::cvtColor(mat(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1)), matnew, CV_BGR2GRAY);
 
+	// = mat(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1));
 
-	/*cv::imwrite("New_ref.bmp", matnew);*/
+	//cv::imwrite("New_ref.bmp", matnew);
 
-	paDIC::cuFFTCC2D *fcc = new paDIC::cuFFTCC2D(m_iWidth-2, m_iHeight-2,
-		16,16,
-		5,5,
-		5,5);
+	std::cout << matnew.step << ", ";
+	std::cout << (float)matnew.data[10 * matnew.step + 20] << ", Kanzhege" << std::endl;
+
+	paDIC::cuFFTCC2D *fcc = new paDIC::cuFFTCC2D(matnew.cols, matnew.rows,
+		16, 16,
+		3, 3,
+		5, 5);
 	
 	int_t *iU, *iV;
 	real_t *fZNCC;
@@ -51,12 +56,17 @@ TEST(cuFFTCC2D1, cuFFTCC2D)
 
 	fcc->InitializeFFTCC(iU, iV, fZNCC, matnew);
 
-	cv::Mat mat1 = cv::imread("Example1\\fu_20.bmp", CV_LOAD_IMAGE_GRAYSCALE);
-	cv::Mat mat1new = mat1(cv::Range(1, m_iHeight - 2), cv::Range(1, m_iWidth - 2));
+	cv::Mat mat1 = cv::imread("Example2\\crop_oht_cfrp_04.bmp");
+	//cv::Mat mat1new = mat1(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1));
+	
+	cv::Mat matnew1(cv::Size(m_iWidth-2, m_iHeight-2), CV_8UC1);;
+
+	cv::cvtColor(mat1(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1)), matnew1, CV_BGR2GRAY);
 
 
+	fcc->ComputeFFTCC(iU, iV, fZNCC, matnew1);
 
-	fcc->ComputeFFTCC(iU, iV, fZNCC, mat1new);
+	std::cout << fZNCC[0] << std::endl;
 
 	for (int i = 0; i < fcc->GetNumPOIsY(); i++)
 	{
@@ -68,7 +78,9 @@ TEST(cuFFTCC2D1, cuFFTCC2D)
 
 
 	fcc->DestroyFFTCC();
-
+	free(iU);
+	free(iV);
+	free(fZNCC);
 
 	delete fcc;
 	fcc = nullptr;

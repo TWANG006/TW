@@ -98,7 +98,7 @@ namespace TW{
 		__global__ void cufft_prepare_kernel(
 			// Inputs
 			int_t*m_dPXY,
-			uchar *m_dR, uchar *m_dT,
+			uchar1 *m_dR, uchar1 *m_dT,
 			int_t m_iFFTSubH, int_t m_iFFTSubW,
 			int_t m_iSubsetX, int_t m_iSubsetY,
 			int_t m_iHeight, int_t m_iWidth,
@@ -122,11 +122,11 @@ namespace TW{
 			{
 				int_t l = id / m_iFFTSubW;
 				int_t m = id%m_iFFTSubW;
-				d_tempt = real_t(m_dR[(int_t(m_dPXY[bid * 2] - m_iSubsetY + l))*m_iWidth + int_t(m_dPXY[bid * 2 + 1] - m_iSubsetX + m)]);
+				d_tempt = (real_t)m_dR[(int_t(m_dPXY[bid * 2] - m_iSubsetY + l))*m_iWidth + int_t(m_dPXY[bid * 2 + 1] - m_iSubsetX + m)].x;
 				m_Subset1[id] = d_tempt;
 				d_sumR += d_tempt / size;
 
-				d_tempt = real_t(m_dT[(int_t(m_dPXY[bid * 2] - m_iSubsetY + l))*m_iWidth + int_t(m_dPXY[bid * 2 + 1] - m_iSubsetX + m)]);
+				d_tempt = (real_t)m_dT[(int_t(m_dPXY[bid * 2] - m_iSubsetY + l))*m_iWidth + int_t(m_dPXY[bid * 2 + 1] - m_iSubsetX + m)].x;
 				m_Subset2[id] = d_tempt;
 				d_sumT += d_tempt / size;
 			}
@@ -252,15 +252,15 @@ namespace TW{
 			//!- Allocate device memory
 			checkCudaErrors(cudaMalloc(
 				(void**)&m_cuHandle.m_d_fRefImg, 
-				sizeof(uchar)*iROISize));
+				/*sizeof(uchar)**/refImg.rows*refImg.cols));
 			checkCudaErrors(cudaMemcpy(
 				m_cuHandle.m_d_fRefImg,
-				refImg.data,
-				sizeof(uchar)*iROISize,
+				(void*)refImg.data,
+				/*sizeof(uchar)**/refImg.rows*refImg.cols,
 				cudaMemcpyHostToDevice));
 			checkCudaErrors(cudaMalloc(
 				(void**)&m_cuHandle.m_d_fTarImg, 
-				sizeof(uchar)*iROISize));
+				/*sizeof(uchar)**/refImg.rows*refImg.cols));
 					
 			checkCudaErrors(cudaMalloc(
 				(void**)&m_cuHandle.m_d_iU, 
@@ -331,20 +331,21 @@ namespace TW{
 		{
 			checkCudaErrors(cudaMemcpy(
 				m_cuHandle.m_d_fTarImg,
-				tarImg.data,
-				sizeof(uchar)*GetROISize(),
+				(void*)tarImg.data,
+				/*sizeof(uchar)**/tarImg.cols*tarImg.rows,
 				cudaMemcpyHostToDevice));
 
-			auto iFFTSubH = m_iSubsetX * 2;
-			auto iFFTSubW = m_iSubsetY * 2;
+			auto iFFTSubW = m_iSubsetX * 2;
+			auto iFFTSubH = m_iSubsetY * 2;
+			auto iPOINum = GetNumPOIs();
 
-			cufft_prepare_kernel << <GetNumPOIs(), BLOCK_SIZE_256 >> >(
+			cufft_prepare_kernel << <iPOINum, BLOCK_SIZE_256 >> >(
 				m_cuHandle.m_d_iPOIXY,
 				m_cuHandle.m_d_fRefImg,
 				m_cuHandle.m_d_fTarImg,
 				iFFTSubH, iFFTSubW,
 				m_iSubsetX, m_iSubsetY,
-				m_iROIWidth, m_iROIHeight,
+				m_iROIHeight, m_iROIWidth,
 				m_cuHandle.m_d_fSubset1,
 				m_cuHandle.m_d_fSubset2,
 				m_cuHandle.m_d_fMod1,
@@ -360,7 +361,7 @@ namespace TW{
 				m_cuHandle.m_d_fSubset2,
 				m_cuHandle.m_dev_FreqDom2);
 
-			complexMulandScale_kernel << <GetNumPOIs(), BLOCK_SIZE_256 >> >(
+			complexMulandScale_kernel << <iPOINum, BLOCK_SIZE_256 >> >(
 				m_cuHandle.m_dev_FreqDom1,
 				m_cuHandle.m_dev_FreqDom2,
 				iFFTSubH, iFFTSubW,
@@ -373,7 +374,7 @@ namespace TW{
 				m_cuHandle.m_dev_FreqDomfg, 
 				m_cuHandle.m_d_fSubsetC);
 
-			findMax << <GetNumPOIs(), BLOCK_SIZE_256 >> >(
+			findMax << <iPOINum, BLOCK_SIZE_256 >> >(
 				m_cuHandle.m_d_fSubsetC,
 				iFFTSubH, iFFTSubW,
 				m_iSubsetX, m_iSubsetY,

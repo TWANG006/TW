@@ -17,8 +17,8 @@ namespace TW{
 		struct GPUHandle
 		{
 
-			uchar *m_d_fRefImg;			// Reference image
-			uchar *m_d_fTarImg;			// Target image
+			uchar1 *m_d_fRefImg;			// Reference image
+			uchar1 *m_d_fTarImg;			// Target image
 
 			int_t *m_d_iPOIXY;			// POI positions on device
 			int_t *m_d_iU;
