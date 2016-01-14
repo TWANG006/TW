@@ -1,11 +1,14 @@
 //!- Host memory allo/deallo-cation methods.
 template<typename T>
-void hcreateptr(T*& ptr, size_t size)
+void hcreateptr(T*& ptr, 
+				size_t size)
 {
 	ptr = (T*)calloc(size, sizeof(T));
 }
 template<typename T>
-void hcreateptr(T**& ptr, size_t row, size_t col)
+void hcreateptr(T**& ptr, 
+				size_t row, 
+				size_t col)
 {
 	T * ptr1d = (T*)calloc(row*col, sizeof(T));
 	ptr = (T**)malloc(row*sizeof(T*));
@@ -16,7 +19,10 @@ void hcreateptr(T**& ptr, size_t row, size_t col)
 	}
 }
 template<typename T>
-void hcreateptr(T***& ptr, size_t row, size_t col, size_t height)
+void hcreateptr(T***& ptr, 
+				size_t row, 
+				size_t col, 
+				size_t height)
 {
 	T *ptr1d = (T*)calloc(row*col*height, sizeof(T));
 	T**ptr2d = (T**)malloc(row*col*sizeof(T*));
@@ -32,7 +38,11 @@ void hcreateptr(T***& ptr, size_t row, size_t col, size_t height)
 	}
 }
 template<typename T>
-void hcreateptr(T****& ptr, size_t a, size_t b, size_t c, size_t d)
+void hcreateptr(T****& ptr,
+				size_t a, 
+				size_t b, 
+				size_t c, 
+				size_t d)
 {
 	T *ptr1d = (T*)calloc(a*b*c*d, sizeof(T));
 	T**ptr2d = (T**)malloc(a*b*c*sizeof(T*));
@@ -86,12 +96,15 @@ void hdestroyptr(T****& ptr)
 
 //!- Pinned host memory allo/deallo-cation methods
 template<typename T>
-void cucreateptr(T*& ptr, size_t size)
+void cucreateptr(T*& ptr, 
+				size_t size)
 {
 	cudaHostAlloc((void**)&ptr, size*sizeof(T), cudaHostAllocDefault);
 }
 template<typename T>
-void cucreateptr(T**& ptr, size_t row, size_t col)
+void cucreateptr(T**& ptr, 
+				 size_t row, 
+				 size_t col)
 {
 	T * ptr1d;
 	cudaHostAlloc((void**)&ptr1d, row*col*sizeof(T), cudaHostAllocDefault);
@@ -103,7 +116,10 @@ void cucreateptr(T**& ptr, size_t row, size_t col)
 	}
 }
 template<typename T>
-void cucreateptr(T***& ptr, size_t row, size_t col, size_t height)
+void cucreateptr(T***& ptr, 
+				 size_t row, 
+				 size_t col, 
+				 size_t height)
 {
 	T * ptr1d;
 	cudaHostAlloc((void**)&ptr1d, row*col*height*sizeof(T), cudaHostAllocDefault);
@@ -119,7 +135,11 @@ void cucreateptr(T***& ptr, size_t row, size_t col, size_t height)
 	}
 }
 template<typename T>
-void cucreateptr(T****& ptr, size_t a, size_t b, size_t c, size_t d)
+void cucreateptr(T****& ptr, 
+				 size_t a, 
+				 size_t b, 
+				 size_t c, 
+				 size_t d)
 {
 	T *ptr1d;
 	cudaHostAlloc((void**)&ptr1d, a*b*c*d*sizeof(T), cudaHostAllocDefault);

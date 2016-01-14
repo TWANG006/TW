@@ -49,8 +49,8 @@ TEST(cuFFTCC2D1, cuFFTCC2D)
 		3, 3,
 		5, 5);
 	
-	int_t *iU, *iV;
-	real_t *fZNCC;
+	int_t **iU, **iV;
+	real_t **fZNCC;
 
 	std::cout << fcc->GetNumPOIsX()<<", "<<fcc->GetNumPOIsY() << std::endl;
 
@@ -72,15 +72,12 @@ TEST(cuFFTCC2D1, cuFFTCC2D)
 	{
 		for (int j = 0; j < fcc->GetNumPOIsX(); j++)
 		{
-			std::cout << iU[ELT2D(j, i, fcc->GetNumPOIsX())] << ", " << iV[ELT2D(j, i, fcc->GetNumPOIsX())] << ", " << fZNCC[ELT2D(j, i, fcc->GetNumPOIsX())] << std::endl;
+			std::cout << iU[0][0] << ", " << iV[0][0] << ", " << fZNCC[0][0] << std::endl;
 		}
 	}
 
 
-	fcc->DestroyFFTCC();
-	free(iU);
-	free(iV);
-	free(fZNCC);
+	fcc->DestroyFFTCC(iU, iV, fZNCC);
 
 	delete fcc;
 	fcc = nullptr;

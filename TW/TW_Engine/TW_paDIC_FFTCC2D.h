@@ -31,10 +31,10 @@ namespace TW{
 			/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
 			/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
 			Fftcc2D(// TODO: Add ROI start index
-				const int_t iROIWidth, const int_t iROIHeight,
-				const int_t iSubsetX = 16, const int_t iSubsetY = 16,
-				const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
-				const int_t iMarginX = 3, const int_t iMarginY = 3);
+					const int_t iROIWidth, const int_t iROIHeight,
+					const int_t iSubsetX = 16, const int_t iSubsetY = 16,
+					const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
+					const int_t iMarginX = 3, const int_t iMarginY = 3);
 
 			virtual ~Fftcc2D(){}
 
@@ -50,37 +50,39 @@ namespace TW{
 			//	iU, iV, ZNCC) = 0;
 
 			//!- Pure virtual functions
-			virtual void InitializeFFTCC(
-				// Output
-				int_t*& iU,
-				int_t*& iV,
-				real_t*& fZNCC,
-				// Input
-				const cv::Mat& refImg) = 0;
-			virtual void ComputeFFTCC(
-				// Output
-				int_t*& iU,
-				int_t*& iV,
-				real_t*& fZNCC,
-				// Input
-				const cv::Mat& tarImg) = 0;
-			virtual void DestroyFFTCC() = 0;
+			virtual void InitializeFFTCC(// Output
+										 int_t**& iU,
+										 int_t**& iV,
+										 real_t**& fZNCC,
+										 // Input
+										 const cv::Mat& refImg) = 0;
+			virtual void ComputeFFTCC(// Output
+									  int_t**& iU,
+									  int_t**& iV,
+									  real_t**& fZNCC,
+									  // Input
+									  const cv::Mat& tarImg) = 0;
+			virtual void DestroyFFTCC(int_t**& iU,
+					  				  int_t**& iV,
+									  real_t**& fZNCC) = 0;
 			
 			//!- Virtual Functions
-			virtual void cuInitializeFFTCC(
-				// Output
-				int_t**& i_d_U,
-				int_t**& i_d_V,
-				real_t**& f_d_ZNCC,
-				// Input
-				const cv::Mat& refImg);
-			virtual void cuComputeFFTCC(
-				// Output
-				int_t**& i_d_U,
-				int_t**& i_d_V,
-				real_t**& f_d_ZNCC,
-				// Input
-				const cv::Mat& refImg);
+			virtual void cuInitializeFFTCC(// Output
+						  				   int_t**& i_d_U,
+										   int_t**& i_d_V,
+										   real_t**& f_d_ZNCC,
+										   // Input
+										   const cv::Mat& refImg);
+			virtual void cuComputeFFTCC(// Output
+					   				    int_t**& i_d_U,
+										int_t**& i_d_V,
+										real_t**& f_d_ZNCC,
+										// Input
+										const cv::Mat& refImg);
+			virtual void cuDestroyFFTCC(int_t **& i_d_U,
+										int_t **& i_d_V,
+										real_t**& f_d_ZNCC);
+
 
 			//!- Inlined getters & setters
 			inline int_t GetNumPOIsX() const { return m_iNumPOIX; }
@@ -96,6 +98,7 @@ namespace TW{
 			bool recomputeNumPOI();
 		
 		protected:
+			int_t m_iImgWidth, m_iImgHeight;
 			int_t m_iROIWidth, m_iROIHeight;
 			int_t m_iSubsetX, m_iSubsetY;			//!- subsetSize = (2*m_iSubsetX+1)*(2*m_iSubsetY+1)
 			int_t m_iGridSpaceX, m_iGridSpaceY;		//!- Number of pixels between each two POIs

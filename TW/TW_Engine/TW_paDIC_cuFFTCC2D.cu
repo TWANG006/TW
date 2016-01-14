@@ -26,13 +26,12 @@ namespace TW{
 		/// \param m_dModf normalization parameter of refImg
 		/// \param m_dModg normalization parameter of tarImg
 		/// \param *w_c the result array
-		__global__ void complexMulandScale_kernel(
-			// Inputs
-			const cudafftComplex *w_a, const cudafftComplex *w_b,
-			int_t m_iFFTSubH, int_t m_iFFTSubW,
-			real_t *m_dModf, real_t *m_dModg,
-			// Output
-			cudafftComplex*w_c)
+		__global__ void complexMulandScale_kernel(// Inputs
+												  const cudafftComplex *w_a, const cudafftComplex *w_b,
+												  int_t m_iFFTSubH, int_t m_iFFTSubW,
+												  real_t *m_dModf, real_t *m_dModg,
+												  // Output
+												  cudafftComplex*w_c)
 		{
 			auto tid = threadIdx.x;
 			auto bid = blockIdx.x;
@@ -44,17 +43,17 @@ namespace TW{
 
 			for (auto i = tid; i < size; i += dim)
 			{
-				c[i] = ComplexScale(ComplexMul(a[i], b[i]), 1.0 / (sqrt(m_dModf[bid] * m_dModg[bid]) * m_iFFTSubW * m_iFFTSubH));
+				c[i] = ComplexScale(ComplexMul(a[i], b[i]), 
+					                           1.0 / (sqrt(m_dModf[bid] * m_dModg[bid]) * m_iFFTSubW * m_iFFTSubH));
 			}
 		}
 
 		__global__ void findMax(real_t*w_SubsetC,
-			int_t m_iFFTSubH, int_t m_iFFTSubW,
-			int_t m_iSubsetX, int_t m_iSubsetY,
-			//return val
-			int_t *m_iU, int_t *m_iV,
-			real_t *m_dZNCC
-			)
+								int_t m_iFFTSubH, int_t m_iFFTSubW,
+								int_t m_iSubsetX, int_t m_iSubsetY,
+								//return val
+								int_t *m_iU, int_t *m_iV,
+								real_t *m_dZNCC)
 		{
 			auto tid = threadIdx.x;
 			auto dim = blockDim.x;
@@ -76,8 +75,6 @@ namespace TW{
 			}
 			reduceToMaxBlock<BLOCK_SIZE_256, float>(sdata, sind, data, ind, tid);
 
-			//blockReduceMax<BLOCK_SIZE_256, float>(data, ind, tid);
-
 			ind = sind[0];
 			int_t peakx = ind%m_iFFTSubW;
 			int_t peaky = ind / m_iFFTSubW;
@@ -95,16 +92,15 @@ namespace TW{
 		}
 
 
-		__global__ void cufft_prepare_kernel(
-			// Inputs
-			int_t*m_dPXY,
-			uchar1 *m_dR, uchar1 *m_dT,
-			int_t m_iFFTSubH, int_t m_iFFTSubW,
-			int_t m_iSubsetX, int_t m_iSubsetY,
-			int_t m_iHeight, int_t m_iWidth,
-			// Outputs
-			real_t *w_Subset1, real_t * w_Subset2,
-			real_t *m_dMod1, real_t *m_dMod2)
+		__global__ void cufft_prepare_kernel(// Inputs
+											 int_t*m_dPXY,
+											 uchar1 *m_dR, uchar1 *m_dT,
+											 int_t m_iFFTSubH, int_t m_iFFTSubW,
+											 int_t m_iSubsetX, int_t m_iSubsetY,
+											 int_t m_iHeight, int_t m_iWidth,
+											 // Outputs
+											 real_t *w_Subset1, real_t * w_Subset2,
+											 real_t *m_dMod1, real_t *m_dMod2)
 		{
 			__shared__ float sm[BLOCK_SIZE_256];
 			auto bid = blockIdx.x;
@@ -174,15 +170,15 @@ namespace TW{
 
 		// ------------------------------CUDA Kernel Functions End-------------------------------!
 
-		cuFFTCC2D::cuFFTCC2D(
-			const int_t iROIWidth,
-			const int_t iROIHeight,
-			const int_t iSubsetX,
-			const int_t iSubsetY,
-			const int_t iGridSpaceX,
-			const int_t iGridSpaceY,
-			const int_t iMarginX,
-			const int_t iMarginY)
+
+		cuFFTCC2D::cuFFTCC2D(const int_t iROIWidth,
+							 const int_t iROIHeight,
+							 const int_t iSubsetX,
+							 const int_t iSubsetY,
+							 const int_t iGridSpaceX,
+							 const int_t iGridSpaceY,
+							 const int_t iMarginX,
+							 const int_t iMarginY)
 			: Fftcc2D(
 			iROIWidth,
 			iROIHeight,
@@ -200,19 +196,15 @@ namespace TW{
 		}
 
 		cuFFTCC2D::~cuFFTCC2D()
-		{
-			if (!isDestroyed)
-				DestroyFFTCC();
-		}
+		{}
 
 
-		void cuFFTCC2D::InitializeFFTCC(
-			// Output
-			int_t*& iU,
-			int_t*& iV,
-			real_t*& fZNCC,
-			// Input
-			const cv::Mat& refImg)
+		void cuFFTCC2D::InitializeFFTCC(// Output
+										int_t**& iU,
+										int_t**& iV,
+										real_t**& fZNCC,
+										// Input
+										const cv::Mat& refImg)
 		{
 			//!- Check if the low level api is called or not
 			if (isLowLevelApiCalled)
@@ -223,26 +215,18 @@ namespace TW{
 			
 			//!- Precompute the POI postions, since this is invariant during the entile
 			// computation.
-
-			int *pxy;
-
-			cuComputePOIPostions(
-				m_cuHandle.m_d_iPOIXY,
-				pxy,
-				m_iNumPOIX, m_iNumPOIY,
-				m_iMarginX, m_iMarginY,
-				m_iSubsetX, m_iSubsetY,
-				m_iGridSpaceX, m_iGridSpaceY);
-
-			std::cout << pxy[0] << ", " << pxy[1] << std::endl;
-			free(pxy);
-
-			//!- Allocate pinned-host 
+			cuComputePOIPostions(m_cuHandle.m_d_iPOIXY,
+								 m_iNumPOIX, m_iNumPOIY,
+								 m_iMarginX, m_iMarginY,
+								 m_iSubsetX, m_iSubsetY,
+								 m_iGridSpaceX, m_iGridSpaceY);
 
 			int_t iPOINum = GetNumPOIs();
-			hcreateptr<int_t>(iU, iPOINum);
-			hcreateptr<int_t>(iV, iPOINum);
-			hcreateptr<real_t>(fZNCC, iPOINum);
+
+			//!- Allocate host memory
+			hcreateptr<int_t>(iU, m_iNumPOIX, m_iNumPOIX);
+			hcreateptr<int_t>(iV, m_iNumPOIX, m_iNumPOIX);
+			hcreateptr<real_t>(fZNCC, m_iNumPOIX, m_iNumPOIX);
 	
 			int_t iROISize = GetROISize();
 			int_t iFFTSubW = m_iSubsetX * 2, iFFTSubH = m_iSubsetY * 2;
@@ -250,169 +234,134 @@ namespace TW{
 			int_t iFFTFreqSize = iFFTSubW * (iFFTSubH / 2 + 1);
 
 			//!- Allocate device memory
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_fRefImg, 
-				/*sizeof(uchar)**/refImg.rows*refImg.cols));
-			checkCudaErrors(cudaMemcpy(
-				m_cuHandle.m_d_fRefImg,
-				(void*)refImg.data,
-				/*sizeof(uchar)**/refImg.rows*refImg.cols,
-				cudaMemcpyHostToDevice));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_fTarImg, 
-				/*sizeof(uchar)**/refImg.rows*refImg.cols));
-					
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_iU, 
-				sizeof(int_t)*iPOINum));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_iV, 
-				sizeof(int_t)*iPOINum));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_fZNCC, 
-				sizeof(real_t)*iPOINum));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fRefImg, 
+									   /*sizeof(uchar)**/refImg.rows*refImg.cols));
+			checkCudaErrors(cudaMemcpy(m_cuHandle.m_d_fRefImg,
+									   (void*)refImg.data,
+									   /*sizeof(uchar)**/refImg.rows*refImg.cols,
+									   cudaMemcpyHostToDevice));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fTarImg, 
+									   /*sizeof(uchar)**/refImg.rows*refImg.cols));
 
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_dev_FreqDom1, 
-				sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_dev_FreqDom2, 
-				sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_dev_FreqDomfg,
-				sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_iU, 
+									   sizeof(int_t)*iPOINum));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_iV, 
+									   sizeof(int_t)*iPOINum));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fZNCC, 
+									   sizeof(real_t)*iPOINum));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_dev_FreqDom1, 
+									   sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_dev_FreqDom2, 
+									   sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_dev_FreqDomfg,
+									   sizeof(cudafftComplex)*iPOINum*iFFTFreqSize));
 
 			//!- Initialize the CUFFT plan
 			int dim[2] = { iFFTSubW, iFFTSubH };
 			int idim[2] = { iFFTSubW, iFFTSubH };
 			int odim[2] = { iFFTSubW, (iFFTSubH / 2 + 1) };
 
-			cufftPlanMany(
-				&(m_cuHandle.m_forwardPlanXY), 
-				2, dim,
-				idim, 1, iFFTSize,
-				odim, 1, iFFTFreqSize,
-				CUFFT_R2C, iPOINum);
+			cufftPlanMany(&(m_cuHandle.m_forwardPlanXY), 
+		  				  2, dim,
+						  idim, 1, iFFTSize,
+						  odim, 1, iFFTFreqSize,
+						  CUFFT_R2C, iPOINum);
 
-			cufftPlanMany(
-				&(m_cuHandle.m_reversePlanXY), 
-				2, dim,
-				odim, 1, iFFTFreqSize,
-				idim, 1, iFFTSize,
-				CUFFT_C2R, iPOINum);
+			cufftPlanMany(&(m_cuHandle.m_reversePlanXY), 
+						  2, dim,
+						  odim, 1, iFFTFreqSize,
+						  idim, 1, iFFTSize,
+						  CUFFT_C2R, iPOINum);
 
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_fSubset1, 
-				sizeof(real_t)*iPOINum*iFFTSize));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_fSubset2, 
-				sizeof(real_t)*iPOINum*iFFTSize));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_fSubsetC,
-				sizeof(real_t)*iPOINum*iFFTSize));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_fMod1, 
-				sizeof(real_t)*iPOINum));
-			checkCudaErrors(cudaMalloc(
-				(void**)&m_cuHandle.m_d_fMod2, 
-				sizeof(real_t)*iPOINum));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fSubset1, 
+									   sizeof(real_t)*iPOINum*iFFTSize));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fSubset2, 
+									   sizeof(real_t)*iPOINum*iFFTSize));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fSubsetC,
+									   sizeof(real_t)*iPOINum*iFFTSize));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fMod1, 
+									   sizeof(real_t)*iPOINum));
+			checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fMod2, 
+									   sizeof(real_t)*iPOINum));
 
 			cudaDeviceSynchronize();
-
 		}
 
 		void cuFFTCC2D::ComputeFFTCC(
-			// Output
-			int_t*& iU,
-			int_t*& iV,
-			real_t*& fZNCC,
-			// Input
-			const cv::Mat& tarImg)
+									// Output
+									int_t**& iU,
+									int_t**& iV,
+									real_t**& fZNCC,
+									// Input
+									const cv::Mat& tarImg)
 		{
-			checkCudaErrors(cudaMemcpy(
-				m_cuHandle.m_d_fTarImg,
-				(void*)tarImg.data,
-				/*sizeof(uchar)**/tarImg.cols*tarImg.rows,
-				cudaMemcpyHostToDevice));
+			if(tarImg.cols != )
+
+			checkCudaErrors(cudaMemcpy(m_cuHandle.m_d_fTarImg,
+									   (void*)tarImg.data,
+									   /*sizeof(uchar)**/tarImg.cols*tarImg.rows,
+									   cudaMemcpyHostToDevice));
 
 			auto iFFTSubW = m_iSubsetX * 2;
 			auto iFFTSubH = m_iSubsetY * 2;
 			auto iPOINum = GetNumPOIs();
 
-			cufft_prepare_kernel << <iPOINum, BLOCK_SIZE_256 >> >(
-				m_cuHandle.m_d_iPOIXY,
-				m_cuHandle.m_d_fRefImg,
-				m_cuHandle.m_d_fTarImg,
-				iFFTSubH, iFFTSubW,
-				m_iSubsetX, m_iSubsetY,
-				m_iROIHeight, m_iROIWidth,
-				m_cuHandle.m_d_fSubset1,
-				m_cuHandle.m_d_fSubset2,
-				m_cuHandle.m_d_fMod1,
-				m_cuHandle.m_d_fMod2);
+			cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_iPOIXY,
+																 m_cuHandle.m_d_fRefImg,
+															 	 m_cuHandle.m_d_fTarImg,
+																 iFFTSubH, iFFTSubW,
+																 m_iSubsetX, m_iSubsetY,
+																 m_iROIHeight, m_iROIWidth,
+																 m_cuHandle.m_d_fSubset1,
+																 m_cuHandle.m_d_fSubset2,
+																 m_cuHandle.m_d_fMod1,
+																 m_cuHandle.m_d_fMod2);
 			getLastCudaError("Error in calling cufft_prepare_kernel");
 
-			cufftExecR2C(
-				m_cuHandle.m_forwardPlanXY, 
-				m_cuHandle.m_d_fSubset1, 
-				m_cuHandle.m_dev_FreqDom1);
-			cufftExecR2C(
-				m_cuHandle.m_forwardPlanXY, 
-				m_cuHandle.m_d_fSubset2,
-				m_cuHandle.m_dev_FreqDom2);
+			cufftExecR2C(m_cuHandle.m_forwardPlanXY, 
+						 m_cuHandle.m_d_fSubset1, 
+						 m_cuHandle.m_dev_FreqDom1);
+			cufftExecR2C(m_cuHandle.m_forwardPlanXY, 
+						 m_cuHandle.m_d_fSubset2,
+						 m_cuHandle.m_dev_FreqDom2);
 
-			complexMulandScale_kernel << <iPOINum, BLOCK_SIZE_256 >> >(
-				m_cuHandle.m_dev_FreqDom1,
-				m_cuHandle.m_dev_FreqDom2,
-				iFFTSubH, iFFTSubW,
-				m_cuHandle.m_d_fMod1,
-				m_cuHandle.m_d_fMod2,
-				m_cuHandle.m_dev_FreqDomfg);
+			complexMulandScale_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_dev_FreqDom1,
+																	  m_cuHandle.m_dev_FreqDom2,
+																	  iFFTSubH, iFFTSubW,
+																	  m_cuHandle.m_d_fMod1,
+																	  m_cuHandle.m_d_fMod2,
+																	  m_cuHandle.m_dev_FreqDomfg);
 
-			cufftExecC2R(
-				m_cuHandle.m_reversePlanXY, 
-				m_cuHandle.m_dev_FreqDomfg, 
-				m_cuHandle.m_d_fSubsetC);
+			cufftExecC2R(m_cuHandle.m_reversePlanXY, 
+						 m_cuHandle.m_dev_FreqDomfg, 
+						 m_cuHandle.m_d_fSubsetC);
 
-			findMax << <iPOINum, BLOCK_SIZE_256 >> >(
-				m_cuHandle.m_d_fSubsetC,
-				iFFTSubH, iFFTSubW,
-				m_iSubsetX, m_iSubsetY,
-				m_cuHandle.m_d_iU,
-				m_cuHandle.m_d_iV,
-				m_cuHandle.m_d_fZNCC);
+			findMax <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_fSubsetC,
+													iFFTSubH, iFFTSubW,
+													m_iSubsetX, m_iSubsetY,
+													m_cuHandle.m_d_iU,
+													m_cuHandle.m_d_iV,
+													m_cuHandle.m_d_fZNCC);
 
-			checkCudaErrors(cudaMemcpy(iU, m_cuHandle.m_d_iU, sizeof(int)*GetNumPOIs(), cudaMemcpyDeviceToHost));
-			checkCudaErrors(cudaMemcpy(iV, m_cuHandle.m_d_iV, sizeof(int)*GetNumPOIs(), cudaMemcpyDeviceToHost));
-			checkCudaErrors(cudaMemcpy(fZNCC, m_cuHandle.m_d_fZNCC, sizeof(float)*GetNumPOIs(), cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(iU[0],
+									   m_cuHandle.m_d_iU,
+									   sizeof(int)*iPOINum,
+									   cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(iV[0], 
+							           m_cuHandle.m_d_iV,
+									   sizeof(int)*iPOINum,
+									   cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(fZNCC[0], 
+									   m_cuHandle.m_d_fZNCC, 
+									   sizeof(float)*iPOINum, 
+									   cudaMemcpyDeviceToHost));
 
 			cudaDeviceSynchronize();
 		}
 
-
-		void cuFFTCC2D::cuInitializeFFTCC(
-			// Output
-			int_t**& i_d_U,
-			int_t**& i_d_V,
-			real_t**& f_d_ZNCC,
-			// Input
-			const cv::Mat& refImg)
-		{
-			// TODO: low level GPU APIs
-		}
-
-		void cuFFTCC2D::cuComputeFFTCC(
-			// Output
-			int_t**& i_d_U,
-			int_t**& i_d_V,
-			real_t**& f_d_ZNCC,
-			// Input
-			const cv::Mat& refImg)
-		{
-			// TODO: low level GPU APIs
-		}
-
-		void cuFFTCC2D::DestroyFFTCC()
+		void cuFFTCC2D::DestroyFFTCC(int_t**& iU,
+									 int_t**& iV,
+									 real_t**& fZNCC)
 		{
 			checkCudaErrors(cudaFree(m_cuHandle.m_d_fRefImg));
 			checkCudaErrors(cudaFree(m_cuHandle.m_d_fTarImg));
@@ -431,6 +380,61 @@ namespace TW{
 
 			cufftDestroy(m_cuHandle.m_forwardPlanXY);
 			cufftDestroy(m_cuHandle.m_reversePlanXY);
+
+			hdestroyptr<int_t>(iU);
+			hdestroyptr<int_t>(iV);
+			hdestroyptr<real_t>(fZNCC);
+
+
+			isDestroyed = true;
+		}
+
+
+		void cuFFTCC2D::cuInitializeFFTCC(// Output
+										  int_t**& i_d_U,
+										  int_t**& i_d_V,
+										  real_t**& f_d_ZNCC,
+										  // Input
+										  const cv::Mat& refImg)
+		{
+			// TODO: low level GPU APIs
+		}
+
+		void cuFFTCC2D::cuComputeFFTCC(// Output
+									   int_t**& i_d_U,
+									   int_t**& i_d_V,
+									   real_t**& f_d_ZNCC,
+									   // Input
+									   const cv::Mat& refImg)
+		{
+			// TODO: low level GPU APIs
+		}
+
+		void  cuFFTCC2D::cuDestroyFFTCC(int_t **& i_d_U,
+										int_t **& i_d_V,
+										real_t**& f_d_ZNCC)
+		{
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fRefImg));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fTarImg));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fMod1));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fMod2));
+
+			checkCudaErrors(cudaFree(m_cuHandle.m_dev_FreqDom1));
+			checkCudaErrors(cudaFree(m_cuHandle.m_dev_FreqDom2));
+			checkCudaErrors(cudaFree(m_cuHandle.m_dev_FreqDomfg));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubset1));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubset2));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubsetC));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_fZNCC));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_iU));
+			checkCudaErrors(cudaFree(m_cuHandle.m_d_iV));
+
+			cufftDestroy(m_cuHandle.m_forwardPlanXY);
+			cufftDestroy(m_cuHandle.m_reversePlanXY);
+
+			checkCudaErrors(cudaFree(i_d_U));
+			checkCudaErrors(cudaFree(i_d_V));
+			checkCudaErrors(cudaFree(f_d_ZNCC));
 
 			isDestroyed = true;
 		}

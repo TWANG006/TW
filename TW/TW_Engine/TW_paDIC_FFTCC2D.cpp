@@ -3,16 +3,17 @@
 namespace TW{
 	namespace paDIC{
 
-		Fftcc2D::Fftcc2D(
-			const int_t iROIWidth,
-			const int_t iROIHeight,
-			const int_t iSubsetX,
-			const int_t iSubsetY,
-			const int_t iGridSpaceX,
-			const int_t iGridSpaceY,
-			const int_t iMarginX,
-			const int_t iMarginY)
-			: m_iROIWidth(iROIWidth)
+		Fftcc2D::Fftcc2D(const int_t iROIWidth,
+						 const int_t iROIHeight,
+						 const int_t iSubsetX,
+						 const int_t iSubsetY,
+						 const int_t iGridSpaceX,
+						 const int_t iGridSpaceY,
+						 const int_t iMarginX,
+						 const int_t iMarginY)
+			: m_iImgWidth(iROIWidth)
+			, m_iImgHeight(iROIHeight)
+			, m_iROIWidth(iROIWidth)
 			, m_iROIHeight(iROIHeight)
 			, m_iSubsetX(iSubsetX)
 			, m_iSubsetY(iSubsetY)
@@ -62,22 +63,24 @@ namespace TW{
 			return ((m_iNumPOIX > 0 && m_iNumPOIY > 0) ? true : false);
 		}
 
-		void Fftcc2D::cuInitializeFFTCC(
-			// Output
-			int_t**& i_d_U,
-			int_t**& i_d_V,
-			real_t**& f_d_ZNCC,
-			// Input
-			const cv::Mat& refImg)
+		void Fftcc2D::cuInitializeFFTCC(// Output
+										int_t**& i_d_U,
+										int_t**& i_d_V,
+										real_t**& f_d_ZNCC,
+										// Input
+										const cv::Mat& refImg)
 		{}
 
-		void Fftcc2D::cuComputeFFTCC(
-			// Output
-			int_t**& i_d_U,
-			int_t**& i_d_V,
-			real_t**& f_d_ZNCC,
-			// Input
-			const cv::Mat& refImg)
+		void Fftcc2D::cuComputeFFTCC(// Output
+									 int_t**& i_d_U,
+									 int_t**& i_d_V,
+									 real_t**& f_d_ZNCC,
+									 // Input
+									 const cv::Mat& refImg)
+		{}
+		void cuDestroyFFTCC(int_t **& i_d_U,
+							int_t **& i_d_V,
+							real_t**& f_d_ZNCC)
 		{}
 	} // namespace paDIC
 } // namespace TW

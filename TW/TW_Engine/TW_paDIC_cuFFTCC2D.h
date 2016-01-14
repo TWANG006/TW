@@ -54,10 +54,10 @@ namespace TW{
 		public:
 						
 			cuFFTCC2D(
-				const int_t iROIWidth, const int_t iROIHeight,
-				const int_t iSubsetX = 16, const int_t iSubsetY = 16,
-				const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
-				const int_t iMarginX = 3, const int_t iMarginY = 3);
+					  const int_t iROIWidth, const int_t iROIHeight,
+					  const int_t iSubsetX = 16, const int_t iSubsetY = 16,
+					  const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
+					  const int_t iMarginX = 3, const int_t iMarginY = 3);
 
 			~cuFFTCC2D();
 
@@ -72,23 +72,30 @@ namespace TW{
 			/// \param iV displacement field of all POIs in y direction on host
 			/// \param fZNCC ZNCC coefficients of all POIs 
 			/// \param refImg input reference image
-			virtual void InitializeFFTCC(
-				// Output
-				int_t*& iU,
-				int_t*& iV,
-				real_t*& fZNCC,
-				// Input
-				const cv::Mat& refImg) override;
+			virtual void InitializeFFTCC(// Output
+										 int_t**& iU,
+										 int_t**& iV,
+										 real_t**& fZNCC,
+										 // Input
+										 const cv::Mat& refImg) override;
 			
-			/// \brief
-			virtual void ComputeFFTCC(
-				// Output
-				int_t*& iU,
-				int_t*& iV,
-				real_t*& fZNCC,
-				// Input
-				const cv::Mat& tarImg) override;
+			/// \brief Execute the FFTCC algorithm, including FFT and max-finding
+			/// 
+			/// \param iU displacement field of all POIs in x direction on host to be computed
+			/// \param iV displacement field of all POIs in x direction on host to be computed
+			/// \param fZNCC ZNCC coefficients of all POIs on host to be computed
+			virtual void ComputeFFTCC(// Output
+						              int_t**& iU,
+									  int_t**& iV,
+									  real_t**& fZNCC,
+									  // Input
+									  const cv::Mat& tarImg) override;
 
+			virtual void DestroyFFTCC(int_t**& iU,
+									  int_t**& iV,
+									  real_t**& fZNCC) override;
+
+			void resetRefImg(const cv::Mat& refImg);
 			// --------------------------High level method end-------------------------!
 
 			
@@ -99,24 +106,24 @@ namespace TW{
 			/// to host memory. NOTE: i_d_U, i_d_V and f_d_ZNCC needs not to be pre-allocated.
 			/// 
 			/// \param...
-			virtual void cuInitializeFFTCC(
-				// Output
-				int_t**& i_d_U,
-				int_t**& i_d_V,
-				real_t**& f_d_ZNCC,
-				// Input
-				const cv::Mat& refImg);
-			virtual void cuComputeFFTCC(
-				// Output
-				int_t**& i_d_U,
-				int_t**& i_d_V,
-				real_t**& f_d_ZNCC,
-				// Input
-				const cv::Mat& refImg);
+			virtual void cuInitializeFFTCC(// Output
+										   int_t**& i_d_U,
+										   int_t**& i_d_V,
+										   real_t**& f_d_ZNCC,
+										   // Input
+										   const cv::Mat& refImg) override;
+			virtual void cuComputeFFTCC(// Output
+										int_t**& i_d_U,
+										int_t**& i_d_V,
+										real_t**& f_d_ZNCC,
+										// Input
+										const cv::Mat& refImg) override;
+			virtual void cuDestroyFFTCC(int_t **& i_d_U,
+										int_t **& i_d_V,
+										real_t**& f_d_ZNCC) override;
 			// --------------------------Low level method end-------------------------!
 
-			virtual void DestroyFFTCC() override;
-			void resetRefImg(const cv::Mat& refImg);
+			
 
 		private:
 			GPUHandle m_cuHandle;		// GPU structures to hold required data

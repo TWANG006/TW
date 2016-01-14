@@ -8,13 +8,23 @@
 namespace TW{
 		//!= Host memory allo/deallo-cation methods.
 		template<typename T>
-		void hcreateptr(T*& ptr, size_t size);
+		void hcreateptr(T*& ptr, 
+						size_t size);
 		template<typename T>
-		void hcreateptr(T**& ptr, size_t row, size_t col);
+		void hcreateptr(T**& ptr, 
+						size_t row, 
+						size_t col);
 		template<typename T>
-		void hcreateptr(T***& ptr, size_t row, size_t col, size_t height);
+		void hcreateptr(T***& ptr, 
+						size_t row, 
+						size_t col, 
+						size_t height);
 		template<typename T>
-		void hcreateptr(T****& ptr, size_t a, size_t b, size_t c, size_t d);
+		void hcreateptr(T****& ptr, 
+						size_t a, 
+						size_t b, 
+						size_t c, 
+						size_t d);
 
 		template<typename T>
 		void hdestroyptr(T*& ptr);
@@ -27,13 +37,23 @@ namespace TW{
 
 		//!- Pinned host memory allo/deallo-cation methods
 		template<typename T>
-		void cucreateptr(T*& ptr, size_t size);
+		void cucreateptr(T*& ptr, 
+						 size_t size);
 		template<typename T>
-		void cucreateptr(T**& ptr, size_t row, size_t col);
+		void cucreateptr(T**& ptr, 
+						 size_t row, 
+						 size_t col);
 		template<typename T>
-		void cucreateptr(T***& ptr, size_t row, size_t col, size_t height);
+		void cucreateptr(T***& ptr, 
+						 size_t row, 
+						 size_t col, 
+						 size_t height);
 		template<typename T>
-		void cucreateptr(T****& ptr, size_t a, size_t b, size_t c, size_t d);
+		void cucreateptr(T****& ptr, 
+						 size_t a, 
+						 size_t b, 
+						 size_t c, 
+						 size_t d);
 
 		template<typename T>
 		void cudestroyptr(T*&ptr);
