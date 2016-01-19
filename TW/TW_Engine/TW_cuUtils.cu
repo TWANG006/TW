@@ -11,7 +11,7 @@ namespace TW
 
 	// !------------------------CUDA Kernel Functions-------------------------------
 	
-	/// \brief Compute the point (POI) position in each x, y direction
+	/// \brief CUDA kernel to Compute the point (POI) position in each x, y direction
 	///
 	/// \param iNumberX number of POIs in x direction
 	/// \param iNumberY number of POIs in y direction
@@ -43,7 +43,9 @@ namespace TW
 
 	// ------------------------CUDA Kernel Functions End-----------------------------!
 
+
 	// ------------------------CUDA Wrapper Functions--------------------------------
+
 	void cuComputePOIPostions(// Output
 							  int_t *&Out_d_iPXY,			// Return the device handle
 							  // Inputs
@@ -53,15 +55,17 @@ namespace TW
 							  int_t iGridSpaceX, int_t iGridSpaceY)
 	{
 		//!- Allocate Memory for device
-		checkCudaErrors(cudaMalloc((void**)&Out_d_iPXY, sizeof(int)*iNumberX*iNumberY * 2));
+		checkCudaErrors(cudaMalloc((void**)&Out_d_iPXY, 
+								   sizeof(int)*iNumberX*iNumberY * 2));
+
+		dim3 gridDim((iNumberX*iNumberY + BLOCK_SIZE_256 - 1) / (BLOCK_SIZE_256)); 
 
 		//!- Launch the kernel
-		Precompute_POIPosition_kernel << <(iNumberX*iNumberY + BLOCK_SIZE_256 - 1) / (BLOCK_SIZE_256), BLOCK_SIZE_256 >> >(
-			iNumberX, iNumberY,
-			iMarginX, iMarginY,
-			iSubsetX, iSubsetY,
-			iGridSpaceX, iGridSpaceY,
-			Out_d_iPXY);
+		Precompute_POIPosition_kernel<<<gridDim, BLOCK_SIZE_256 >>>(iNumberX,	iNumberY,
+																	iMarginX,	iMarginY,
+																	iSubsetX,	iSubsetY,
+																	iGridSpaceX,iGridSpaceY,
+																	Out_d_iPXY);
 		getLastCudaError("Error in calling Precompute_POIPosition_kernel");
 	}
 
@@ -78,17 +82,21 @@ namespace TW
 		hcreateptr<int_t>(Out_h_iPXY, sizeof(int)*iNumberX*iNumberY * 2);
 		checkCudaErrors(cudaMalloc((void**)&Out_d_iPXY, sizeof(int)*iNumberX*iNumberY * 2));
 
+		dim3 gridDim((iNumberX*iNumberY + BLOCK_SIZE_256 - 1) / (BLOCK_SIZE_256)); 
+
 		//!- Launch the kernel
-		Precompute_POIPosition_kernel << <(iNumberX*iNumberY + BLOCK_SIZE_256 - 1) / (BLOCK_SIZE_256), BLOCK_SIZE_256 >> >(
-			iNumberX, iNumberY,
-			iMarginX, iMarginY,
-			iSubsetX, iSubsetY,
-			iGridSpaceX, iGridSpaceY,
-			Out_d_iPXY);
+		Precompute_POIPosition_kernel<<<gridDim, BLOCK_SIZE_256 >>>(iNumberX,	iNumberY,
+																	iMarginX,	iMarginY,
+																	iSubsetX,	iSubsetY,
+																	iGridSpaceX,iGridSpaceY,
+																	Out_d_iPXY);
 		getLastCudaError("Error in calling Precompute_POIPosition_kernel");
 
 		//!- Copy back the generated POI positions
-		checkCudaErrors(cudaMemcpy(Out_h_iPXY, Out_d_iPXY, sizeof(int)*iNumberX*iNumberY * 2, cudaMemcpyDeviceToHost));
+		checkCudaErrors(cudaMemcpy(Out_h_iPXY, 
+								   Out_d_iPXY, 
+								   sizeof(int)*iNumberX*iNumberY * 2, 
+								   cudaMemcpyDeviceToHost));
 	}
 
 	// ---------------------------CUDA Wrapper Functions End----------------------------!

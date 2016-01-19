@@ -156,6 +156,7 @@
     <ClCompile Include="gtest-all.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemAllocatorTest.cpp" />
+    <ClCompile Include="Other_Test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

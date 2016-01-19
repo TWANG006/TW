@@ -68,20 +68,20 @@ namespace TW{
 			
 			//!- Virtual Functions
 			virtual void cuInitializeFFTCC(// Output
-						  				   int_t**& i_d_U,
-										   int_t**& i_d_V,
-										   real_t**& f_d_ZNCC,
+						  				   int_t*& i_d_U,
+										   int_t*& i_d_V,
+										   real_t*& f_d_ZNCC,
 										   // Input
 										   const cv::Mat& refImg);
 			virtual void cuComputeFFTCC(// Output
-					   				    int_t**& i_d_U,
-										int_t**& i_d_V,
-										real_t**& f_d_ZNCC,
+					   				    int_t*& i_d_U,
+										int_t*& i_d_V,
+										real_t*& f_d_ZNCC,
 										// Input
-										const cv::Mat& refImg);
-			virtual void cuDestroyFFTCC(int_t **& i_d_U,
-										int_t **& i_d_V,
-										real_t**& f_d_ZNCC);
+										const cv::Mat& tarImg);
+			virtual void cuDestroyFFTCC(int_t *& i_d_U,
+										int_t *& i_d_V,
+										real_t*& f_d_ZNCC);
 
 
 			//!- Inlined getters & setters

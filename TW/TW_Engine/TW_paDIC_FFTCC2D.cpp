@@ -64,23 +64,23 @@ namespace TW{
 		}
 
 		void Fftcc2D::cuInitializeFFTCC(// Output
-										int_t**& i_d_U,
-										int_t**& i_d_V,
-										real_t**& f_d_ZNCC,
+										int_t *& i_d_U,
+										int_t *& i_d_V,
+										real_t*& f_d_ZNCC,
 										// Input
 										const cv::Mat& refImg)
 		{}
 
 		void Fftcc2D::cuComputeFFTCC(// Output
-									 int_t**& i_d_U,
-									 int_t**& i_d_V,
-									 real_t**& f_d_ZNCC,
+									 int_t *& i_d_U,
+									 int_t *& i_d_V,
+									 real_t*& f_d_ZNCC,
 									 // Input
-									 const cv::Mat& refImg)
+									 const cv::Mat& tarImg)
 		{}
-		void cuDestroyFFTCC(int_t **& i_d_U,
-							int_t **& i_d_V,
-							real_t**& f_d_ZNCC)
+		void Fftcc2D::cuDestroyFFTCC(int_t *& i_d_U,
+									 int_t *& i_d_V,
+								     real_t*& f_d_ZNCC)
 		{}
 	} // namespace paDIC
 } // namespace TW
