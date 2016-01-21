@@ -104,6 +104,9 @@ TEST(cuFFTCC2D_GPU, cuFFTCC2D_StayOn_GPU)
 	real_t *fdZNCC;
 
 	fcc->cuInitializeFFTCC(idU,idV,fdZNCC,matnew);
+
+	fcc->ResetRefImg(matnew1);
+
 	fcc->cuComputeFFTCC(idU,idV,fdZNCC,matnew1);
 
 	hcreateptr<int_t>(iU, fcc->GetNumPOIsY(), fcc->GetNumPOIsX());

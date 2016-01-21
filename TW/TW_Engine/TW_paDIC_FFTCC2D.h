@@ -43,7 +43,7 @@ namespace TW{
 			Fftcc2D(const Fftcc2D&) = delete;
 			Fftcc2D& Fftcc2D::operator=(const Fftcc2D&) = delete;
 
-			//!- make this class a callable object
+			//!- make this class a callable object TODO
 			//void operator()(
 			//	const std::vector<real_t>& refImg,	// reference Image vector 
 			//	const std::vector<real_t>& tarImg,	// target Image vector 
@@ -65,6 +65,11 @@ namespace TW{
 			virtual void DestroyFFTCC(int_t**& iU,
 					  				  int_t**& iV,
 									  real_t**& fZNCC) = 0;
+
+			/// \brief Reset the Reference image with refImg
+			///
+			/// \param refImg reference image to be used
+			virtual void ResetRefImg(const cv::Mat& refImg) = 0;
 			
 			//!- Virtual Functions
 			virtual void cuInitializeFFTCC(// Output

@@ -93,6 +93,7 @@ namespace TW{
 
 			/// \brief Finalize the FFTCC computation: deallocate memory on host & device, destroy
 			/// the CUFFT plans
+			///
 			/// \param iU displacement field of all POIs in x direction on host
 			/// \param iV displacement field of all POIs in x direction on host
 			/// \param fZNCC ZNCC coefficients of all POIs on host
@@ -105,7 +106,7 @@ namespace TW{
 			/// or cuInitializeFFTCC
 			/// 
 			/// \param refImg the new cv::Mat reference image
-			void resetRefImg(const cv::Mat& refImg);
+			virtual void ResetRefImg(const cv::Mat& refImg) override;
 
 			// ---------------------------------High level method end-----------------------------------!
 	

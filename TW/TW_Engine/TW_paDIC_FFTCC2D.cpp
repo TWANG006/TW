@@ -78,6 +78,7 @@ namespace TW{
 									 // Input
 									 const cv::Mat& tarImg)
 		{}
+
 		void Fftcc2D::cuDestroyFFTCC(int_t *& i_d_U,
 									 int_t *& i_d_V,
 								     real_t*& f_d_ZNCC)

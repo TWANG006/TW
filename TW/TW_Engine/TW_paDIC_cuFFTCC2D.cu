@@ -554,7 +554,7 @@ namespace TW{
 			isDestroyed = true;
 		}
 
-		void cuFFTCC2D::resetRefImg(const cv::Mat& refImg)
+		void cuFFTCC2D::ResetRefImg(const cv::Mat& refImg)
 		{
 			checkCudaErrors(cudaMemcpy(m_cuHandle.m_d_fRefImg,
 									   (void*)refImg.data,
