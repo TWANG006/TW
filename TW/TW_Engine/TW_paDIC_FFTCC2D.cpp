@@ -1,28 +1,28 @@
 #include "TW_paDIC_FFTCC2D.h"
 
 namespace TW{
-	namespace paDIC{
+namespace paDIC{
 
-		Fftcc2D::Fftcc2D(const int_t iROIWidth,
-						 const int_t iROIHeight,
-						 const int_t iSubsetX,
-						 const int_t iSubsetY,
-						 const int_t iGridSpaceX,
-						 const int_t iGridSpaceY,
-						 const int_t iMarginX,
-						 const int_t iMarginY)
-			: m_iImgWidth(iROIWidth)
-			, m_iImgHeight(iROIHeight)
-			, m_iROIWidth(iROIWidth)
-			, m_iROIHeight(iROIHeight)
-			, m_iSubsetX(iSubsetX)
-			, m_iSubsetY(iSubsetY)
-			, m_iGridSpaceX(iGridSpaceX)
-			, m_iGridSpaceY(iGridSpaceY)
-			, m_iMarginX(iMarginX)
-			, m_iMarginY(iMarginY)
-		{}
-		/*void Fftcc2D::setROI(const int_t& iROIWidth, const int_t& iROIHeight)
+Fftcc2D::Fftcc2D(const int_t iROIWidth,
+				 const int_t iROIHeight,
+				 const int_t iSubsetX,
+				 const int_t iSubsetY,
+				 const int_t iGridSpaceX,
+				 const int_t iGridSpaceY,
+				 const int_t iMarginX,
+				 const int_t iMarginY)
+	: m_iImgWidth(iROIWidth)
+	, m_iImgHeight(iROIHeight)
+	, m_iROIWidth(iROIWidth)
+	, m_iROIHeight(iROIHeight)
+	, m_iSubsetX(iSubsetX)
+	, m_iSubsetY(iSubsetY)
+	, m_iGridSpaceX(iGridSpaceX)
+	, m_iGridSpaceY(iGridSpaceY)
+	, m_iMarginX(iMarginX)
+	, m_iMarginY(iMarginY)
+{}
+/*void Fftcc2D::setROI(const int_t& iROIWidth, const int_t& iROIHeight)
 		{
 			m_iROIWidth = iROIWidth;
 			m_iROIHeight = iROIHeight;
@@ -55,36 +55,37 @@ namespace TW{
 				throw std::logic_error("Number of POIs is below 0!");
 		}*/
 
-		bool Fftcc2D::recomputeNumPOI()
-		{
-			m_iNumPOIX = int_t(floor((m_iROIWidth - m_iSubsetX * 2 - m_iMarginX * 2) / real_t(m_iGridSpaceX))) + 1;
-			m_iNumPOIY = int_t(floor((m_iROIHeight - m_iSubsetY * 2 - m_iMarginY * 2) / real_t(m_iGridSpaceY))) + 1;
+bool Fftcc2D::recomputeNumPOI()
+{
+	m_iNumPOIX = int_t(floor((m_iROIWidth - m_iSubsetX * 2 - m_iMarginX * 2) / real_t(m_iGridSpaceX))) + 1;
+	m_iNumPOIY = int_t(floor((m_iROIHeight - m_iSubsetY * 2 - m_iMarginY * 2) / real_t(m_iGridSpaceY))) + 1;
 
-			return ((m_iNumPOIX > 0 && m_iNumPOIY > 0) ? true : false);
-		}
+	return ((m_iNumPOIX > 0 && m_iNumPOIY > 0) ? true : false);
+}
 
-		void Fftcc2D::cuInitializeFFTCC(// Output
-										int_t *& i_d_U,
-										int_t *& i_d_V,
-										real_t*& f_d_ZNCC,
-										// Input
-										const cv::Mat& refImg)
-		{}
+void Fftcc2D::cuInitializeFFTCC(// Output
+								int_t *& i_d_U,
+								int_t *& i_d_V,
+								real_t*& f_d_ZNCC,
+								// Input
+								const cv::Mat& refImg)
+{}
 
-		void Fftcc2D::cuComputeFFTCC(// Output
-									 int_t *& i_d_U,
-									 int_t *& i_d_V,
-									 real_t*& f_d_ZNCC,
-									 // Input
-									 const cv::Mat& tarImg)
-		{}
+void Fftcc2D::cuComputeFFTCC(// Output
+							 int_t *& i_d_U,
+							 int_t *& i_d_V,
+							 real_t*& f_d_ZNCC,
+							 // Input
+							 const cv::Mat& tarImg)
+{}
 
-		void Fftcc2D::cuDestroyFFTCC(int_t *& i_d_U,
-									 int_t *& i_d_V,
-								     real_t*& f_d_ZNCC)
-		{}
-	} // namespace paDIC
-} // namespace TW
+void Fftcc2D::cuDestroyFFTCC(int_t *& i_d_U,
+							 int_t *& i_d_V,
+						     real_t*& f_d_ZNCC)
+{}
+
+} //!- namespace paDIC
+} //!- namespace TW
 
 //!- Factory method
 //class __declspec(dllexport) Fftcc_Factory

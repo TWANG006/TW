@@ -56,6 +56,9 @@
     <ClInclude Include="helper_cuda.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TW_Concurrent_Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="TW_paDIC_cuFFTCC2D.cu">

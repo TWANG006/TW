@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="helper_cuda.h" />
     <ClInclude Include="TW.h" />
+    <ClInclude Include="TW_Concurrent_Buffer.h" />
     <ClInclude Include="TW_paDIC_cuFFTCC2D.h" />
     <ClInclude Include="TW_paDIC_FFTCC2D.h" />
     <ClInclude Include="TW_MemManager.h" />

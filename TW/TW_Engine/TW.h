@@ -38,27 +38,27 @@ namespace TW
 {
 	//!- TW basic types
 #ifdef TW_USE_DOUBLE
-	using intentisy_t = double;
-	using real_t = double;
-	using cudafftComplex = cufftDoubleComplex;
+using intentisy_t = double;
+using real_t = double;
+using cudafftComplex = cufftDoubleComplex;
 #else
-	using intensity_t = float;
-	using real_t = float;
-	using cudafftComplex = cufftComplex;
+using intensity_t = float;
+using real_t = float;
+using cudafftComplex = cufftComplex;
 #endif // TW_USE_DOUBLE
-	using int_t = int;
-	using uint_t = unsigned int;
+using int_t = int;
+using uint_t = unsigned int;
 
-	// !- Setup whether to use CUDA, multicore or single core
-	enum PARALLEL_COMPUTING_TYPE
-	{
-		Singlecore
-		, Multicore
-		, CUDA_GPU
-		//, OpenCL
-	};
+// !- Setup whether to use CUDA, multicore or single core
+enum PARALLEL_COMPUTING_TYPE
+{
+	Singlecore
+	, Multicore
+	, CUDA_GPU
+	//, OpenCL
+};
 
-}
+} //!- namespace TW
 
 
 #endif // !TW_H
