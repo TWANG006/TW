@@ -1,6 +1,8 @@
 #include <gtest\gtest.h>
 
 #include <cuda_runtime.h>
+#include <concurrent_queue.h>
+#include <deque>
 
 TEST(cudaFree, isEqualtoNullorNot)
 {
@@ -11,6 +13,8 @@ TEST(cudaFree, isEqualtoNullorNot)
 
 	cudaFree(x);
 	x = nullptr;
+
+	concurrency::concurrent_queue<int>* q;
 
 	EXPECT_EQ(x, nullptr);
 }

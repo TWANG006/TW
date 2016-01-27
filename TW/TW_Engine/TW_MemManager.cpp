@@ -1,3 +1,4 @@
+#ifdef TW_MEM_MANAGER_H
 //!- Host memory allo/deallo-cation methods.
 template<typename T>
 void hcreateptr(T*& ptr, 
@@ -191,3 +192,4 @@ void cudestroyptr(T****&ptr)
 	free(ptr);
 	ptr = nullptr;
 }
+#endif

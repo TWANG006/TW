@@ -19,6 +19,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h</Extensions>
     </Filter>
+    <Filter Include="CUDA">
+      <UniqueIdentifier>{3369a94e-8cb3-4c93-a3b3-be8be71e3bff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TW_MemManager.cpp">
@@ -31,6 +34,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TW_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TW_Concurrent_Buffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedImageBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TW_MatToQImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,13 +71,19 @@
     <ClInclude Include="TW_Concurrent_Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SharedImageBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TW_MatToQImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="TW_paDIC_cuFFTCC2D.cu">
-      <Filter>Source Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="TW_cuUtils.cu">
-      <Filter>Source Files</Filter>
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="TW_paDIC_cuFFTCC2D.cu">
+      <Filter>CUDA</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>
