@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="TW_CoreMainWindow">
+    <file alias="icons/Cam.ico">Resources/icons/Camera.ico</file>
     <file alias="icons/Open.ico">Resources/icons/Open.ico</file>
     <file alias="icons/App.ico">Resources/icons/App.ico</file>
   </qresource>

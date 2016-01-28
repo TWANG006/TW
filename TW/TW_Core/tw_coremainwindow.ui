@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>967</width>
-    <height>598</height>
+    <width>880</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,19 +17,13 @@
    <iconset resource="tw_coremainwindow.qrc">
     <normaloff>:/TW_CoreMainWindow/icons/App.ico</normaloff>:/TW_CoreMainWindow/icons/App.ico</iconset>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QMdiArea" name="mdiArea"/>
-    </item>
-   </layout>
-  </widget>
+  <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>967</width>
+     <width>880</width>
      <height>23</height>
     </rect>
    </property>
@@ -106,6 +100,12 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="statusTip">
+    <string>Capture images from camera</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -113,6 +113,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen"/>
+   <addaction name="actionCapture_From_Camra"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -129,10 +130,17 @@
     <string>Ctrl+O</string>
    </property>
    <property name="iconVisibleInMenu">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionCapture_From_Camra">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="tw_coremainwindow.qrc">
+     <normaloff>:/TW_CoreMainWindow/icons/Cam.ico</normaloff>:/TW_CoreMainWindow/icons/Cam.ico</iconset>
+   </property>
    <property name="text">
     <string>Capture From Camra...</string>
    </property>

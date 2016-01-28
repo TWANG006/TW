@@ -18,7 +18,6 @@ protected slots:
 private:
 	Ui::TW_CoreMainWindowClass ui;
 	QString qstrLastSelectedDir;			//!- Hold last opend directory
-	QMdiSubWindow *m_ActiveSubWindow;		//!- Active image window
 	
 };
 
