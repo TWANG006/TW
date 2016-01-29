@@ -4,6 +4,8 @@
 #include <QLabel>
 #include <QPoint>
 #include <QRect>
+#include <QMenu>
+#include <QMouseEvent>
 
 struct MouseData
 {
@@ -18,7 +20,7 @@ class FrameLabel :public QLabel
 
 public:
 	FrameLabel(QWidget *parent = 0);
-	QPoint GetCursorPos();
+	QPoint GetCursorPos() const;
 	void SetCursorPos(const QPoint& point);
 
 protected:
@@ -26,15 +28,17 @@ protected:
 	void mousePressEvent(QMouseEvent*) Q_DECL_OVERRIDE;
 	void mouseReleaseEvent(QMouseEvent*) Q_DECL_OVERRIDE;
 	void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE;
+	// void createContextMenu();
 
 private:
 	QPoint m_starPoint;
 	QPoint m_cursorPos;
 	QScopedPointer<QRect> m_roiBox;
 	MouseData m_mouseData;
-
+	bool m_isDrawingBox;
 
 signals:
+	void sig_resetROI();
 	void sig_newROI(const MouseData& mouseData);
 	void sig_mouseMove();
 };
