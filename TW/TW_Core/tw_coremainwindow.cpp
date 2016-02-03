@@ -1,12 +1,17 @@
 #include "tw_coremainwindow.h"
 #include <QFileDialog>
+#include <QDebug>
 
 TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
-	: QMainWindow(parent), qstrLastSelectedDir(tr("/home"))
+	: QMainWindow(parent)
+	, qstrLastSelectedDir(tr("/home"))
+	, m_camParamDialog(nullptr)
 {
 	ui.setupUi(this);
 
-	connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(OpenImgFile()));
+	connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(OnOpenImgFile()));
+	connect(ui.actionCapture_From_Camra, SIGNAL(triggered()), this, SLOT(OnCapture_From_Camera()));
+
 }
 
 TW_CoreMainWindow::~TW_CoreMainWindow()
@@ -14,7 +19,7 @@ TW_CoreMainWindow::~TW_CoreMainWindow()
 
 }
 
-void TW_CoreMainWindow::OpenImgFile()
+void TW_CoreMainWindow::OnOpenImgFile()
 {
 	QStringList imgFileList = QFileDialog::getOpenFileNames(
 		this,
@@ -30,5 +35,22 @@ void TW_CoreMainWindow::OpenImgFile()
 
 		//!- Load images into QImage objects
 
+	}
+}
+
+void TW_CoreMainWindow::OnCapture_From_Camera()
+{
+	m_camParamDialog.reset(new CamParamDialog(this));
+	
+	m_camParamDialog->exec();
+
+
+	if(m_camParamDialog->result() == QDialog::Accepted)
+	{
+		qDebug()<<"<<<";
+	}
+	if(m_camParamDialog->result() == QDialog::Rejected)
+	{
+		qDebug()<<">>>";
 	}
 }

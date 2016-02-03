@@ -448,7 +448,7 @@
   <customwidget>
    <class>FrameLabel</class>
    <extends>QLabel</extends>
-   <header>framelabel.h</header>
+   <header>FrameLabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

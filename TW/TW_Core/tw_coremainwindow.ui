@@ -33,6 +33,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionCapture_From_Camra"/>
+    <addaction name="actionDoubleCam"/>
    </widget>
    <widget class="QMenu" name="menu_Edit">
     <property name="title">
@@ -100,8 +101,11 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="toolTip">
+    <string>Capture images from one camera</string>
+   </property>
    <property name="statusTip">
-    <string>Capture images from camera</string>
+    <string>Capture images from one camera</string>
    </property>
    <property name="movable">
     <bool>false</bool>
@@ -114,6 +118,7 @@
    </attribute>
    <addaction name="actionOpen"/>
    <addaction name="actionCapture_From_Camra"/>
+   <addaction name="actionDoubleCam"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -135,14 +140,17 @@
   </action>
   <action name="actionCapture_From_Camra">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="tw_coremainwindow.qrc">
-     <normaloff>:/TW_CoreMainWindow/icons/Cam.ico</normaloff>:/TW_CoreMainWindow/icons/Cam.ico</iconset>
+     <normaloff>:/TW_CoreMainWindow/icons/cam1</normaloff>:/TW_CoreMainWindow/icons/cam1</iconset>
    </property>
    <property name="text">
     <string>Capture From Camra...</string>
+   </property>
+   <property name="statusTip">
+    <string>Capture from one camra</string>
    </property>
   </action>
   <action name="actionCopy">
@@ -220,6 +228,21 @@
    </property>
    <property name="text">
     <string>paDIC (CPU multi-core)...</string>
+   </property>
+  </action>
+  <action name="actionDoubleCam">
+   <property name="icon">
+    <iconset resource="tw_coremainwindow.qrc">
+     <normaloff>:/TW_CoreMainWindow/icons/cam2</normaloff>:/TW_CoreMainWindow/icons/cam2</iconset>
+   </property>
+   <property name="text">
+    <string>doubleCam</string>
+   </property>
+   <property name="toolTip">
+    <string>Capture images from two cameras</string>
+   </property>
+   <property name="statusTip">
+    <string>Capture images from two cameras</string>
    </property>
   </action>
  </widget>
