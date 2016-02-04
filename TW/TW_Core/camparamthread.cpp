@@ -3,7 +3,7 @@
 CamParamThread::CamParamThread(QObject *parent)
 	: QThread(parent)
 {
-
+	
 }
 
 CamParamThread::~CamParamThread()

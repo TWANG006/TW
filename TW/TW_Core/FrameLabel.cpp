@@ -1,6 +1,7 @@
 #include "FrameLabel.h"
 
 #include <QPainter>
+#include <QDebug>
 
 FrameLabel::FrameLabel(QWidget *parent)
 	: QLabel(parent)
@@ -103,6 +104,8 @@ void FrameLabel::paintEvent(QPaintEvent* evt)
 		painter.setPen(Qt::red);
 		painter.drawRect(*m_roiBox.data());
 	}
+
+	update();
 }
 
 //void FrameLabel::createContextMenu()

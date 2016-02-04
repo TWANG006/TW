@@ -24,10 +24,10 @@ public:
 	void SetCursorPos(const QPoint& point);
 
 protected:
-	void mouseMoveEvent(QMouseEvent*) Q_DECL_OVERRIDE;
-	void mousePressEvent(QMouseEvent*) Q_DECL_OVERRIDE;
-	void mouseReleaseEvent(QMouseEvent*) Q_DECL_OVERRIDE;
-	void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE;
+	void mouseMoveEvent(QMouseEvent*);
+	void mousePressEvent(QMouseEvent*);
+	void mouseReleaseEvent(QMouseEvent*);
+	void paintEvent(QPaintEvent*);
 	// void createContextMenu();
 
 private:
