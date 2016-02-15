@@ -111,6 +111,9 @@
     <ClInclude Include="GeneratedFiles\ui_camparamdialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="Structures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\icons\App.ico">

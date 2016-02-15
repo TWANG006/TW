@@ -79,7 +79,7 @@ void FrameLabel::mouseReleaseEvent(QMouseEvent* evt)
 
 			m_mouseData.m_isLeftBtnReleased = true;
 
-			emit sig_newROI(m_mouseData);
+			emit sig_newMouseData(m_mouseData);
 		}
 
 		m_mouseData.m_isLeftBtnReleased = false;

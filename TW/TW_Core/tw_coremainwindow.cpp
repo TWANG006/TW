@@ -41,13 +41,16 @@ void TW_CoreMainWindow::OnOpenImgFile()
 void TW_CoreMainWindow::OnCapture_From_Camera()
 {
 	m_camParamDialog.reset(new CamParamDialog(this));
-	
+
+	m_camParamDialog->connectToCamera(-1,-1);
+
 	m_camParamDialog->exec();
 
 
 	if(m_camParamDialog->result() == QDialog::Accepted)
 	{
 		qDebug()<<"<<<";
+
 	}
 	if(m_camParamDialog->result() == QDialog::Rejected)
 	{

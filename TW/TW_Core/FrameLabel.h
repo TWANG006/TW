@@ -7,12 +7,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 
-struct MouseData
-{
-	bool m_isLeftBtnReleased;
-	bool m_isRightBtnReleased;
-	QRect m_roiBox;
-};
+#include "Structures.h"
 
 class FrameLabel :public QLabel
 {
@@ -39,7 +34,7 @@ private:
 
 signals:
 	void sig_resetROI();
-	void sig_newROI(const MouseData& mouseData);
+	void sig_newMouseData(const MouseData& mouseData);
 	void sig_mouseMove();
 };
 
