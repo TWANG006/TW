@@ -6,7 +6,6 @@
 #include <QTime>
 
 #include <memory>
-
 #include <opencv2\opencv.hpp>
 #include "TW.h"
 #include "SharedImageBuffer.h"

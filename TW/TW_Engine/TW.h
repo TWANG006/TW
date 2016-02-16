@@ -8,8 +8,8 @@
 #define BLOCK_SIZE_128 128
 
 //!- Macro for library dll export utility
-#ifdef _WIN32
-#    ifdef TW_LIB_DLL_EXPORTS_MODE
+#if defined (_WIN32)
+#    if defined (TW_LIB_DLL_EXPORTS_MODE)
 #        define TW_LIB_DLL_EXPORTS __declspec(dllexport)
 #    else
 #        define TW_LIB_DLL_EXPORTS __declspec(dllimport)

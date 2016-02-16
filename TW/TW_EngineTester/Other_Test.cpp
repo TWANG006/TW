@@ -5,6 +5,9 @@
 #include <concurrent_queue.h>
 #include <deque>
 #include <QRect>
+#include <QImage>
+
+#include "TW_MatToQImage.h"
 
 struct MouseData
 {
@@ -35,6 +38,9 @@ TEST(cudaFree, isEqualtoNullorNot)
 
 	EXPECT_EQ(d.GetX(), 2);
 
+	cv::Mat m;
+
+	QImage q = TW::Mat2QImage(m);
 
 	/*int *x;
 	cudaMalloc((void**)&x, sizeof(int) * 10);

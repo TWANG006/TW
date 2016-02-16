@@ -21,7 +21,8 @@ CamParamDialog::CamParamDialog(QWidget *parent)
 
 CamParamDialog::~CamParamDialog()
 {
-
+	m_captureThread->stop();
+	m_captureThread->wait();
 }
 
 bool CamParamDialog::connectToCamera(int width, int height)

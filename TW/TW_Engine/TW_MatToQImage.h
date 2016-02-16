@@ -1,11 +1,12 @@
 #ifndef TW_MATTOQIMAGE_H
 #define TW_MATTOQIMAGE_H
 
-#include "TW.h"
 #include <QImage>
 #include <QPixmap>
 #include <QDebug>
 #include <opencv2\opencv.hpp>
+
+#include "TW.h"
 
 namespace TW{
 
