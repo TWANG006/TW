@@ -23,7 +23,8 @@ class CamParamThread : public QThread
 
 public:
 	CamParamThread(int width, 
-				   int height);
+				   int height, 
+				   QObject* parent = 0);
 	~CamParamThread();
 
 	bool connectToCamera();
@@ -32,6 +33,7 @@ public:
 	int getInputSourceWidth();
     int getInputSourceHeight();
 	void stop();
+	QRect GetCurrentROI();
 
 protected:
 	void run() Q_DECL_OVERRIDE;
@@ -53,6 +55,7 @@ private:
 	cv::Mat m_currentFrame;
 	QImage m_frame;
 	
+	cv::Rect m_currentROI;
 	int m_width;
 	int m_height;
 

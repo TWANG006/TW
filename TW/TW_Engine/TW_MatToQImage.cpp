@@ -9,15 +9,13 @@ QImage Mat2QImage(const cv::Mat& mat)
 		//-! 8-bit, 4 channel
 		case CV_8UC4:
 		{
-			QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB32);
-			return image;
+			return QImage (mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB32).rgbSwapped();
 		}
 
 		//-! 8-bit, 3 channel
 		case CV_8UC3:
 		{
-			QImage image(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
-			return image;
+			return QImage (mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB888).rgbSwapped();
 		}
 
 		//-! 8-bit, 1 channel

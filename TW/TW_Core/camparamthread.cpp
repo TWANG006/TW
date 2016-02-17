@@ -3,8 +3,10 @@
 #include "TW_MatToQImage.h"
 
 CamParamThread::CamParamThread(int width, 
-							   int height)
-	: m_width(width)
+							   int height,
+							   QObject* parent)
+	: QThread(parent)
+	, m_width(width)
 	, m_height(height)
 	, m_doStop(false)
 {
@@ -74,7 +76,19 @@ int CamParamThread::getInputSourceHeight()
 
 void CamParamThread::setROI(QRect roi)
 {
+	QMutexLocker locker(&m_mutex);
+	m_currentROI.x = roi.x();
+	m_currentROI.y = roi.y();
+	m_currentROI.width = roi.width();
+	m_currentROI.height = roi.height();
+}
 
+QRect CamParamThread::GetCurrentROI()
+{
+	return QRect(m_currentROI.x, 
+				 m_currentROI.y,
+				 m_currentROI.width,
+				 m_currentROI.height);
 }
 
 void CamParamThread::run()
@@ -96,7 +110,10 @@ void CamParamThread::run()
 
 		// Retrieve frames
 		m_cap.retrieve(m_grabbedFrame);
-		cv::cvtColor(m_grabbedFrame,
+
+		m_currentFrame = cv::Mat(m_grabbedFrame.clone(), m_currentROI);
+
+		cv::cvtColor(m_currentFrame,
 		  		     m_currentFrame,
 				     CV_BGR2GRAY);
 
@@ -104,4 +121,5 @@ void CamParamThread::run()
 		m_frame = TW::Mat2QImage(m_currentFrame);
 		emit newFrame(m_frame);
 	}
+	qDebug() << "Stopping capture thread...";
 }

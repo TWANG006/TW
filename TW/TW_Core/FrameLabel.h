@@ -33,7 +33,6 @@ private:
 	bool m_isDrawingBox;
 
 signals:
-	void sig_resetROI();
 	void sig_newMouseData(const MouseData& mouseData);
 	void sig_mouseMove();
 };

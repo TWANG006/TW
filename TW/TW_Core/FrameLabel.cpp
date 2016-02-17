@@ -88,9 +88,17 @@ void FrameLabel::mouseReleaseEvent(QMouseEvent* evt)
 	else if (evt->button() == Qt::RightButton)
 	{
 		if(m_isDrawingBox)
+		{
+			m_mouseData.m_isRightBtnReleased = true;
 			m_isDrawingBox = false;
+		}
 		else
-			emit sig_resetROI();
+		{
+			m_mouseData.m_isRightBtnReleased = true;
+			emit sig_newMouseData(m_mouseData);
+		}	
+
+		m_mouseData.m_isRightBtnReleased = false;
 	}
 }
 

@@ -19,14 +19,21 @@ public:
 	bool connectToCamera(int width, int height);
 	QRect GetROI() const { return m_ROIRect; }
 
+private:
+	void stopCaptureThread();
+
 public slots:
 	void newMouseData(const MouseData& mouseData);
 	void updateMouseCursorPosLabel();
 	void updateFrame(const QImage &frame);
 
+signals:
+	void setROI(QRect roi);
+
 private:
 	QRect m_ROIRect;
 	QScopedPointer<CamParamThread> m_captureThread; 
+	bool m_isCameraConnected;
 
 	Ui::CamParamDialog ui;
 };
