@@ -9,10 +9,10 @@ CamParamDialog::CamParamDialog(QWidget *parent)
 	, m_ROIRect()
 {
 	ui.setupUi(this);
-	ui.frameLable->setText(tr("No camera connected!"));
+	ui.frameLable->setText(tr("Connecting to camera..."));
 
 	ui.frameRateLabel->setText("");
-	ui.cameraIDLabel->setText("");
+	ui.cameraIDLabel->setText("0");
 	ui.cameraResolutionLabel->setText("");
 	ui.mouseCursorLabel->setText("");
 	ui.roiLabel->setText("");
@@ -170,5 +170,14 @@ void CamParamDialog::updateFrame(const QImage &frame)
 
 void CamParamDialog::updateMouseCursorPosLabel()
 {
+	// Update mouse cursor position shown in the mouseCursorLabel
+	ui.mouseCursorLabel->setText(QLatin1String("(") + QString::number(ui.frameLable->GetCursorPos().x()) + 
+								 QLatin1String("(") + QString::number(ui.frameLable->GetCursorPos().y()) + 
+								 QLatin1String(")"));
 
+	// Show pixel cursor position if camera is connected
+	if(ui.frameLable->pixmap() != 0)
+	{
+		
+	}
 }

@@ -112,8 +112,6 @@ void FrameLabel::paintEvent(QPaintEvent* evt)
 		painter.setPen(Qt::red);
 		painter.drawRect(*m_roiBox.data());
 	}
-
-	update();
 }
 
 //void FrameLabel::createContextMenu()
