@@ -43,9 +43,10 @@ public slots:
 
 signals:
 	void newFrame(const QImage& frame);
-
+	void updateStatisticsInGUI(const ThreadStatisticsData &statData);
 
 private:
+	void updateFPS(int);
 	QMutex m_mutex;
 	volatile bool m_doStop;
 	QTime m_time;
@@ -54,10 +55,16 @@ private:
 	cv::Mat m_grabbedFrame;
 	cv::Mat m_currentFrame;
 	QImage m_frame;
+
+	ThreadStatisticsData m_statsData;
+	QQueue<int> m_fpsQueue;
+	int m_sampleNumber;
+    int m_fpsSum;
 	
 	cv::Rect m_currentROI;
 	int m_width;
 	int m_height;
+	int m_captureTime;
 
 	/*std::shared_ptr<TW::SharedImageBuffer> m_sharedImgBuffer;*/
 };

@@ -25,7 +25,11 @@ private:
 public slots:
 	void newMouseData(const MouseData& mouseData);
 	void updateMouseCursorPosLabel();
+	
+
+private slots:
 	void updateFrame(const QImage &frame);
+	void updateThreadStats(const ThreadStatisticsData &statData);
 
 signals:
 	void setROI(QRect roi);

@@ -10,7 +10,8 @@ CamParamThread::CamParamThread(int width,
 	, m_height(height)
 	, m_doStop(false)
 {
-	
+	m_statsData.averageFPS = 0;
+	m_statsData.nFramesProcessed = 0;
 }
 
 CamParamThread::~CamParamThread()
@@ -105,6 +106,10 @@ void CamParamThread::run()
 		}
 		m_mutex.unlock();
 
+		// Save the capture time
+		m_captureTime = m_time.elapsed();
+		m_time.start();
+
 		if(!m_cap.grab())
 			continue;
 
@@ -113,13 +118,46 @@ void CamParamThread::run()
 
 		m_currentFrame = cv::Mat(m_grabbedFrame.clone(), m_currentROI);
 
+		
 		cv::cvtColor(m_currentFrame,
 		  		     m_currentFrame,
 				     CV_BGR2GRAY);
-
+		
 		// Convert grabbed frames to QImage
 		m_frame = TW::Mat2QImage(m_currentFrame);
+		
+		// Update statistics
+		updateFPS(m_captureTime);
+		m_statsData.nFramesProcessed++;
+		
+		emit updateStatisticsInGUI(m_statsData);
 		emit newFrame(m_frame);
 	}
 	qDebug() << "Stopping capture thread...";
+}
+
+void CamParamThread::updateFPS(int timeElapsed)
+{
+	// Compute the average FPS per 32 frames
+	if(timeElapsed > 0)
+	{
+		m_fpsQueue.enqueue((int)1000/timeElapsed);
+		m_sampleNumber++;
+	}
+
+	if(m_fpsQueue.size() > 32)
+	{
+		m_fpsQueue.dequeue();
+	}
+
+	if(m_fpsQueue.size() == 32 && m_sampleNumber == 32)
+	{
+		while(!m_fpsQueue.empty())
+			m_fpsSum += m_fpsQueue.dequeue();
+
+		// Calculate average FPS
+		m_statsData.averageFPS = m_fpsSum / 32;
+		m_fpsSum = 0;
+		m_sampleNumber = 0;
+	}
 }

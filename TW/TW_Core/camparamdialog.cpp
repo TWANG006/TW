@@ -54,6 +54,8 @@ bool CamParamDialog::connectToCamera(int width, int height)
 			    m_captureThread.data(), &CamParamThread::setROI);
 		connect(ui.frameLable,			&FrameLabel::sig_newMouseData,
 			    this,					&CamParamDialog::newMouseData);
+		connect(m_captureThread.data(), &CamParamThread::updateStatisticsInGUI,
+			    this,                   &CamParamDialog::updateThreadStats);
 
 		// Set the initial ROI for the capture thread
 		m_ROIRect.setRect(0,
@@ -65,6 +67,11 @@ bool CamParamDialog::connectToCamera(int width, int height)
 		// Start capturing (the capture thread event loop begins here)
 		m_captureThread->start();
 		
+		// Set the camera resolution label
+		ui.cameraResolutionLabel->setText(QString::number(m_captureThread->getInputSourceWidth()) + 
+										  QLatin1String("x") + 
+										  QString::number(m_captureThread->getInputSourceHeight()));
+
 		// Set the camera connected flag to true
 		m_isCameraConnected = true;
 
@@ -172,12 +179,34 @@ void CamParamDialog::updateMouseCursorPosLabel()
 {
 	// Update mouse cursor position shown in the mouseCursorLabel
 	ui.mouseCursorLabel->setText(QLatin1String("(") + QString::number(ui.frameLable->GetCursorPos().x()) + 
-								 QLatin1String("(") + QString::number(ui.frameLable->GetCursorPos().y()) + 
+								 QLatin1String(",") + QString::number(ui.frameLable->GetCursorPos().y()) + 
 								 QLatin1String(")"));
 
 	// Show pixel cursor position if camera is connected
 	if(ui.frameLable->pixmap() != 0)
 	{
-		
+		double xScalingFactor = ((double) ui.frameLable->GetCursorPos().x() - ((ui.frameLable->width() - ui.frameLable->pixmap()->width()) / 2)) / (double) ui.frameLable->pixmap()->width();
+        double yScalingFactor = ((double) ui.frameLable->GetCursorPos().y() - ((ui.frameLable->height() - ui.frameLable->pixmap()->height()) / 2)) / (double) ui.frameLable->pixmap()->height();
+
+		ui.mouseCursorLabel->setText(ui.mouseCursorLabel->text() + 
+			                         QLatin1String(" [") + QString::number((int)(xScalingFactor * m_captureThread->GetCurrentROI().width())) + 
+									 QLatin1String(" ,") + QString::number((int)(yScalingFactor*m_captureThread->GetCurrentROI().height())) + 
+									 QLatin1String("]"));
 	}
+}
+
+void CamParamDialog::updateThreadStats(const ThreadStatisticsData &statData)
+{
+	ui.frameRateLabel->setText(QString::number(statData.averageFPS) + QLatin1String("fps"));
+	ui.nFramesLabel->setText(QLatin1String("[") + 
+							 QString::number(statData.nFramesProcessed) + 
+							 QLatin1String("]"));
+	ui.roiLabel->setText(QLatin1String("(") + 
+						 QString::number(m_captureThread->GetCurrentROI().x()) + 
+						 QLatin1String(",") + 
+						 QString::number(m_captureThread->GetCurrentROI().y()) + 
+						 QLatin1String(") ") + 
+						 QString::number(m_captureThread->GetCurrentROI().width()) + 
+						 QLatin1String("x") + 
+						 QString::number(m_captureThread->GetCurrentROI().height()));
 }
