@@ -45,6 +45,9 @@
     <ClCompile Include="TW_MatToQImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TW_ICGN2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TW_utils.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TW_MatToQImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TW_ICGN2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

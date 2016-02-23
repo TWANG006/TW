@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="SharedImageBuffer.cpp" />
     <ClCompile Include="TW_Concurrent_Buffer.cpp" />
+    <ClCompile Include="TW_ICGN2D.cpp" />
     <ClCompile Include="TW_MatToQImage.cpp" />
     <ClCompile Include="TW_paDIC_FFTCC2D.cpp" />
     <ClCompile Include="TW_MemManager.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="SharedImageBuffer.h" />
     <ClInclude Include="TW.h" />
     <ClInclude Include="TW_Concurrent_Buffer.h" />
+    <ClInclude Include="TW_ICGN2D.h" />
     <ClInclude Include="TW_MatToQImage.h" />
     <ClInclude Include="TW_paDIC_cuFFTCC2D.h" />
     <ClInclude Include="TW_paDIC_FFTCC2D.h" />

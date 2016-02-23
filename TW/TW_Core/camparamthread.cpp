@@ -9,7 +9,10 @@ CamParamThread::CamParamThread(int width,
 	, m_width(width)
 	, m_height(height)
 	, m_doStop(false)
+	, m_sampleNumber(0)
+	, m_fpsSum(0)
 {
+	m_fpsQueue.clear();
 	m_statsData.averageFPS = 0;
 	m_statsData.nFramesProcessed = 0;
 }
@@ -117,21 +120,20 @@ void CamParamThread::run()
 		m_cap.retrieve(m_grabbedFrame);
 
 		m_currentFrame = cv::Mat(m_grabbedFrame.clone(), m_currentROI);
-
-		
+				
 		cv::cvtColor(m_currentFrame,
 		  		     m_currentFrame,
 				     CV_BGR2GRAY);
 		
 		// Convert grabbed frames to QImage
 		m_frame = TW::Mat2QImage(m_currentFrame);
+		emit newFrame(m_frame);
 		
 		// Update statistics
 		updateFPS(m_captureTime);
 		m_statsData.nFramesProcessed++;
 		
 		emit updateStatisticsInGUI(m_statsData);
-		emit newFrame(m_frame);
 	}
 	qDebug() << "Stopping capture thread...";
 }
