@@ -23,6 +23,13 @@ private:
 
 	QString qstrLastSelectedDir;						//!- Hold last opend directory
 	QScopedPointer<CamParamDialog> m_camParamDialog;
+	QRect m_ROI;
+	int m_iSubsetX;
+	int m_iSubsetY;
+	int m_iMarginX;
+	int m_iMarginY;
+	int m_iGridSpaceX;
+	int m_iGridSpaceY;
 
 };
 

@@ -122,6 +122,9 @@
    <addaction name="actionDoubleCam"/>
   </widget>
   <action name="actionOpen">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="tw_coremainwindow.qrc">
      <normaloff>:/TW_CoreMainWindow/icons/Open.ico</normaloff>:/TW_CoreMainWindow/icons/Open.ico</iconset>
@@ -232,6 +235,9 @@
    </property>
   </action>
   <action name="actionDoubleCam">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="tw_coremainwindow.qrc">
      <normaloff>:/TW_CoreMainWindow/icons/cam2</normaloff>:/TW_CoreMainWindow/icons/cam2</iconset>
@@ -264,8 +270,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>439</x>
-     <y>310</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>439</x>

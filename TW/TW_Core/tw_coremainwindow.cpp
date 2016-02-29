@@ -44,10 +44,16 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 
 	m_camParamDialog->connectToCamera(-1,-1);
 
+	//!- If OK button is clicked, accept all the settings
 	if(m_camParamDialog->exec() == QDialog::Accepted)
 	{
-		qDebug()<<"<<<";
-
+		m_ROI = m_camParamDialog->GetROI();
+		m_iSubsetX = m_camParamDialog->GetSubetX();
+		m_iSubsetY = m_camParamDialog->GetSubetY();
+		m_iMarginX = m_camParamDialog->GetMarginX();
+		m_iMarginY = m_camParamDialog->GetMarginY();
+		m_iGridSpaceX = m_camParamDialog->GetGridX();
+		m_iGridSpaceY = m_camParamDialog->GetGridY();
 	}
 	
 	m_camParamDialog.reset(nullptr);

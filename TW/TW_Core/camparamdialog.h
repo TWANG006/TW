@@ -18,6 +18,12 @@ public:
 
 	bool connectToCamera(int width, int height);
 	QRect GetROI() const { return m_ROIRect; }
+	int GetSubetX() const { return ui.SubsetX_lineEdit->text().toInt();}
+	int GetSubetY() const { return ui.SubsetY_lineEdit->text().toInt();}
+	int GetMarginX() const { return ui.MarginX_lineEdit->text().toInt();}
+	int GetMarginY() const { return ui.MarginY_lineEdit->text().toInt();}
+	int GetGridX() const { return ui.GridX_lineEdit->text().toInt();}
+	int GetGridY() const { return ui.GridY_lineEdit->text().toInt();}
 
 private:
 	void stopCaptureThread();
