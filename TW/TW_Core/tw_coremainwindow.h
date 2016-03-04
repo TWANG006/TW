@@ -24,6 +24,7 @@ private:
 	QString qstrLastSelectedDir;						//!- Hold last opend directory
 	QScopedPointer<CamParamDialog> m_camParamDialog;
 	QRect m_ROI;
+	bool m_isDropFrameChecked;
 	int m_iSubsetX;
 	int m_iSubsetY;
 	int m_iMarginX;

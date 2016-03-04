@@ -6,6 +6,10 @@ TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, qstrLastSelectedDir(tr("/home"))
 	, m_camParamDialog(nullptr)
+	, m_isDropFrameChecked(true)
+	, m_iSubsetX(0), m_iSubsetY(0)
+	, m_iMarginX(0), m_iMarginY(0)
+	, m_iGridSpaceX(0), m_iGridSpaceY(0)
 {
 	ui.setupUi(this);
 
@@ -40,9 +44,13 @@ void TW_CoreMainWindow::OnOpenImgFile()
 
 void TW_CoreMainWindow::OnCapture_From_Camera()
 {
+	// Open the Camera Parameters dialog to set parameters
+	// needed for the next computations
 	m_camParamDialog.reset(new CamParamDialog(this));
 
-	m_camParamDialog->connectToCamera(-1,-1);
+	// Set the width & height to -1 to accept the default resolution of the 
+	// camera or set the resolution by hand.
+	m_camParamDialog->connectToCamera(300,300);
 
 	//!- If OK button is clicked, accept all the settings
 	if(m_camParamDialog->exec() == QDialog::Accepted)
@@ -54,7 +62,15 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 		m_iMarginY = m_camParamDialog->GetMarginY();
 		m_iGridSpaceX = m_camParamDialog->GetGridX();
 		m_iGridSpaceY = m_camParamDialog->GetGridY();
+		m_isDropFrameChecked = m_camParamDialog->isDropFrame();
 	}
-	
+	else
+	{
+		m_camParamDialog.reset(nullptr);
+		return;
+	}
+
 	m_camParamDialog.reset(nullptr);
+
+
 }

@@ -24,6 +24,7 @@ public:
 	int GetMarginY() const { return ui.MarginY_lineEdit->text().toInt();}
 	int GetGridX() const { return ui.GridX_lineEdit->text().toInt();}
 	int GetGridY() const { return ui.GridY_lineEdit->text().toInt();}
+	bool isDropFrame() const { return ui.dropFrame_checkBox->isChecked(); }
 
 private:
 	void stopCaptureThread();

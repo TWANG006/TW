@@ -43,7 +43,7 @@ CamParamDialog::~CamParamDialog()
 bool CamParamDialog::connectToCamera(int width, int height)
 {
 	// Create the capture thread
-	m_captureThread.reset(new CamParamThread(-1,-1, this));
+	m_captureThread.reset(new CamParamThread(width, height, this));
 
 	if(m_captureThread->connectToCamera())
 	{
