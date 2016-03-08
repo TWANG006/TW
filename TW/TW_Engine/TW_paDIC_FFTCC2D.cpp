@@ -3,18 +3,36 @@
 namespace TW{
 namespace paDIC{
 
-Fftcc2D::Fftcc2D(const int_t iROIWidth,
-				 const int_t iROIHeight,
-				 const int_t iSubsetX,
-				 const int_t iSubsetY,
-				 const int_t iGridSpaceX,
-				 const int_t iGridSpaceY,
-				 const int_t iMarginX,
-				 const int_t iMarginY)
-	: m_iImgWidth(iROIWidth)
-	, m_iImgHeight(iROIHeight)
+Fftcc2D::Fftcc2D(const int_t iImgWidth, const int_t iImgHeight,
+				 const int_t iStartX, const int_t iStartY,
+				 const int_t iROIWidth, const int_t iROIHeight,
+				 const int_t iSubsetX, const int_t iSubsetY,
+				 const int_t iGridSpaceX, const int_t iGridSpaceY,
+				 const int_t iMarginX, const int_t iMarginY)
+	: m_iImgWidth(iImgWidth)
+	, m_iImgHeight(iImgHeight)
 	, m_iROIWidth(iROIWidth)
 	, m_iROIHeight(iROIHeight)
+	, m_iStartX(iStartX)
+	, m_iStartY(iStartY)
+	, m_iSubsetX(iSubsetX)
+	, m_iSubsetY(iSubsetY)
+	, m_iGridSpaceX(iGridSpaceX)
+	, m_iGridSpaceY(iGridSpaceY)
+	, m_iMarginX(iMarginX)
+	, m_iMarginY(iMarginY)
+{}
+
+Fftcc2D::Fftcc2D(const int_t iROIWidth, const int_t iROIHeight,
+				 const int_t iSubsetX, const int_t iSubsetY,
+				 const int_t iGridSpaceX, const int_t iGridSpaceY,
+				 const int_t iMarginX, const int_t iMarginY)
+	: m_iImgWidth(-1)
+	, m_iImgHeight(-1)
+	, m_iROIWidth(iROIWidth)
+	, m_iROIHeight(iROIHeight)
+	, m_iStartX(-1)
+	, m_iStartY(-1)
 	, m_iSubsetX(iSubsetX)
 	, m_iSubsetY(iSubsetY)
 	, m_iGridSpaceX(iGridSpaceX)

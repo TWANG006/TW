@@ -51,11 +51,41 @@ struct GPUHandle
 class TW_LIB_DLL_EXPORTS cuFFTCC2D : public Fftcc2D
 {
 public:
-
-	cuFFTCC2D(const int_t iROIWidth, const int_t iROIHeight,
-		const int_t iSubsetX = 16, const int_t iSubsetY = 16,
-		const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
-		const int_t iMarginX = 3, const int_t iMarginY = 3);
+	/// \brief cuFFTCC2D Constructor that takes configuration parameters of the ROI
+	///
+	/// \param iROIWidth width of the ROI
+	/// \param iROIHeight height of the ROI
+	/// \param iSubsetX half size of the square subset in x direction
+	/// \param iSubsetY half size of the square subset in y direction
+	/// \param iGridSpaceX number of pixels between two POIs in x direction
+	/// \param iGirdSpaceY number of pixels between two POIs in y direction
+	/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
+	/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
+	cuFFTCC2D(const int_t iROIWidth,      const int_t iROIHeight,
+			  const int_t iSubsetX = 16,   const int_t iSubsetY = 16,
+			  const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
+			  const int_t iMarginX = 3,    const int_t iMarginY = 3);
+	
+	/// \brief cuFFTCC2D Constructor that takes configuration parameters of the whole image
+	///
+	/// \param iImgWidth width of the whole image
+	/// \param iImgHeight height of the whole image
+	/// \param iStartX x of the start point of the ROI 
+	//  \param iStartY y of the start point of the ROI
+	/// \param iROIWidth width of the ROI
+	/// \param iROIHeight height of the ROI
+	/// \param iSubsetX half size of the square subset in x direction
+	/// \param iSubsetY half size of the square subset in y direction
+	/// \param iGridSpaceX number of pixels between two POIs in x direction
+	/// \param iGirdSpaceY number of pixels between two POIs in y direction
+	/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
+	/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
+	cuFFTCC2D(const int_t iImgWidth,	   const int_t iImgHeight,
+			  const int_t iROIWidth,       const int_t iROIHeight,
+			  const int_t iStartX,         const int_t iStartY,
+			  const int_t iSubsetX = 16,   const int_t iSubsetY = 16,
+			  const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
+			  const int_t iMarginX = 3,    const int_t iMarginY = 3);
 
 	~cuFFTCC2D();
 

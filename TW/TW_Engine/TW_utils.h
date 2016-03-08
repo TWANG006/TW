@@ -198,7 +198,7 @@ TW_LIB_DLL_EXPORTS void ComputePOIPositions_m(// Output
 
 // !----------------------------GPU Wrapper Functions----------------------------------
 
-/// \brief Function to compute positions of POIs on GPU, the result is stored in 
+/// \brief Function to compute positions of POIs on GPU within the ROI, the result is stored in 
 /// an device array. NOTE: No need to pre-allocate memory for the device pointer
 ///
 /// \param Out_d_iPXY position array in device memory
@@ -218,7 +218,7 @@ TW_LIB_DLL_EXPORTS void cuComputePOIPostions(// Output
 											 int_t iSubsetX, int_t iSubsetY,
 											 int_t iGridSpaceX, int_t iGridSpaceY);
 
-/// \brief Function to compute positions of POIs on GPU, the result is stored both in 
+/// \brief Function to compute positions of POIs on GPU within the ROI, the result is stored both in 
 /// an device array and a host array. NOTE: No need to pre-allocate memory for the two pointers.
 ///
 /// \param Out_d_iPXY position array in device memory
@@ -240,7 +240,71 @@ TW_LIB_DLL_EXPORTS void cuComputePOIPostions(// Outputs
 											 int_t iSubsetX, int_t iSubsetY,
 											 int_t iGridSpaceX, int_t iGridSpaceY);
 
+/// \brief Function to compute positions of POIs on GPU within the whole image, the result is stored both in 
+/// an device array and a host array. NOTE: No need to pre-allocate memory for the two pointers.
+///
+/// \param Out_d_iPXY position array in device memory
+/// \param Out_h_iPXY position array in host memory
+/// \param iStartX x coordinate of the top-left point of ROI
+/// \param iStartY y coordinate of the top-left point of ROI
+/// \param iNumberX number of POIs in x direction
+/// \param iNumberY number of POIs in y direction
+/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
+/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
+/// \param iSubsetX half size of the square subset in x direction
+/// \param iSubsetY half size of the square subset in y direction
+/// \param iGridSpaceX number of pixels between two POIs in x direction
+/// \param iGirdSpaceY number of pixels between two POIs in y direction
+TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Outputs
+											  int_t *&Out_d_iPXY,			// Return the device handle
+											  int_t *&Out_h_iPXY,			// Retrun the host handle
+											  // Inputs
+											  int_t iStartX, int_t iStartY, // Start top-left point of the ROI
+											  int_t iNumberX, int_t iNumberY,
+											  int_t iMarginX, int_t iMarginY,
+											  int_t iSubsetX, int_t iSubsetY,
+											  int_t iGridSpaceX, int_t iGridSpaceY);
 
+/// \brief Function to compute positions of POIs on GPU within the whole image, the result is stored in 
+/// a device array. NOTE: No need to pre-allocate memory for the two pointers.
+///
+/// \param Out_d_iPXY position array in device memory
+/// \param Out_h_iPXY position array in host memory
+/// \param iStartX x coordinate of the top-left point of ROI
+/// \param iStartY y coordinate of the top-left point of ROI
+/// \param iNumberX number of POIs in x direction
+/// \param iNumberY number of POIs in y direction
+/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
+/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
+/// \param iSubsetX half size of the square subset in x direction
+/// \param iSubsetY half size of the square subset in y direction
+/// \param iGridSpaceX number of pixels between two POIs in x direction
+/// \param iGirdSpaceY number of pixels between two POIs in y direction
+TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Outputs
+											  int_t *&Out_d_iPXY,			// Retrun the device handle
+											  // Inputs
+											  int_t iStartX, int_t iStartY, // Start top-left point of the ROI
+											  int_t iNumberX, int_t iNumberY,
+											  int_t iMarginX, int_t iMarginY,
+											  int_t iSubsetX, int_t iSubsetY,
+											  int_t iGridSpaceX, int_t iGridSpaceY);
+
+
+/// \brief GPU function to compute z = ax + y in parallel.
+/// \ strided for loop is used for the optimized performance and kernel size 
+/// \ flexibility. NOTE: results are saved in vector y
+
+/// \param n number of elements of x and y vector
+/// \param a multiplier
+/// \param x, y input vectors
+/// \param devID the device number of the GPU in use
+TW_LIB_DLL_EXPORTS void cuSaxpy(// Inputs
+								int_t n, 
+								real_t a, 
+								real_t *x,
+								int_t devID,
+								// Output
+								real_t *y);
 
 // -----------------------------------GPU Wrapper Functions End-----------------------------!
 

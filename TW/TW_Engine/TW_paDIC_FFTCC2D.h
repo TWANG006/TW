@@ -21,7 +21,12 @@ class TW_LIB_DLL_EXPORTS Fftcc2D
 {
 public:
 
-	/// \brief Constructor that takes configuration parameters
+	/// \brief Constructor that takes configuration parameters of the whole image
+	///
+	/// \param iImgWidth width of the whole image
+	/// \param iImgHeight height of the whole image
+	/// \param iStartX x of the start point of the ROI 
+	//  \param iStartY y of the start point of the ROI
 	/// \param iROIWidth width of the ROI
 	/// \param iROIHeight height of the ROI
 	/// \param iSubsetX half size of the square subset in x direction
@@ -30,11 +35,27 @@ public:
 	/// \param iGirdSpaceY number of pixels between two POIs in y direction
 	/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
 	/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
-	Fftcc2D(// TODO: Add ROI start index
+	Fftcc2D(const int_t iImgWidth, const int_t iImgHeight,
+			const int_t iStartX, const int_t iStartY,
 			const int_t iROIWidth, const int_t iROIHeight,
-			const int_t iSubsetX = 16, const int_t iSubsetY = 16,
-			const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
-			const int_t iMarginX = 3, const int_t iMarginY = 3);
+			const int_t iSubsetX, const int_t iSubsetY,
+			const int_t iGridSpaceX, const int_t iGridSpaceY,
+			const int_t iMarginX, const int_t iMarginY);
+
+	/// \brief Constructor that takes configuration parameters of the ROI
+	///
+	/// \param iROIWidth width of the ROI
+	/// \param iROIHeight height of the ROI
+	/// \param iSubsetX half size of the square subset in x direction
+	/// \param iSubsetY half size of the square subset in y direction
+	/// \param iGridSpaceX number of pixels between two POIs in x direction
+	/// \param iGirdSpaceY number of pixels between two POIs in y direction
+	/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
+	/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
+	Fftcc2D(const int_t iROIWidth, const int_t iROIHeight,
+			const int_t iSubsetX, const int_t iSubsetY,
+			const int_t iGridSpaceX, const int_t iGridSpaceY,
+			const int_t iMarginX, const int_t iMarginY);
 
 	virtual ~Fftcc2D(){}
 
@@ -98,6 +119,7 @@ public:
 	inline int_t GetNumPOIsY() const { return m_iNumPOIY; }
 	inline int_t GetNumPOIs() const { return (m_iNumPOIX*m_iNumPOIY); }
 	inline int_t GetROISize() const { return (m_iROIWidth* m_iROIHeight); }
+	inline int_t GetImgSize() const { return (m_iImgHeight == -1 || m_iImgWidth ==-1)? GetROISize(): m_iImgHeight*m_iImgWidth; }
 	/*void Fftcc2D::setROI(const int_t& iROIWidth, const int_t& iROIHeight);
 	void Fftcc2D::setSubset(const int_t& iSubsetX, const int_t& iSubsetY);
 	void Fftcc2D::setGridSpace(const int_t& iGridSpaceX, const int_t& iGridSpaceY);
@@ -107,8 +129,9 @@ protected:
 	bool recomputeNumPOI();
 	
 protected:
-	int_t m_iImgWidth, m_iImgHeight;
-	int_t m_iROIWidth, m_iROIHeight;
+	int_t m_iImgWidth, m_iImgHeight;		//!- Whole Image Size
+	int_t m_iROIWidth, m_iROIHeight;		//!- ROIsize
+	int_t m_iStartX, m_iStartY;				//!- ROI top-left point
 	int_t m_iSubsetX, m_iSubsetY;			//!- subsetSize = (2*m_iSubsetX+1)*(2*m_iSubsetY+1)
 	int_t m_iGridSpaceX, m_iGridSpaceY;		//!- Number of pixels between each two POIs
 	int_t m_iMarginX, m_iMarginY;			//!- Extra safe margin set for the ROI

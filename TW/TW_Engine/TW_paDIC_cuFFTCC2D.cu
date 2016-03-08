@@ -198,6 +198,17 @@ cuFFTCC2D::cuFFTCC2D(const int_t iROIWidth,
 		throw std::logic_error("Number of POIs is below 0!");
 }
 
+cuFFTCC2D::cuFFTCC2D(const int_t iImgWidth,		  const int_t iImgHeight,
+				     const int_t iROIWidth,       const int_t iROIHeight,
+					 const int_t iStartX,         const int_t iStartY,
+					 const int_t iSubsetX = 16,   const int_t iSubsetY = 16,
+					 const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
+					 const int_t iMarginX = 3,    const int_t iMarginY = 3)
+	: Fftcc2D(iImgWidth, iImgHeight,
+			  iROIWidth, iROIHeight,
+			  iStartX,   iStartY)
+{}
+
 cuFFTCC2D::~cuFFTCC2D()
 {}
 
