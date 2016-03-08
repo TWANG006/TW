@@ -62,9 +62,9 @@ public:
 	/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
 	/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
 	cuFFTCC2D(const int_t iROIWidth,      const int_t iROIHeight,
-			  const int_t iSubsetX = 16,   const int_t iSubsetY = 16,
-			  const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
-			  const int_t iMarginX = 3,    const int_t iMarginY = 3);
+			  const int_t iSubsetX,		  const int_t iSubsetY,
+			  const int_t iGridSpaceX,	  const int_t iGridSpace,
+			  const int_t iMarginX,		  const int_t iMarginY);
 	
 	/// \brief cuFFTCC2D Constructor that takes configuration parameters of the whole image
 	///
@@ -83,9 +83,9 @@ public:
 	cuFFTCC2D(const int_t iImgWidth,	   const int_t iImgHeight,
 			  const int_t iROIWidth,       const int_t iROIHeight,
 			  const int_t iStartX,         const int_t iStartY,
-			  const int_t iSubsetX = 16,   const int_t iSubsetY = 16,
-			  const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
-			  const int_t iMarginX = 3,    const int_t iMarginY = 3);
+			  const int_t iSubsetX,        const int_t iSubsetY,
+			  const int_t iGridSpaceX,     const int_t iGridSpaceY,
+			  const int_t iMarginX,        const int_t iMarginY);
 
 	~cuFFTCC2D();
 

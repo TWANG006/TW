@@ -129,6 +129,7 @@ protected:
 	bool recomputeNumPOI();
 	
 protected:
+	bool  m_isWholeImgUsed;					//!- Whether the calculation is based on the whole image or ROI
 	int_t m_iImgWidth, m_iImgHeight;		//!- Whole Image Size
 	int_t m_iROIWidth, m_iROIHeight;		//!- ROIsize
 	int_t m_iStartX, m_iStartY;				//!- ROI top-left point

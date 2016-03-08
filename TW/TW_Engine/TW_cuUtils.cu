@@ -102,13 +102,13 @@ __global__  void Precompute_POIPosition_WholeImg_kernel(// Input
 
 // ------------------------CUDA Wrapper Functions--------------------------------
 
-void cuComputePOIPostions(// Output
-						  int_t *&Out_d_iPXY,			// Return the device handle
-						  // Inputs
-						  int_t iNumberX, int_t iNumberY,
-						  int_t iMarginX, int_t iMarginY,
-						  int_t iSubsetX, int_t iSubsetY,
-						  int_t iGridSpaceX, int_t iGridSpaceY)
+void cuComputePOIPositions(// Output
+						   int_t *&Out_d_iPXY,			// Return the device handle
+						   // Inputs
+						   int_t iNumberX, int_t iNumberY,
+						   int_t iMarginX, int_t iMarginY,
+						   int_t iSubsetX, int_t iSubsetY,
+						   int_t iGridSpaceX, int_t iGridSpaceY)
 {
 	//!- Allocate Memory for device
 	checkCudaErrors(cudaMalloc((void**)&Out_d_iPXY, 
@@ -125,14 +125,14 @@ void cuComputePOIPostions(// Output
 	getLastCudaError("Error in calling Precompute_POIPosition_kernel");
 }
 
-void cuComputePOIPostions(// Outputs
-						  int_t *&Out_d_iPXY,						// Return the device handle
-						  int_t *&Out_h_iPXY,						// Retrun the host handle
-						  // Inputs
-						  int_t iNumberX, int_t iNumberY,
-						  int_t iMarginX, int_t iMarginY,
-						  int_t iSubsetX, int_t iSubsetY,
-						  int_t iGridSpaceX, int_t iGridSpaceY)
+void cuComputePOIPositions(// Outputs
+						   int_t *&Out_d_iPXY,						// Return the device handle
+						   int_t *&Out_h_iPXY,						// Retrun the host handle
+						   // Inputs
+						   int_t iNumberX, int_t iNumberY,
+						   int_t iMarginX, int_t iMarginY,
+						   int_t iSubsetX, int_t iSubsetY,
+						   int_t iGridSpaceX, int_t iGridSpaceY)
 {
 	//!- Allocate Memory for host & device
 	hcreateptr<int_t>(Out_h_iPXY, sizeof(int)*iNumberX*iNumberY * 2);

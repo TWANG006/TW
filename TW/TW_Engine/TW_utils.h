@@ -210,7 +210,7 @@ TW_LIB_DLL_EXPORTS void ComputePOIPositions_m(// Output
 /// \param iSubsetY half size of the square subset in y direction
 /// \param iGridSpaceX number of pixels between two POIs in x direction
 /// \param iGirdSpaceY number of pixels between two POIs in y direction
-TW_LIB_DLL_EXPORTS void cuComputePOIPostions(// Output
+TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Output
 										 	 int_t *&Out_d_iPXY,			// Return the device handle
 											 // Inputs
 											 int_t iNumberX, int_t iNumberY,
@@ -231,7 +231,7 @@ TW_LIB_DLL_EXPORTS void cuComputePOIPostions(// Output
 /// \param iSubsetY half size of the square subset in y direction
 /// \param iGridSpaceX number of pixels between two POIs in x direction
 /// \param iGirdSpaceY number of pixels between two POIs in y direction
-TW_LIB_DLL_EXPORTS void cuComputePOIPostions(// Outputs
+TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Outputs
 											 int_t *&Out_d_iPXY,			// Return the device handle
 											 int_t *&Out_h_iPXY,			// Retrun the host handle
 											 // Inputs

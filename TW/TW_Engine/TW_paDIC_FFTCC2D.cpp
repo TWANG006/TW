@@ -21,6 +21,7 @@ Fftcc2D::Fftcc2D(const int_t iImgWidth, const int_t iImgHeight,
 	, m_iGridSpaceY(iGridSpaceY)
 	, m_iMarginX(iMarginX)
 	, m_iMarginY(iMarginY)
+	, m_isWholeImgUsed(true)
 {}
 
 Fftcc2D::Fftcc2D(const int_t iROIWidth, const int_t iROIHeight,
@@ -39,6 +40,7 @@ Fftcc2D::Fftcc2D(const int_t iROIWidth, const int_t iROIHeight,
 	, m_iGridSpaceY(iGridSpaceY)
 	, m_iMarginX(iMarginX)
 	, m_iMarginY(iMarginY)
+	, m_isWholeImgUsed(false)
 {}
 /*void Fftcc2D::setROI(const int_t& iROIWidth, const int_t& iROIHeight)
 		{

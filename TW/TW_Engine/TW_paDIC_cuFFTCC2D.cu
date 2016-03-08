@@ -175,22 +175,14 @@ __global__ void cufft_prepare_kernel(// Inputs
 
 // ------------------------------CUDA Kernel Functions End-------------------------------!
 		
-cuFFTCC2D::cuFFTCC2D(const int_t iROIWidth,
-					 const int_t iROIHeight,
-					 const int_t iSubsetX,
-					 const int_t iSubsetY,
-					 const int_t iGridSpaceX,
-					 const int_t iGridSpaceY,
-					 const int_t iMarginX,
-					 const int_t iMarginY)
-	: Fftcc2D(iROIWidth,
-			  iROIHeight,
-			  iSubsetX,
-			  iSubsetY,
-			  iGridSpaceX,
-			  iGridSpaceY,
-			  iMarginX,
-			  iMarginY)
+cuFFTCC2D::cuFFTCC2D(const int_t iROIWidth,		 const int_t iROIHeight,
+					 const int_t iSubsetX,		 const int_t iSubsetY,
+					 const int_t iGridSpaceX,	 const int_t iGridSpaceY,
+					 const int_t iMarginX,		 const int_t iMarginY)
+	: Fftcc2D(iROIWidth, 	  iROIHeight,
+			  iSubsetX,		  iSubsetY,
+			  iGridSpaceX,	  iGridSpaceY,
+			  iMarginX,		  iMarginY)
 	, isLowLevelApiCalled(false)
 	, isDestroyed(false)
 {
@@ -198,16 +190,24 @@ cuFFTCC2D::cuFFTCC2D(const int_t iROIWidth,
 		throw std::logic_error("Number of POIs is below 0!");
 }
 
-cuFFTCC2D::cuFFTCC2D(const int_t iImgWidth,		  const int_t iImgHeight,
-				     const int_t iROIWidth,       const int_t iROIHeight,
-					 const int_t iStartX,         const int_t iStartY,
-					 const int_t iSubsetX = 16,   const int_t iSubsetY = 16,
-					 const int_t iGridSpaceX = 5, const int_t iGridSpaceY = 5,
-					 const int_t iMarginX = 3,    const int_t iMarginY = 3)
-	: Fftcc2D(iImgWidth, iImgHeight,
-			  iROIWidth, iROIHeight,
-			  iStartX,   iStartY)
-{}
+cuFFTCC2D::cuFFTCC2D(const int_t iImgWidth,	  const int_t iImgHeight,
+				     const int_t iROIWidth,   const int_t iROIHeight,
+					 const int_t iStartX,     const int_t iStartY,
+					 const int_t iSubsetX,    const int_t iSubsetY,
+					 const int_t iGridSpaceX, const int_t iGridSpaceY,
+					 const int_t iMarginX,    const int_t iMarginY)
+	: Fftcc2D(iImgWidth,   iImgHeight,
+			  iStartX,     iStartY,
+			  iROIWidth,   iROIHeight,
+			  iSubsetX,    iSubsetY,
+			  iGridSpaceX, iGridSpaceY,
+			  iMarginX,    iMarginY)
+	, isLowLevelApiCalled(false)
+	, isDestroyed(false)
+{
+	if (!recomputeNumPOI())
+		throw std::logic_error("Number of POIs is below 0!");
+}
 
 cuFFTCC2D::~cuFFTCC2D()
 {}
@@ -227,13 +227,22 @@ void cuFFTCC2D::InitializeFFTCC(// Output
 		return;
 	}
 
-	//!- Precompute the POI postions, since this is invariant during the entile
+	//!- Precompute the POI postions, since this is invariant during the entire
 	// computation.
-	cuComputePOIPostions(m_cuHandle.m_d_iPOIXY,
-						 m_iNumPOIX, m_iNumPOIY,
-						 m_iMarginX, m_iMarginY,
-						 m_iSubsetX, m_iSubsetY,
-						 m_iGridSpaceX, m_iGridSpaceY);
+	//!- Determine whether the whole image or the ROI is used
+	if(!m_isWholeImgUsed)
+		cuComputePOIPositions(m_cuHandle.m_d_iPOIXY,
+							  m_iNumPOIX,    m_iNumPOIY,
+							  m_iMarginX,    m_iMarginY,
+							  m_iSubsetX,    m_iSubsetY,
+							  m_iGridSpaceX, m_iGridSpaceY);
+	else
+		cuComputePOIPositions(m_cuHandle.m_d_iPOIXY,
+							  m_iStartX,     m_iStartY,
+							  m_iNumPOIX,    m_iNumPOIY,
+							  m_iMarginX,    m_iMarginY,
+							  m_iSubsetX,    m_iSubsetY,
+							  m_iGridSpaceX, m_iGridSpaceY);
 
 	int_t iPOINum = GetNumPOIs();
 
@@ -318,16 +327,28 @@ void cuFFTCC2D::ComputeFFTCC(// Output
 	auto iFFTSubH = m_iSubsetY * 2;
 	auto iPOINum = GetNumPOIs();
 
-	cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_iPOIXY,
-														 m_cuHandle.m_d_fRefImg,
-													 	 m_cuHandle.m_d_fTarImg,
-														 iFFTSubH, iFFTSubW,
-														 m_iSubsetX, m_iSubsetY,
-														 m_iROIHeight, m_iROIWidth,
-														 m_cuHandle.m_d_fSubset1,
-														 m_cuHandle.m_d_fSubset2,
-														 m_cuHandle.m_d_fMod1,
-														 m_cuHandle.m_d_fMod2);
+	if(!m_isWholeImgUsed)
+		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_iPOIXY,
+															 m_cuHandle.m_d_fRefImg,
+														 	 m_cuHandle.m_d_fTarImg,
+															 iFFTSubH, iFFTSubW,
+															 m_iSubsetX, m_iSubsetY,
+															 m_iROIHeight, m_iROIWidth,
+															 m_cuHandle.m_d_fSubset1,
+															 m_cuHandle.m_d_fSubset2,
+															 m_cuHandle.m_d_fMod1,
+															 m_cuHandle.m_d_fMod2);
+	else
+		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_iPOIXY,
+															 m_cuHandle.m_d_fRefImg,
+														 	 m_cuHandle.m_d_fTarImg,
+															 iFFTSubH,     iFFTSubW,
+															 m_iSubsetX,   m_iSubsetY,
+															 m_iImgHeight, m_iImgWidth,
+															 m_cuHandle.m_d_fSubset1,
+															 m_cuHandle.m_d_fSubset2,
+															 m_cuHandle.m_d_fMod1,
+															 m_cuHandle.m_d_fMod2);
 	getLastCudaError("Error in calling cufft_prepare_kernel");
 
 	cufftExecR2C(m_cuHandle.m_forwardPlanXY, 
@@ -408,13 +429,22 @@ void cuFFTCC2D::cuInitializeFFTCC(// Output
 {
 	isLowLevelApiCalled = true;
 
-	//!- Precompute the POI postions, since this is invariant during the entile
+	//!- Precompute the POI postions, since this is invariant during the entire
 	// computation.
-	cuComputePOIPostions(m_cuHandle.m_d_iPOIXY,
-						 m_iNumPOIX, m_iNumPOIY,
-						 m_iMarginX, m_iMarginY,
-						 m_iSubsetX, m_iSubsetY,
-						 m_iGridSpaceX, m_iGridSpaceY);
+	//!- Determine whether the whole image or the ROI is used
+	if(!m_isWholeImgUsed)
+		cuComputePOIPositions(m_cuHandle.m_d_iPOIXY,
+						 	  m_iNumPOIX, m_iNumPOIY,
+					 		  m_iMarginX, m_iMarginY,
+							  m_iSubsetX, m_iSubsetY,
+							  m_iGridSpaceX, m_iGridSpaceY);
+	else
+		cuComputePOIPositions(m_cuHandle.m_d_iPOIXY,
+							  m_iStartX, m_iStartY,
+							  m_iNumPOIX, m_iNumPOIY,
+							  m_iMarginX, m_iMarginY,
+							  m_iSubsetX, m_iSubsetY,
+							  m_iGridSpaceX, m_iGridSpaceY);
 
 	int_t iPOINum = GetNumPOIs();
 	int_t iROISize = GetROISize();
@@ -492,16 +522,28 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 	auto iFFTSubH = m_iSubsetY * 2;
 	auto iPOINum = GetNumPOIs();
 
-	cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_iPOIXY,
-														 m_cuHandle.m_d_fRefImg,
-													 	 m_cuHandle.m_d_fTarImg,
-														 iFFTSubH, iFFTSubW,
-														 m_iSubsetX, m_iSubsetY,
-														 m_iROIHeight, m_iROIWidth,
-														 m_cuHandle.m_d_fSubset1,
-														 m_cuHandle.m_d_fSubset2,
-														 m_cuHandle.m_d_fMod1,
-														 m_cuHandle.m_d_fMod2);
+	if(!m_isWholeImgUsed)
+		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_iPOIXY,
+															 m_cuHandle.m_d_fRefImg,
+													 		 m_cuHandle.m_d_fTarImg,
+															 iFFTSubH,     iFFTSubW,
+															 m_iSubsetX,   m_iSubsetY,
+															 m_iROIHeight, m_iROIWidth,
+															 m_cuHandle.m_d_fSubset1,
+															 m_cuHandle.m_d_fSubset2,
+															 m_cuHandle.m_d_fMod1,
+															 m_cuHandle.m_d_fMod2);
+	else
+		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_iPOIXY,
+															 m_cuHandle.m_d_fRefImg,
+													 		 m_cuHandle.m_d_fTarImg,
+															 iFFTSubH,     iFFTSubW,
+															 m_iSubsetX,   m_iSubsetY,
+															 m_iImgHeight, m_iImgWidth,
+															 m_cuHandle.m_d_fSubset1,
+															 m_cuHandle.m_d_fSubset2,
+															 m_cuHandle.m_d_fMod1,
+															 m_cuHandle.m_d_fMod2);
 	getLastCudaError("Error in calling cufft_prepare_kernel");
 
 	cufftExecR2C(m_cuHandle.m_forwardPlanXY, 
