@@ -50,7 +50,7 @@ void FrameLabel::mousePressEvent(QMouseEvent* evt)
 	{
 		// Start drawing box
 		m_starPoint = evt->pos();
-		m_roiBox.reset(new QRect(m_starPoint.x(), m_starPoint.y(), 0,0));
+		m_roiBox = new QRect(m_starPoint.x(), m_starPoint.y(), 0,0);
 		m_isDrawingBox = true;
 	}
 }

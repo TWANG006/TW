@@ -1,6 +1,7 @@
 #ifndef FRAMELABEL_H
 #define FRAMELABEL_H
 
+#include <QPointer>
 #include <QLabel>
 #include <QPoint>
 #include <QRect>
@@ -8,6 +9,7 @@
 #include <QMouseEvent>
 
 #include "Structures.h"
+
 
 class FrameLabel :public QLabel
 {
@@ -28,7 +30,7 @@ protected:
 private:
 	QPoint m_starPoint;
 	QPoint m_cursorPos;
-	QScopedPointer<QRect> m_roiBox;
+	QPointer<QRect> m_roiBox;
 	MouseData m_mouseData;
 	bool m_isDrawingBox;
 
