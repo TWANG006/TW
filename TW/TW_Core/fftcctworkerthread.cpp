@@ -1,12 +1,19 @@
 #include "fftcctworkerthread.h"
 
-FFTCCTWorkerThread::FFTCCTWorkerThread(QObject *parent)
+FFTCCTWorkerThread::FFTCCTWorkerThread(const QRect &roi,
+									   QObject *parent)
 	: QObject(parent)
+{}
+
+FFTCCTWorkerThread::~FFTCCTWorkerThread()
 {
 
 }
 
-FFTCCTWorkerThread::~FFTCCTWorkerThread()
+void FFTCCTWorkerThread::processFrame(int iFrameCount)
 {
+	if(iFrameCount % 50 ==1)
+		;
+
 
 }

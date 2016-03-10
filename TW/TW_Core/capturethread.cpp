@@ -2,17 +2,20 @@
 
 #include <QDebug>
 
-CaptureThread::CaptureThread(ImageBufferPtr imgBuffer,
+CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
+						     ImageBufferPtr tarImgBuffer,
 							 bool isDropFrameIfBufferFull,
 							 int iDeviceNumber,
 							 int width,
 							 int height,
 							 QObject *parent)
 	: m_isDropFrameIfBufferFull(isDropFrameIfBufferFull)
-	, m_imgBuffer(imgBuffer)
+	, m_refImgBuffer(refImgBuffer)
+	, m_tarImgBuffer(tarImgBuffer)
 	, m_iDeviceNumber(iDeviceNumber)
 	, m_iWidth(width)
 	, m_iHeight(height)
+	, m_iFrameCount(0)
 	, m_isAboutToStop(false)
 	, QThread(parent)
 {}
@@ -57,6 +60,46 @@ void CaptureThread::stop()
 
 void CaptureThread::run()
 {
+	forever
+	{
+		// Check whether the stop thread is triggered or not
+		m_stopMutex.lock();
+		if(m_isAboutToStop)
+		{
+			m_isAboutToStop = false;
+			m_stopMutex.unlock();
+			break;
+		}
+		m_stopMutex.unlock();
+
+	
+		// Retrieve frame
+		if(!m_cap.grab())
+			continue;
+
+		// Retrieve frames
+		m_cap.retrieve(m_grabbedFrame);
+		m_iFrameCount++;
+		
+		// Convert the fraemt to grayscal
+		m_currentFrame = cv::Mat(m_grabbedFrame.clone());
+		cv::cvtColor(m_currentFrame,
+					 m_currentFrame,
+				     CV_BGR2GRAY);
+
+		// Every 50 frames the refImg should be updated
+		if(m_iFrameCount % 50 == 1)
+		{
+			// Add the frame to refImgBuffer
+			m_refImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
+			
+		}		
+		
+		// Add all the loaded frames to the tarImgbuffer
+		m_tarImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
+				
+		emit newTarFrame(m_iFrameCount);
+	}	
 
 	qDebug()<<"Stopping the Capture thread....";
 }

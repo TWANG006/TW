@@ -30,7 +30,7 @@ protected:
 private:
 	QPoint m_starPoint;
 	QPoint m_cursorPos;
-	QPointer<QRect> m_roiBox;
+	QScopedPointer<QRect> m_roiBox;
 	MouseData m_mouseData;
 	bool m_isDrawingBox;
 

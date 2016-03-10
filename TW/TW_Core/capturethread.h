@@ -13,11 +13,8 @@ class CaptureThread : public QThread
 	Q_OBJECT
 
 public:
-	using ImageBuffer = TW::Concurrent_Buffer<cv::Mat>;
-	using ImageBufferPtr = std::shared_ptr<ImageBuffer>;
-
-public:
-	CaptureThread(ImageBufferPtr imgBuffer,
+	CaptureThread(ImageBufferPtr refImgBuffer,
+				  ImageBufferPtr tarImgBuffer,
 				  bool isDropFrameIfBufferFull,
   				  int iDeviceNumber,
 				  int width,
@@ -27,6 +24,10 @@ public:
 
 	bool connectToCamera();
 	bool disconnectCamera();
+	bool isCameraConnected()    const { return m_cap.isOpened(); }
+	int  getInputSourceWidth()  const { return m_cap.get(CV_CAP_PROP_FRAME_WIDTH); }
+	int  getInputSourceHeight() const { return m_cap.get(CV_CAP_PROP_FRAME_HEIGHT); }
+
 	void stop();
 
 protected:
@@ -35,16 +36,19 @@ protected:
 private:
 	cv::VideoCapture m_cap;
 	cv::Mat m_grabbedFrame;
-	ImageBufferPtr m_imgBuffer;
+	cv::Mat m_currentFrame;
+	ImageBufferPtr m_tarImgBuffer;
+	ImageBufferPtr m_refImgBuffer;
 	volatile bool m_isAboutToStop;
 	QMutex m_stopMutex;
 	int m_iDeviceNumber;
 	int m_iWidth;
 	int m_iHeight;
+	int m_iFrameCount;
 	bool m_isDropFrameIfBufferFull;
 
 signals:
-	void updateRefImg();
+	void newTarFrame(int frameCount);
 };
 
 #endif // CAPTURETHREAD_H

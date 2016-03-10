@@ -11,17 +11,39 @@ TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
 	, m_iSubsetX(0), m_iSubsetY(0)
 	, m_iMarginX(0), m_iMarginY(0)
 	, m_iGridSpaceX(0), m_iGridSpaceY(0)
+	, imgBuffer(nullptr)
+	, tarBuffer(nullptr)
 {
 	ui.setupUi(this);
 
+	imgBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(10));
+	tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(2));
+	m_testCap = new CaptureThread(imgBuffer,tarBuffer, false,0,-1,-1,this);
+
 	connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(OnOpenImgFile()));
 	connect(ui.actionCapture_From_Camra, SIGNAL(triggered()), this, SLOT(OnCapture_From_Camera()));
+	connect(m_testCap, &CaptureThread::newTarFrame, this, &TW_CoreMainWindow::OnFrames);
 
+	m_testCap->connectToCamera();
+
+	m_testCap->start();
 }
+
+void TW_CoreMainWindow::OnFrames(int num)
+{
+	if(num%50==1)
+	{
+		qDebug()<<num<<"Cao";
+		imgBuffer->DeQueue();
+	}
+	qDebug()<<num;
+	tarBuffer->DeQueue();
+}	
 
 TW_CoreMainWindow::~TW_CoreMainWindow()
 {
-	;
+	m_testCap->stop();
+	m_testCap->wait();
 }
 
 
