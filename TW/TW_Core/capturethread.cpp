@@ -25,6 +25,16 @@ CaptureThread::~CaptureThread()
 
 }
 
+
+bool CaptureThread::grabTheFirstRefFrame(cv::Mat &firstFrame)
+{
+	if(!m_cap.open(m_iDeviceNumber))
+		return false;
+	if(!m_cap.grab())
+		return false;
+	
+}
+
 bool CaptureThread::connectToCamera()
 {
 	bool isCamOpened = m_cap.open(m_iDeviceNumber);

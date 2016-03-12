@@ -22,8 +22,18 @@ public:
 				  QObject *parent);
 	~CaptureThread();
 
+	/// \brief Grab a first frame for the initialziation of the cuFFTCC2D algorithm
+	bool grabTheFirstRefFrame(cv::Mat &firstFrame);
+
+	/// \brife determine whether the camera is connected or not. This function should
+	/// be called before any other methods within the CaptureThread except the 
+	/// grabTheFirstRefFrame one
 	bool connectToCamera();
+
+	/// \brief Call this function to stop the thread and close the camera connection
 	bool disconnectCamera();
+
+
 	bool isCameraConnected()    const { return m_cap.isOpened(); }
 	int  getInputSourceWidth()  const { return m_cap.get(CV_CAP_PROP_FRAME_WIDTH); }
 	int  getInputSourceHeight() const { return m_cap.get(CV_CAP_PROP_FRAME_HEIGHT); }

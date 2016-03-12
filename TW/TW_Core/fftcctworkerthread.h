@@ -11,15 +11,27 @@ class FFTCCTWorkerThread : public QObject
 	Q_OBJECT
 
 public:
-	FFTCCTWorkerThread(const QRect &roi, QObject *parent);
+	FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
+					   ImageBufferPtr tarImgBuffer,
+					   int iWidth, int iHeight,
+					   int iSubsetX, int iSubsetY,
+					   int iGridSpaceX, int iGridSpaceY,
+					   int iMarginX, int iMarginY,
+					   const QRect &roi,
+					   QObject *parent);
 	~FFTCCTWorkerThread();
 
 public slots:
 	void processFrame(int iFrameCount);
 
-private:
 
-	
+private:
+			   int m_iWidth;
+			   int m_iHeight;
+	  cuFftcc2DPtr m_Fftcc2DPtr;
+	ImageBufferPtr m_refImgBuffer;
+	ImageBufferPtr m_tarImgBuffer;
+		     QRect m_ROI;
 };
 
 #endif // FFTCCTWORKERTHREAD_H

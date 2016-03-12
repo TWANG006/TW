@@ -41,7 +41,7 @@ TEST(cuFFTCC2D_CPU, cuFFTCC2D_Copy_To_CPU)
 	std::cout << matnew.step << ", ";
 	std::cout << (float)matnew.data[10 * matnew.step + 20] << ", Kanzhege" << std::endl;
 
-	paDIC::cuFFTCC2D *fcc = new paDIC::cuFFTCC2D(matnew.cols, matnew.rows,
+	paDIC::Fftcc2D *fcc = new paDIC::cuFFTCC2D(matnew.cols, matnew.rows,
 		16, 16,
 		3, 3,
 		5, 5);
@@ -83,7 +83,7 @@ TEST(cuFFTCC2D_CPU, cuFFTCC2D_Copy_To_CPU)
 	std::cout << wmatnew.step << ", ";
 	std::cout << (float)wmatnew.data[10 * wmatnew.step + 20] << ", Kanzhege" << std::endl;
 
-	paDIC::cuFFTCC2D *wfcc = new paDIC::cuFFTCC2D(wmatnew.cols, wmatnew.rows,
+	paDIC::Fftcc2D *wfcc = new paDIC::cuFFTCC2D(wmatnew.cols, wmatnew.rows,
 		wmatnew.cols-2, wmatnew.rows-2,
 		1,1,
 		16, 16,
@@ -129,7 +129,7 @@ TEST(cuFFTCC2D_GPU, cuFFTCC2D_StayOn_GPU)
 
 	cv::cvtColor(mat(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1)), matnew, CV_BGR2GRAY);
 
-	paDIC::cuFFTCC2D *fcc = new paDIC::cuFFTCC2D(matnew.cols, matnew.rows,
+	paDIC::Fftcc2D *fcc = new paDIC::cuFFTCC2D(matnew.cols, matnew.rows,
 		16, 16,
 		3, 3,
 		5, 5);
@@ -182,7 +182,7 @@ TEST(cuFFTCC2D_GPU, cuFFTCC2D_StayOn_GPU)
 
 	cv::cvtColor(wmat, wmatnew, CV_BGR2GRAY);
 
-	paDIC::cuFFTCC2D *wfcc = new paDIC::cuFFTCC2D(wmatnew.cols, wmatnew.rows,
+	paDIC::Fftcc2D *wfcc = new paDIC::cuFFTCC2D(wmatnew.cols, wmatnew.rows,
 		wmatnew.cols-2, wmatnew.rows-2,
 		1,1,
 		16, 16,
