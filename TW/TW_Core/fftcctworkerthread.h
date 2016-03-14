@@ -18,6 +18,7 @@ public:
 					   int iGridSpaceX, int iGridSpaceY,
 					   int iMarginX, int iMarginY,
 					   const QRect &roi,
+					   const cv::Mat &firstFrame,
 					   QObject *parent);
 	~FFTCCTWorkerThread();
 

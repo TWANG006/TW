@@ -7,6 +7,7 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 									   int iGridSpaceX, int iGridSpaceY,
 									   int iMarginX, int iMarginY,
 									   const QRect &roi,
+									   const cv::Mat &firstFrame,
 									   QObject *parent)
 	: m_refImgBuffer(refImgBuffer)
 	, m_tarImgBuffer(tarImgBuffer)
@@ -17,12 +18,15 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 	, QObject(parent)
 {
 	// Do the initialization for the paDIC's cuFFTCC here in the constructor
+	// 1. Construct the cuFFTCC2D object using the whole image
 	m_Fftcc2DPtr.reset(new TW::paDIC::cuFFTCC2D(iWidth, iHeight,
 												m_ROI.width(), m_ROI.height(),
 												m_ROI.x(), m_ROI.y(),
 												iSubsetX, iSubsetY,
 												iGridSpaceX, iGridSpaceY,
 												iMarginX, iMarginY));
+	
+	//2. Do the initialization for cuFFTCC2D object
 	
 }
 

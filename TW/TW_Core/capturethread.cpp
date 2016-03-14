@@ -32,7 +32,10 @@ bool CaptureThread::grabTheFirstRefFrame(cv::Mat &firstFrame)
 		return false;
 	if(!m_cap.grab())
 		return false;
-	
+	if(!m_cap.retrieve(firstFrame))
+		return false;
+
+	return true;
 }
 
 bool CaptureThread::connectToCamera()
