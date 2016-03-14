@@ -22,7 +22,7 @@ public:
 	~FFTCCTWorkerThread();
 
 public slots:
-	void processFrame(int iFrameCount);
+	void processFrame(const int &iFrameCount);
 
 
 private:

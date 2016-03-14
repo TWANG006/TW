@@ -28,10 +28,10 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 
 FFTCCTWorkerThread::~FFTCCTWorkerThread()
 {
-
+	
 }
 
-void FFTCCTWorkerThread::processFrame(int iFrameCount)
+void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 {
 	// Every 50 frames updates the reference image
 	if(iFrameCount % 50 ==1)

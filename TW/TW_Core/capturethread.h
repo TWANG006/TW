@@ -58,7 +58,7 @@ private:
 	bool m_isDropFrameIfBufferFull;
 
 signals:
-	void newTarFrame(int frameCount);
+	void newTarFrame(const int &frameCount);
 };
 
 #endif // CAPTURETHREAD_H
