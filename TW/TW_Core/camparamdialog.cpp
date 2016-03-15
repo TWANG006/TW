@@ -145,7 +145,7 @@ void CamParamDialog::newMouseData(const MouseData& mouseData)
 				(m_ROIRect.y() < m_captureThread->GetCurrentROI().y()))
 			{
 				QMessageBox::critical(this, 
-									  "Invalid ROI",
+									  tr("Invalid ROI"),
 									  tr("ROI is out of the boudary"));
 			}
 

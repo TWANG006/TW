@@ -1,6 +1,7 @@
 #include "tw_coremainwindow.h"
 #include <QFileDialog>
 #include <QDebug>
+#include <QMessageBox>
 
 TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -89,7 +90,13 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 
 	// Set the width & height to -1 to accept the default resolution of the 
 	// camera or set the resolution by hand.
-	m_camParamDialog->connectToCamera(300,300);
+	if(!m_camParamDialog->connectToCamera(300,300))
+	{
+		QMessageBox::critical(this, 
+							  tr("Fail!"),
+							  tr("Cannot connect to camera!"));
+		return;
+	}
 
 	//!- If OK button is clicked, accept all the settings
 	if(m_camParamDialog->exec() == QDialog::Accepted)
