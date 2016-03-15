@@ -18,11 +18,7 @@
     <normaloff>:/TW_CoreMainWindow/icons/App.ico</normaloff>:/TW_CoreMainWindow/icons/App.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QMdiArea" name="mdiArea"/>
-    </item>
-   </layout>
+   <layout class="QGridLayout" name="gridLayout"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

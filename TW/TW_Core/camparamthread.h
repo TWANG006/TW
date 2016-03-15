@@ -23,8 +23,7 @@ class CamParamThread : public QThread
 
 public:
 	CamParamThread(int width, 
-				   int height, 
-				   QObject* parent = 0);
+				   int height);
 	~CamParamThread();
 
 	bool connectToCamera();
@@ -48,12 +47,14 @@ signals:
 private:
 	void updateFPS(int);
 	QMutex m_mutex;
+	QMutex m_otherMutex;
 	volatile bool m_doStop;
 	QTime m_time;
 
 	cv::VideoCapture m_cap;
 	cv::Mat m_grabbedFrame;
 	cv::Mat m_currentFrame;
+	/*cv::Mat m_currentGrayFrame;*/
 	QImage m_frame;
 
 	ThreadStatisticsData m_statsData;

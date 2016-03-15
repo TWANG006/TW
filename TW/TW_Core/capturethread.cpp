@@ -1,6 +1,7 @@
 #include "capturethread.h"
 
 #include <QDebug>
+#include "TW_MatToQImage.h"
 
 CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
 						     ImageBufferPtr tarImgBuffer,
@@ -28,8 +29,6 @@ CaptureThread::~CaptureThread()
 
 bool CaptureThread::grabTheFirstRefFrame(cv::Mat &firstFrame)
 {
-	if(!m_cap.open(m_iDeviceNumber))
-		return false;
 	if(!m_cap.grab())
 		return false;
 	if(!m_cap.retrieve(firstFrame))
@@ -87,31 +86,39 @@ void CaptureThread::run()
 
 	
 		// Retrieve frame
-		if(!m_cap.grab())
-			continue;
+		m_cap>>m_grabbedFrame;
+		//if(!m_cap.grab())
+		//	continue;
 
-		// Retrieve frames
-		m_cap.retrieve(m_grabbedFrame);
-		m_iFrameCount++;
-		
-		// Convert the fraemt to grayscal
-		m_currentFrame = cv::Mat(m_grabbedFrame.clone());
-		cv::cvtColor(m_currentFrame,
-					 m_currentFrame,
-				     CV_BGR2GRAY);
-
-		// Every 50 frames the refImg should be updated
-		if(m_iFrameCount % 50 == 1)
+		//// Retrieve frames
+		//if(m_cap.retrieve(m_grabbedFrame))
+		if(!m_grabbedFrame.empty())
 		{
-			// Add the frame to refImgBuffer
-			m_refImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
-			
-		}		
+			m_iFrameCount++;
 		
-		// Add all the loaded frames to the tarImgbuffer
-		m_tarImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
-				
-		emit newTarFrame(m_iFrameCount);
+			// Convert the fraemt to grayscal
+			m_currentFrame = cv::Mat(m_grabbedFrame.clone());
+			cv::cvtColor(m_currentFrame,
+						 m_currentFrame,
+						 CV_BGR2GRAY);
+			m_Qimg = TW::Mat2QImage(m_currentFrame);
+
+			// Every 50 frames the refImg should be updated
+			if(m_iFrameCount % 50 == 1)
+			{
+				// Add the frame to refImgBuffer
+				m_refImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
+
+				// update the GUI's reference image label
+				emit newRefQImg(m_Qimg);
+			}		
+		
+			// Add all the loaded frames to the tarImgbuffer
+			m_tarImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);	
+			// Update the GUI's target image label
+			emit newTarFrame(m_iFrameCount);
+			emit newTarQImg(m_Qimg);
+		}
 	}	
 
 	qDebug()<<"Stopping the Capture thread....";

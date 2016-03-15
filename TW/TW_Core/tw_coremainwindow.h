@@ -19,22 +19,22 @@ public:
 	~TW_CoreMainWindow();
 	
 protected:
-	void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
+	//void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
 protected slots:
 	void OnOpenImgFile();
 	void OnCapture_From_Camera();
-	void OnFrames(int num);
+	//void OnFrames(int num);
 
 private:
 	Ui::TW_CoreMainWindowClass ui;
 
-	std::shared_ptr<TW::Concurrent_Buffer<cv::Mat>> imgBuffer;
-	std::shared_ptr<TW::Concurrent_Buffer<cv::Mat>> tarBuffer;
-	QString qstrLastSelectedDir;						//!- Hold last opend directory
-	QPointer<CamParamDialog>   m_camParamDialog;
-	QPointer<FFTCC1CamWidget>  m_fftcc1camWidget;
-	CaptureThread *m_testCap;
+	ImageBufferPtr m_refBuffer;						// Global refImg buffer
+	ImageBufferPtr m_tarBuffer;						// Global tarImg 
+	QString qstrLastSelectedDir;					//!- Hold last opend directory
+	QPointer<CamParamDialog>  m_camParamDialog;
+	QPointer<FFTCC1CamWidget> m_fftcc1camWidget;
+	//CaptureThread *m_testCap;
 	QRect m_ROI;
 	bool m_isDropFrameChecked;
 	int m_iSubsetX;
@@ -43,6 +43,11 @@ private:
 	int m_iMarginY;
 	int m_iGridSpaceX;
 	int m_iGridSpaceY;
+
+	// Global parameters for the computation of FFTCC & ICGN
+	int m_d_iU;
+	int m_d_iV;
+	float m_d_fZNCC;
 
 };
 

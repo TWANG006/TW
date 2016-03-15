@@ -43,18 +43,18 @@ CamParamDialog::~CamParamDialog()
 bool CamParamDialog::connectToCamera(int width, int height)
 {
 	// Create the capture thread
-	m_captureThread = new CamParamThread(width, height, this);
+	m_captureThread = new CamParamThread(width, height);
 
 	if(m_captureThread->connectToCamera())
 	{
 		// signal/slots connections between capture thread and camera dialog
-		connect(m_captureThread.data(), &CamParamThread::newFrame,
+		connect(m_captureThread/*.data()*/, &CamParamThread::newFrame,
 			    this,					&CamParamDialog::updateFrame);	
 		connect(this,                   &CamParamDialog::setROI,
-			    m_captureThread.data(), &CamParamThread::setROI);
+			    m_captureThread/*.data()*/, &CamParamThread::setROI);
 		connect(ui.frameLable,			&FrameLabel::sig_newMouseData,
 			    this,					&CamParamDialog::newMouseData);
-		connect(m_captureThread.data(), &CamParamThread::updateStatisticsInGUI,
+		connect(m_captureThread/*.data()*/, &CamParamThread::updateStatisticsInGUI,
 			    this,                   &CamParamDialog::updateThreadStats);
 
 		// Set the initial ROI for the capture thread
@@ -89,8 +89,8 @@ void CamParamDialog::stopCaptureThread()
 	qDebug() <<"Trying to stop capture thread...";
 	m_captureThread->stop();
 	
-	if(m_captureThread->wait())
-		qDebug()<<"Capture thread is stopped successfully.";
+	m_captureThread->wait();
+	qDebug()<<"Capture thread is stopped successfully.";
 }
 
 void CamParamDialog::newMouseData(const MouseData& mouseData)
@@ -209,4 +209,22 @@ void CamParamDialog::updateThreadStats(const ThreadStatisticsData &statData)
 						 QString::number(m_captureThread->GetCurrentROI().width()) + 
 						 QLatin1String("x") + 
 						 QString::number(m_captureThread->GetCurrentROI().height()));
+}
+
+int CamParamDialog:: GetInputSourceWidth()
+{
+	/*if(!m_captureThread.isNull())
+		return m_captureThread->getInputSourceWidth();
+	else
+		return -1;*/
+	return m_captureThread->getInputSourceWidth();
+}
+
+int CamParamDialog::GetInputSourceHeight()
+{
+	/*if(!m_captureThread.isNull())
+		return m_captureThread->getInputSourceHeight();
+	else
+		return -1;*/
+	return m_captureThread->getInputSourceHeight();
 }

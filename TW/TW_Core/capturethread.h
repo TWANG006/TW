@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QThread>
+#include <QImage>
 #include <opencv2\opencv.hpp>
 
 #include "Structures.h"
@@ -47,6 +48,7 @@ private:
 	cv::VideoCapture m_cap;
 	cv::Mat m_grabbedFrame;
 	cv::Mat m_currentFrame;
+	cv::Mat m_grayFrame;
 	ImageBufferPtr m_tarImgBuffer;
 	ImageBufferPtr m_refImgBuffer;
 	volatile bool m_isAboutToStop;
@@ -57,8 +59,13 @@ private:
 	int m_iFrameCount;
 	bool m_isDropFrameIfBufferFull;
 
+	// For the GUI use to update the ref & tar images
+	QImage m_Qimg;
+
 signals:
 	void newTarFrame(const int &frameCount);
+	void newRefQImg(const QImage& refImg);
+	void newTarQImg(const QImage& tarImg);
 };
 
 #endif // CAPTURETHREAD_H

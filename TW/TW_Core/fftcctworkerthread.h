@@ -18,8 +18,7 @@ public:
 					   int iGridSpaceX, int iGridSpaceY,
 					   int iMarginX, int iMarginY,
 					   const QRect &roi,
-					   const cv::Mat &firstFrame,
-					   QObject *parent);
+					   const cv::Mat &firstFrame);
 	~FFTCCTWorkerThread();
 
 public slots:
@@ -27,12 +26,12 @@ public slots:
 
 
 private:
-			   int m_iWidth;
-			   int m_iHeight;
-	  cuFftcc2DPtr m_Fftcc2DPtr;
+	int m_iWidth;
+	int m_iHeight;
+	cuFftcc2DPtr m_Fftcc2DPtr;
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
-		     QRect m_ROI;
+	QRect m_ROI;
 };
 
 #endif // FFTCCTWORKERTHREAD_H
