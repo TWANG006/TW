@@ -50,6 +50,9 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	{
 		m_refImgBuffer->DeQueue(tempImg);
 		m_Fftcc2DPtr->ResetRefImg(tempImg);
+
+		// Use the results to update the POI positions
+		
 		qDebug()<<"ref";
 	}
 		
@@ -59,7 +62,6 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	m_Fftcc2DPtr->cuComputeFFTCC(m_d_iU, m_d_iV, m_d_fZNCC, tarImg);
 	qDebug()<<"tar";
 
-	// 3. Use the results to update the POI positions
 
 	// 4. Calculate the color map for the iU and iV images
 
