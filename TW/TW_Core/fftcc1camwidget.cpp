@@ -54,7 +54,7 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 	ui.refFramelabel->setText(tr("Connecting to camera..."));
 	ui.tarFramelabel->setText(tr("Connecting to camera..."));
 
-	// Create the capture thread & the FFTCC worker and its thread
+	// 1. Create the capture thread & the FFTCC worker and its thread
 	m_captureThread = new CaptureThread(m_refImgBuffer,
 										m_tarImgBuffer,
 										ifDropFrame,
@@ -63,14 +63,14 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 										height,
 										this);
 
-	// Attempt to connect to camera
+	// 2. Attempt to connect to camera
 	if(m_captureThread->connectToCamera())
 	{
-		// Aquire the first frame to initialize the FFTCCWorker
+		// 3. Aquire the first frame to initialize the FFTCCWorker
 		cv::Mat firstFrame;
 		m_captureThread->grabTheFirstRefFrame(firstFrame);
 
-		// Construct the fftccWorker
+		// 4. Construct & initialize the fftccWorker
 		m_fftccWorker = new FFTCCTWorkerThread(m_refImgBuffer,
 											   m_tarImgBuffer,
 											   width, height,
@@ -78,8 +78,12 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 											   iGridSpaceX, iGridSpaceY,
 											   iMarginX, iMarginY,
 											   roi,
-											   firstFrame);
-		// Move the fftccworker to its own thread
+											   firstFrame,
+											   m_d_iU,
+											   m_d_iV,
+											   m_d_fZNCC);
+
+		// 5. Move the fftccworker to its own thread
 		m_fftccWorker->moveToThread(&m_fftccWorkerThread);
 
 		// Do the signal/slot connections here

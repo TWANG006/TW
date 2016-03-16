@@ -11,14 +11,19 @@ class FFTCCTWorkerThread : public QObject
 	Q_OBJECT
 
 public:
-	FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
+	FFTCCTWorkerThread(// Inputs
+					   ImageBufferPtr refImgBuffer,
 					   ImageBufferPtr tarImgBuffer,
 					   int iWidth, int iHeight,
 					   int iSubsetX, int iSubsetY,
 					   int iGridSpaceX, int iGridSpaceY,
 					   int iMarginX, int iMarginY,
 					   const QRect &roi,
-					   const cv::Mat &firstFrame);
+					   const cv::Mat &firstFrame,
+					   // Outputs
+					   int *&d_iU,
+					   int *&d_iV,
+					   float *&d_fZNCC);
 	~FFTCCTWorkerThread();
 
 public slots:
@@ -26,6 +31,9 @@ public slots:
 
 
 private:
+	int *m_d_iU;
+	int *m_d_iV;
+	float *m_d_fZNCC;
 	int m_iWidth;
 	int m_iHeight;
 	cuFftcc2DPtr m_Fftcc2DPtr;

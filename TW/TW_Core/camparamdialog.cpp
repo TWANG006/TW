@@ -96,7 +96,7 @@ void CamParamDialog::stopCaptureThread()
 void CamParamDialog::newMouseData(const MouseData& mouseData)
 {
 	int x_temp, y_temp, width_temp, height_temp;
-	QRect m_ROIRect;
+	m_ROIRect;
 
 	if(mouseData.m_isLeftBtnReleased)
 	{
