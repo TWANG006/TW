@@ -41,10 +41,6 @@ public slots:
 private:
 	Ui::FFTCC1CamWidget ui;
 
-	int *m_d_iU;
-	int *m_d_iV;
-	float *m_d_fZNCC;
-
 	QThread m_fftccWorkerThread;					// FFTCC thread
 	QPointer<CaptureThread> m_captureThread;		// Capture thread	
 	QPointer<FFTCCTWorkerThread	> m_fftccWorker;	// FFTCC worker

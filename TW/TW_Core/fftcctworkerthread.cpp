@@ -8,19 +8,13 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 									   int iGridSpaceX, int iGridSpaceY,
 									   int iMarginX, int iMarginY,
 									   const QRect &roi,
-									   const cv::Mat &firstFrame,
-									   int *&d_iU,
-									   int *&d_iV,
-									   float *&d_fZNCC)
+									   const cv::Mat &firstFrame)
 	: m_refImgBuffer(refImgBuffer)
 	, m_tarImgBuffer(tarImgBuffer)
 	, m_iWidth(iWidth)
 	, m_iHeight(iHeight)
 	, m_ROI(roi)
 	, m_Fftcc2DPtr(nullptr)
-	, m_d_iU(d_iU)
-	, m_d_iV(d_iV)
-	, m_d_fZNCC(d_fZNCC)
 {
 	// Do the initialization for the paDIC's cuFFTCC here in the constructor
 	// 1. Construct the cuFFTCC2D object using the whole image
@@ -45,14 +39,14 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	cv::Mat tempImg;
 	cv::Mat tarImg;
 
+
 	// 1. Every 50 frames updates the reference image
 	if(iFrameCount % 50 ==1)
 	{
 		m_refImgBuffer->DeQueue(tempImg);
 		m_Fftcc2DPtr->ResetRefImg(tempImg);
 
-		// Use the results to update the POI positions
-		
+		// 3. Use the results to update the POI positions
 		qDebug()<<"ref";
 	}
 		

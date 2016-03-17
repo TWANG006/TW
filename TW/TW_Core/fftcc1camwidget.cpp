@@ -78,10 +78,7 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 											   iGridSpaceX, iGridSpaceY,
 											   iMarginX, iMarginY,
 											   roi,
-											   firstFrame,
-											   m_d_iU,
-											   m_d_iV,
-											   m_d_fZNCC);
+											   firstFrame);
 
 		// 5. Move the fftccworker to its own thread
 		m_fftccWorker->moveToThread(&m_fftccWorkerThread);

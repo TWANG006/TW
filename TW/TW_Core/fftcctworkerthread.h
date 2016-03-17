@@ -19,11 +19,7 @@ public:
 					   int iGridSpaceX, int iGridSpaceY,
 					   int iMarginX, int iMarginY,
 					   const QRect &roi,
-					   const cv::Mat &firstFrame,
-					   // Outputs
-					   int *&d_iU,
-					   int *&d_iV,
-					   float *&d_fZNCC);
+					   const cv::Mat &firstFrame);
 	~FFTCCTWorkerThread();
 
 public slots:

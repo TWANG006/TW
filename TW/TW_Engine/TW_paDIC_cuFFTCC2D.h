@@ -51,6 +51,9 @@ struct GPUHandle
 class TW_LIB_DLL_EXPORTS cuFFTCC2D : public Fftcc2D
 {
 public:
+
+	GPUHandle m_cuHandle;			// GPU structures to hold required data
+
 	/// \brief cuFFTCC2D Constructor that takes configuration parameters of the ROI
 	///
 	/// \param iROIWidth width of the ROI
@@ -186,7 +189,6 @@ public:
 
 
 private:
-	GPUHandle m_cuHandle;			// GPU structures to hold required data
 	bool isLowLevelApiCalled;		// check if the low level apis in use
 	bool isDestroyed;				// check if the FFTCC is completed
 	//cv::cuda::HostMem m_plRef;	// Page-locked host memory for ref image
