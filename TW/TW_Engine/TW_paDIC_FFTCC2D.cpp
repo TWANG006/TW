@@ -42,6 +42,16 @@ Fftcc2D::Fftcc2D(const int_t iROIWidth, const int_t iROIHeight,
 	, m_iMarginY(iMarginY)
 	, m_isWholeImgUsed(false)
 {}
+
+void Fftcc2D::setROI(const int_t& iStartX, const int_t& iStartY,
+								 const int_t& iROIWidth, const int_t& iROIHeight)
+{
+	m_iStartX = iStartX;
+	m_iStartY = iStartY;
+	m_iROIWidth = iROIWidth;
+	m_iROIHeight = iROIHeight;
+}
+
 /*void Fftcc2D::setROI(const int_t& iROIWidth, const int_t& iROIHeight)
 		{
 			m_iROIWidth = iROIWidth;

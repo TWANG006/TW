@@ -92,6 +92,13 @@ public:
 
 	~cuFFTCC2D();
 
+	void setROI(const int_t& iStartX, const int_t& iStartY,
+				const int_t& iROIWidth, const int_t& iROIHeight)
+	{
+		Fftcc2D::setROI(iStartX,iStartY,
+						iROIWidth, iROIHeight);
+	}
+
 	// !-------------------------------------High level method----------------------------------
 
 	/// \brief Initialize the FFTCC algorithm, including allocating both device and host 

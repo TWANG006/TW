@@ -1,6 +1,8 @@
 #include "fftcctworkerthread.h"
 #include <QDebug>
 
+#include "cuda_utils.h"
+
 FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 									   ImageBufferPtr tarImgBuffer,
 									   int iWidth, int iHeight,

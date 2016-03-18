@@ -91,5 +91,13 @@
     <CudaCompile Include="TW_paDIC_cuFFTCC2D.cu">
       <Filter>CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="TW_cuTempUtils.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TW_cuTempUtils.cuh">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

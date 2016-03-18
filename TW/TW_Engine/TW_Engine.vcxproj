@@ -161,6 +161,7 @@
     <ClInclude Include="SharedImageBuffer.h" />
     <ClInclude Include="TW.h" />
     <ClInclude Include="TW_Concurrent_Buffer.h" />
+    <ClInclude Include="TW_cuTempUtils.h" />
     <ClInclude Include="TW_ICGN2D.h" />
     <ClInclude Include="TW_MatToQImage.h" />
     <ClInclude Include="TW_paDIC_cuFFTCC2D.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="TW_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="TW_cuTempUtils.cu" />
     <CudaCompile Include="TW_cuUtils.cu" />
     <CudaCompile Include="TW_paDIC_cuFFTCC2D.cu" />
   </ItemGroup>

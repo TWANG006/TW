@@ -1,5 +1,3 @@
-#include <cuda_utils.h>
-
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 

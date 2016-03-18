@@ -36,10 +36,10 @@
     <ClCompile Include="FftccTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GPUutils_test.cpp">
+    <ClCompile Include="Other_Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Other_Test.cpp">
+    <ClCompile Include="GPUutils_test.cu">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
