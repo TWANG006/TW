@@ -1,7 +1,7 @@
 #include "fftcctworkerthread.h"
 #include <QDebug>
 
-#include "cuda_utils.h"
+#include "cuda_utils.cuh"
 
 FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 									   ImageBufferPtr tarImgBuffer,
@@ -41,14 +41,16 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	cv::Mat tempImg;
 	cv::Mat tarImg;
 
-
 	// 1. Every 50 frames updates the reference image
 	if(iFrameCount % 50 ==1)
 	{
 		m_refImgBuffer->DeQueue(tempImg);
 		m_Fftcc2DPtr->ResetRefImg(tempImg);
 
-		// 3. Use the results to update the POI positions
+		// 3.1 Use the results to update the POI positions
+
+		// 3.2 TODO: Copy the iU, iV to host memory for ICGN
+
 		qDebug()<<"ref";
 	}
 		

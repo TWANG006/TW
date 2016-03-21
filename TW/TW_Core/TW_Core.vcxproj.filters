@@ -171,8 +171,8 @@
     <ClInclude Include="GeneratedFiles\ui_fftcc1camwidget.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="cuda_utils.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="cuda_utils.cuh">
+      <Filter>CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
