@@ -7,9 +7,11 @@
 /// \param min the raw device pointer output of min ele
 /// \param max the raw device pointer output of max ele
 /// \param n   the size of the input array
-void minMaxRWrapper(int *iU, int *iV, int iNU, int iNV,
-				    int* iminU, int* imaxU,
-					int* iminV, int* imaxV);
+void minMaxRWrapper(int *&iU, int *&iV, int iNU, int iNV,
+				    int* &iminU, int* &imaxU,
+					int* &iminV, int* &imaxV);
+
+void constructTextImage();
 
 void updatePOI_ROI(int *iPOIpos,
 				   int *iU,

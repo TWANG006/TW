@@ -44,3 +44,26 @@ void memtest()
 	
 	delete h; h=nullptr;
 }
+
+void minMaxRWrapper(int *&iU, int *&iV, int iNU, int iNV,
+				    int* &iminU, int* &imaxU,
+					int* &iminV, int* &imaxV)
+{
+	using iThDevPtr = thrust::device_ptr<int>;
+
+	// Use thrust to find max and min simultaneously
+	iThDevPtr d_Uptr(iU);
+	thrust::pair<iThDevPtr, iThDevPtr> result_u = thrust::minmax_element(d_Uptr, d_Uptr+iNU);
+	// Cast the thrust device pointer to raw device pointer
+	iminU = thrust::raw_pointer_cast(result_u.first);
+	imaxU = thrust::raw_pointer_cast(result_u.second);
+
+	// Same for iV
+	iThDevPtr d_Vptr(iV);
+	thrust::pair<iThDevPtr, iThDevPtr> result_v = thrust::minmax_element(d_Vptr, d_Vptr+iNV);
+	// Cast the thrust device pointer to raw device pointer
+	iminV = thrust::raw_pointer_cast(result_u.first);
+	imaxV = thrust::raw_pointer_cast(result_u.second);
+
+	qDebug()<<result_u.first[0]<<", "<<result_u.second[0];
+}
