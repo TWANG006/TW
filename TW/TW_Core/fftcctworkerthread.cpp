@@ -68,6 +68,9 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	// 5.1 Map the target image data
 	// 5.2 Map the colormap data
 	// 5.3 Normalize to [0,1] scale
+}
 
+void FFTCCTWorkerThread::render()
+{
 
 }

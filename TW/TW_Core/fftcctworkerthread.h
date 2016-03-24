@@ -24,7 +24,7 @@ public:
 
 public slots:
 	void processFrame(const int &iFrameCount);
-
+	void render();
 
 private:
 	int *m_d_iU;
