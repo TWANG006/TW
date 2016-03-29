@@ -15,6 +15,8 @@ FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 	, QWidget(parent)
 {
 	ui.setupUi(this);
+	m_twGLwidget = new GLWidget(this);
+	ui.gridLayout->addWidget(m_twGLwidget,0,1,1,1);
 }
 
 FFTCC1CamWidget::~FFTCC1CamWidget()
@@ -54,6 +56,7 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 	// Update the text of the labels
 	ui.refFramelabel->setText(tr("Connecting to camera..."));
 	ui.tarFramelabel->setText(tr("Connecting to camera..."));
+
 
 	// 1. Create the capture thread & the FFTCC worker and its thread
 	m_captureThread = new CaptureThread(m_refImgBuffer,

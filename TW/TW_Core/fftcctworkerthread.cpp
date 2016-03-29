@@ -51,14 +51,18 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 
 		// 3.2 TODO: Copy the iU, iV to host memory for ICGN
 
-		qDebug()<<"ref";
+		// qDebug()<<"ref";
 	}
 		
 	m_tarImgBuffer->DeQueue(tarImg);
 
 	// 2. Do the FFTCC computation
 	m_Fftcc2DPtr->cuComputeFFTCC(m_d_iU, m_d_iV, m_d_fZNCC, tarImg);
-	qDebug()<<"tar";
+
+	/*float *i = new float;
+	cudaMemcpy(i, &m_d_fZNCC[0], sizeof(float), cudaMemcpyDeviceToHost);
+
+	qDebug()<<"tar"<<"  "<<*i;*/
 
 
 	// 4. Calculate the color map for the iU and iV images
@@ -68,6 +72,7 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	// 5.1 Map the target image data
 	// 5.2 Map the colormap data
 	// 5.3 Normalize to [0,1] scale
+	// delete i; i = nullptr;
 }
 
 void FFTCCTWorkerThread::render()

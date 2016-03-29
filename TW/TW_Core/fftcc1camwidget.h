@@ -9,7 +9,7 @@
 #include "Structures.h"
 #include "capturethread.h"
 #include "fftcctworkerthread.h"
-
+#include "glwidget.h"
 
 class FFTCC1CamWidget : public QWidget
 {
@@ -40,6 +40,7 @@ public slots:
 
 private:
 	Ui::FFTCC1CamWidget ui;
+	GLWidget *m_twGLwidget;
 
 	QThread *m_fftccWorkerThread;	    // FFTCC thread
 	CaptureThread *m_captureThread;		// Capture thread	

@@ -116,15 +116,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_fftcctworkerthread.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="glcanvas.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_glcanvas.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_glcanvas.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="tw_coremainwindow.h">
@@ -163,10 +154,7 @@
     <CustomBuild Include="fftcctworkerthread.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="glcanvas.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="glcanvas.ui">
+    <CustomBuild Include="glwidget.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -189,7 +177,7 @@
     <ClInclude Include="cuda_utils.cuh">
       <Filter>CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_glcanvas.h">
+    <ClInclude Include="GeneratedFiles\ui_glwidget.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
