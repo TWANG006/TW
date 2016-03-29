@@ -35,15 +35,15 @@ private:
 	void stopFFTCCWorkerThread();
 
 public slots:
-	void updateRefFrame(const QImage&);				// signal: &capturethread::newRefFrame
-	void updateTarFrame(const QImage&);				// signal: &capturethread::newTarFrame
+	void updateRefFrame(const QImage&);	// signal: &capturethread::newRefFrame
+	void updateTarFrame(const QImage&);	// signal: &capturethread::newTarFrame
 
 private:
 	Ui::FFTCC1CamWidget ui;
 
-	QThread m_fftccWorkerThread;					// FFTCC thread
-	QPointer<CaptureThread> m_captureThread;		// Capture thread	
-	QPointer<FFTCCTWorkerThread	> m_fftccWorker;	// FFTCC worker
+	QThread *m_fftccWorkerThread;	    // FFTCC thread
+	CaptureThread *m_captureThread;		// Capture thread	
+	FFTCCTWorkerThread *m_fftccWorker;	// FFTCC worker
 
 	bool m_isCameraConnected;
 	int m_iDeviceNumber;

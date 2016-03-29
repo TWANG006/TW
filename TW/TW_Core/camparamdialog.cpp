@@ -29,7 +29,7 @@ CamParamDialog::~CamParamDialog()
 	if(m_isCameraConnected)
 	{
 		// Stop the capture thread
-		if(m_captureThread->isRunning())
+		if(m_captureThread!=nullptr && m_captureThread->isRunning())
 			stopCaptureThread();
 
 		// Disconnect the camera
@@ -44,6 +44,7 @@ bool CamParamDialog::connectToCamera(int width, int height)
 {
 	// Create the capture thread
 	m_captureThread = new CamParamThread(width, height);
+	connect(m_captureThread, &CamParamThread::finished, m_captureThread, &CamParamThread::deleteLater);
 
 	if(m_captureThread->connectToCamera())
 	{

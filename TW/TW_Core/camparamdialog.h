@@ -45,7 +45,7 @@ signals:
 
 private:
 	QRect m_ROIRect;
-	QPointer<CamParamThread> m_captureThread; 
+	CamParamThread *m_captureThread; 
 	bool m_isCameraConnected;
 
 	Ui::CamParamDialog ui;

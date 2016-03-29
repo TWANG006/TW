@@ -32,8 +32,8 @@ private:
 	ImageBufferPtr m_refBuffer;						// Global refImg buffer
 	ImageBufferPtr m_tarBuffer;						// Global tarImg 
 	QString qstrLastSelectedDir;					//!- Hold last opend directory
-	QPointer<CamParamDialog>  m_camParamDialog;
-	QPointer<FFTCC1CamWidget> m_fftcc1camWidget;
+	CamParamDialog  *m_camParamDialog;
+	FFTCC1CamWidget *m_fftcc1camWidget;
 	//CaptureThread *m_testCap;
 	QRect m_ROI;
 	bool m_isDropFrameChecked;

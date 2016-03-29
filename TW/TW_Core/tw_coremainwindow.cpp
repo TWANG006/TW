@@ -20,7 +20,7 @@ TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
 	/*m_testCap = new CaptureThread(m_refBuffer,m_testCap, false,0,-1,-1,this);*/
 
 	connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(OnOpenImgFile()));
-	connect(ui.actionCapture_From_Camra, SIGNAL(triggered()), this, SLOT(OnCapture_From_Camera()));
+	connect(ui.actionCapture_From_Camra, &QAction::triggered, this, &TW_CoreMainWindow::OnCapture_From_Camera);
 	/*connect(m_testCap, &CaptureThread::newTarFrame, this, &TW_CoreMainWindow::OnFrames);
 
 	m_testCap->connectToCamera();
@@ -119,17 +119,15 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 												m_tarBuffer,
 												this);
 
-		ui.gridLayout->addWidget(m_fftcc1camWidget.data());
-		//m_fftcc1camWidget->show();
-
-		m_fftcc1camWidget->connectToCamera(m_isDropFrameChecked,
-										   m_camParamDialog->GetInputSourceWidth(),
-										   m_camParamDialog->GetInputSourceHeight(),
-										   m_iSubsetX, m_iSubsetY,
-										   m_iGridSpaceX, m_iGridSpaceY,
-										   m_iMarginX, m_iMarginY,
-										   m_ROI);
-
-		//ui.actionCapture_From_Camra->setDisabled(true);
+		if(m_fftcc1camWidget->connectToCamera(m_isDropFrameChecked,
+										      m_camParamDialog->GetInputSourceWidth(),
+										      m_camParamDialog->GetInputSourceHeight(),
+										      m_iSubsetX, m_iSubsetY,
+										      m_iGridSpaceX, m_iGridSpaceY,
+										      m_iMarginX, m_iMarginY,
+										      m_ROI))
+		{
+			ui.gridLayout->addWidget(m_fftcc1camWidget);
+		}	
 	}
 }

@@ -11,6 +11,7 @@ FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 	, m_isCameraConnected(false)
 	, m_captureThread(nullptr)
 	, m_fftccWorker(nullptr)
+	, m_fftccWorkerThread(nullptr)
 	, QWidget(parent)
 {
 	ui.setupUi(this);
@@ -20,11 +21,11 @@ FFTCC1CamWidget::~FFTCC1CamWidget()
 {
 	if(m_isCameraConnected)
 	{
-		// Stop the fftccWorkerThread
-		if(m_fftccWorkerThread.isRunning())
-		{
-			stopFFTCCWorkerThread();
-		}
+		//// Stop the fftccWorkerThread
+		//if(m_fftccWorkerThread->isRunning())
+		//{
+		//	stopFFTCCWorkerThread();
+		//}
 
 		// Stop the captureThread
 		if(m_captureThread->isRunning())
@@ -63,6 +64,8 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 										height,
 										this);
 
+	connect(m_captureThread, &CaptureThread::finished, m_captureThread, &CaptureThread::deleteLater);
+
 	// 2. Attempt to connect to camera
 	if(m_captureThread->connectToCamera())
 	{
@@ -81,17 +84,18 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 											   firstFrame);
 
 		// 5. Move the fftccworker to its own thread
-		m_fftccWorker->moveToThread(&m_fftccWorkerThread);
+		m_fftccWorkerThread = new QThread;
+		m_fftccWorker->moveToThread(m_fftccWorkerThread);
 
 		// Do the signal/slot connections here
 		connect(m_captureThread, &CaptureThread::newRefQImg, this, &FFTCC1CamWidget::updateRefFrame);
 		connect(m_captureThread, &CaptureThread::newTarQImg, this, &FFTCC1CamWidget::updateTarFrame);
-		connect(&m_fftccWorkerThread, &QThread::finished, m_fftccWorker.data(), &QObject::deleteLater);
-		connect(&m_fftccWorkerThread, &QThread::finished, &m_fftccWorkerThread, &QThread::deleteLater);
-		connect(m_captureThread, &CaptureThread::newTarFrame, m_fftccWorker.data(), &FFTCCTWorkerThread::processFrame);
+		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorker, &QObject::deleteLater);
+		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorkerThread, &QThread::deleteLater);
+		connect(m_captureThread, &CaptureThread::newTarFrame, m_fftccWorker, &FFTCCTWorkerThread::processFrame);
 
 		m_captureThread->start();
-		m_fftccWorkerThread.start();
+		m_fftccWorkerThread->start();
 
 		m_isCameraConnected = true;
 		
@@ -123,10 +127,10 @@ void FFTCC1CamWidget::stopCaptureThread()
 void FFTCC1CamWidget::stopFFTCCWorkerThread()
 {
 	qDebug() << "["<<m_iDeviceNumber<<"] About to stop FFTCCWorker thread...";
-	if(m_fftccWorkerThread.isRunning())
+	if(m_fftccWorkerThread->isRunning())
 	{
-		m_fftccWorkerThread.quit();
-		m_fftccWorkerThread.wait();
+		m_fftccWorkerThread->quit();
+		m_fftccWorkerThread->wait();
 	}
 
 	qDebug() <<"["<<m_iDeviceNumber<<"] FFTCCWorker thread successfully stopped...";
