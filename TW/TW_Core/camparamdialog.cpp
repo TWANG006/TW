@@ -34,9 +34,9 @@ CamParamDialog::~CamParamDialog()
 
 		// Disconnect the camera
 		if(m_captureThread->disconnectCamera())
-			qDebug() <<"Camera sucessfully disconnected.";
+			qDebug() <<"[Param Setting] Camera sucessfully disconnected.";
 		else
-			qDebug() <<"WARNING: Camera already disconnected.";
+			qDebug() <<"[Param Setting] WARNING: Camera already disconnected.";
 	}
 }
 
@@ -87,11 +87,11 @@ bool CamParamDialog::connectToCamera(int width, int height)
 
 void CamParamDialog::stopCaptureThread()
 {
-	qDebug() <<"Trying to stop capture thread...";
+	qDebug() <<"[Param Setting] Trying to stop capture thread...";
 	m_captureThread->stop();
 	
 	m_captureThread->wait();
-	qDebug()<<"Capture thread is stopped successfully.";
+	qDebug()<<"[Param Setting] Capture thread is stopped successfully.";
 }
 
 void CamParamDialog::newMouseData(const MouseData& mouseData)

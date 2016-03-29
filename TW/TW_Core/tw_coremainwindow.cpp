@@ -83,7 +83,12 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	while ((child = ui.gridLayout->takeAt(0)) != 0) {
 		delete child->widget();
 		delete child;
-		delete m_camParamDialog;
+		if(m_camParamDialog != nullptr)
+		{
+			delete m_camParamDialog;
+			m_camParamDialog = nullptr;
+		}
+
 	}
 	
 	m_camParamDialog = new CamParamDialog(this);
@@ -94,7 +99,7 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	{
 		QMessageBox::critical(this, 
 							  tr("Fail!"),
-							  tr("Cannot connect to camera!"));
+							  tr("[Param Setting] Cannot connect to camera!"));
 		return;
 	}
 
@@ -130,4 +135,8 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 			ui.gridLayout->addWidget(m_fftcc1camWidget);
 		}	
 	}
+	else
+	{
+		delete m_camParamDialog;
+	}		
 }

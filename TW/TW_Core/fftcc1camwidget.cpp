@@ -35,11 +35,11 @@ FFTCC1CamWidget::~FFTCC1CamWidget()
 
 		if(m_captureThread->disconnectCamera())
 		{
-			qDebug() <<"["<<m_iDeviceNumber<<"] Camera Successfully disconnected.";
+			qDebug() <<"[Calculation] ["<<m_iDeviceNumber<<"] Camera Successfully disconnected.";
 		}
 		else
 		{
-			qDebug() <<"["<<m_iDeviceNumber<<"] WARNING: Camera already disconnected.";
+			qDebug() <<"[Calculation] ["<<m_iDeviceNumber<<"] WARNING: Camera already disconnected.";
 		}
 	}
 }
@@ -110,7 +110,7 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 
 void FFTCC1CamWidget::stopCaptureThread()
 {
-	qDebug() << "["<<m_iDeviceNumber<<"] About to stop capture thread...";
+	qDebug() << "[Calculation] ["<<m_iDeviceNumber<<"] About to stop capture thread...";
 	m_captureThread->stop();
 
 	// In case the thread is in waiting state
@@ -121,19 +121,19 @@ void FFTCC1CamWidget::stopCaptureThread()
 
 	m_captureThread->wait();
 
-	qDebug() <<"["<<m_iDeviceNumber<<"] Capture thread successfully stopped.";
+	qDebug() <<"[Calculation] ["<<m_iDeviceNumber<<"] Capture thread successfully stopped.";
 }
 
 void FFTCC1CamWidget::stopFFTCCWorkerThread()
 {
-	qDebug() << "["<<m_iDeviceNumber<<"] About to stop FFTCCWorker thread...";
+	qDebug() << "[Calculation] ["<<m_iDeviceNumber<<"] About to stop FFTCCWorker thread...";
 	if(m_fftccWorkerThread->isRunning())
 	{
 		m_fftccWorkerThread->quit();
 		m_fftccWorkerThread->wait();
 	}
 
-	qDebug() <<"["<<m_iDeviceNumber<<"] FFTCCWorker thread successfully stopped...";
+	qDebug() <<"[Calculation] ["<<m_iDeviceNumber<<"] FFTCCWorker thread successfully stopped...";
 }
 
 void FFTCC1CamWidget::updateRefFrame(const QImage& refImg)

@@ -132,7 +132,7 @@ void CamParamThread::run()
 		
 		emit updateStatisticsInGUI(m_statsData);
 	}
-	qDebug() << "Stopping capture thread...";
+	qDebug() << "[Param Setting] Stopping capture thread...";
 }
 
 void CamParamThread::updateFPS(int timeElapsed)

@@ -59,7 +59,7 @@ bool CaptureThread::disconnectCamera()
 
 	else
 	{
-		qDebug()<<"Camera is not connected yet!";
+		qDebug()<<"[Calculation] Camera is not connected yet!";
 		return false;
 	}
 }
@@ -86,13 +86,13 @@ void CaptureThread::run()
 
 	
 		// Retrieve frame
-		m_cap>>m_grabbedFrame;
-		//if(!m_cap.grab())
-		//	continue;
+		//m_cap>>m_grabbedFrame;
+		if(!m_cap.grab())
+			continue;
 
-		//// Retrieve frames
-		//if(m_cap.retrieve(m_grabbedFrame))
-		if(!m_grabbedFrame.empty())
+		// Retrieve frames
+		if(m_cap.retrieve(m_grabbedFrame))
+		/*if(!m_grabbedFrame.empty())*/
 		{
 			m_iFrameCount++;
 		
@@ -121,6 +121,6 @@ void CaptureThread::run()
 		}
 	}	
 
-	qDebug()<<"Stopping the Capture thread....";
+	qDebug()<<"[Calculation] Stopping the Capture thread....";
 }
 
