@@ -1,7 +1,9 @@
 #include "glwidget.h"
 
-GLWidget::GLWidget(QWidget *parent)
+GLWidget::GLWidget(QWidget *parent,
+				   QThread *&renderThread)
 	: QOpenGLWidget(parent)
+	, m_renderThread(renderThread)
 {
 
 }
@@ -21,7 +23,11 @@ void GLWidget::initializeGL()
 
 void GLWidget::paintGL()
 {
+	 makeCurrent();
 
+	 
+
+	 doneCurrent();
 }
 
 void GLWidget::resizeGL(int w, int h)

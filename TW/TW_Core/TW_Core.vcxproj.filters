@@ -116,6 +116,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_fftcctworkerthread.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="Structures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="tw_coremainwindow.h">

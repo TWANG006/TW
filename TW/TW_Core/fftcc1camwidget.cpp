@@ -15,8 +15,7 @@ FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 	, QWidget(parent)
 {
 	ui.setupUi(this);
-	m_twGLwidget = new GLWidget(this);
-	ui.gridLayout->addWidget(m_twGLwidget,0,1,1,1);
+
 }
 
 FFTCC1CamWidget::~FFTCC1CamWidget()
@@ -89,6 +88,12 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 		// 5. Move the fftccworker to its own thread
 		m_fftccWorkerThread = new QThread;
 		m_fftccWorker->moveToThread(m_fftccWorkerThread);
+
+		// 6. Construct the GLWidget, and send the fftccWorkerThread to it
+		m_twGLwidget = new GLWidget(this, m_fftccWorkerThread);
+		ui.gridLayout->addWidget(m_twGLwidget,0,1,1,1);
+
+		
 
 		// Do the signal/slot connections here
 		connect(m_captureThread, &CaptureThread::newRefQImg, this, &FFTCC1CamWidget::updateRefFrame);
