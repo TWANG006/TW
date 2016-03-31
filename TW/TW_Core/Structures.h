@@ -13,6 +13,9 @@
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 
+#include <memory>
+#include <mutex>
+
 using cuFftcc2D = TW::paDIC::cuFFTCC2D;
 using cuFftcc2DPtr = std::unique_ptr<cuFftcc2D>;
 using ImageBuffer = TW::Concurrent_Buffer<cv::Mat>;
@@ -37,19 +40,19 @@ typedef struct
 class SharedResources
 {
 public:
-	static SharedResources *intance()
-	{
-		if(g_instance == nullptr)
-			g_instance = new SharedResources();
-		return g_instance;
-	}
+	static SharedResources& GetIntance();
+	virtual ~SharedResources();
 
+	SharedResources(const SharedResources&) = delete;
+	SharedResources& operator=(const SharedResources&) = delete;
+	
 protected:
 	SharedResources();
 
 private:
-	static SharedResources *g_instance;		// The static global instance
-
+	static std::unique_ptr<SharedResources> g_instance;	// The static global instance
+	static std::once_flag m_onceFlag;
+	
 	//----Shared Resources below this point
 	// Shared resources in OpenGL context
 	QOpenGLContext		 *m_sharedContext;
