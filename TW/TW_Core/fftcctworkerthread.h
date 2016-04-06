@@ -6,7 +6,7 @@
 
 #include "TW_paDIC_cuFFTCC2D.h"
 
-class FFTCCTWorkerThread : public QObject
+class FFTCCTWorkerThread : public QObject, protected QOpenGLFunctions_3_3_Core
 {
 	Q_OBJECT
 
@@ -19,12 +19,16 @@ public:
 					   int iGridSpaceX, int iGridSpaceY,
 					   int iMarginX, int iMarginY,
 					   const QRect &roi,
-					   const cv::Mat &firstFrame);
+					   const cv::Mat &firstFrame,
+					   SharedResources*&);
 	~FFTCCTWorkerThread();
 
 public slots:
 	void processFrame(const int &iFrameCount);
 	void render();
+
+signals:
+	void frameReady();
 
 private:
 	int *m_d_iU;
@@ -36,6 +40,7 @@ private:
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
 	QRect m_ROI;
+	SharedResources *m_sharedResources;
 };
 
 #endif // FFTCCTWORKERTHREAD_H

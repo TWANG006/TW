@@ -10,13 +10,15 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 									   int iGridSpaceX, int iGridSpaceY,
 									   int iMarginX, int iMarginY,
 									   const QRect &roi,
-									   const cv::Mat &firstFrame)
+									   const cv::Mat &firstFrame,
+									   SharedResources*& s)
 	: m_refImgBuffer(refImgBuffer)
 	, m_tarImgBuffer(tarImgBuffer)
 	, m_iWidth(iWidth)
 	, m_iHeight(iHeight)
 	, m_ROI(roi)
 	, m_Fftcc2DPtr(nullptr)
+	, m_sharedResources(s)
 {
 	// Do the initialization for the paDIC's cuFFTCC here in the constructor
 	// 1. Construct the cuFFTCC2D object using the whole image
@@ -34,7 +36,11 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 FFTCCTWorkerThread::~FFTCCTWorkerThread()
 {
 	m_Fftcc2DPtr->cuDestroyFFTCC(m_d_iU, m_d_iV, m_d_fZNCC);
+	deleteObject(m_sharedResources->sharedContext);
 }
+
+
+
 
 void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 {
@@ -63,7 +69,31 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	cudaMemcpy(i, &m_d_fZNCC[0], sizeof(float), cudaMemcpyDeviceToHost);
 
 	qDebug()<<"tar"<<"  "<<*i;*/
+	static const unsigned char texture_data[] =
+	{
+		0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+		0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+		0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
+		0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+		0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
+	};
 
+	m_sharedResources->sharedContext->makeCurrent(m_sharedResources->sharedSurface);
+		
+	m_sharedResources->sharedProgram->bind();
+	m_sharedResources->sharedTexture->bind();
+
+	m_sharedResources->sharedTexture->setData(0, QOpenGLTexture::Red,QOpenGLTexture::UInt8,texture_data);
+	
+	m_sharedResources->sharedTexture->release();
+	m_sharedResources->sharedProgram->release();
+
+	m_sharedResources->sharedContext->doneCurrent();
+
+	emit frameReady();
 
 	// 4. Calculate the color map for the iU and iV images
 

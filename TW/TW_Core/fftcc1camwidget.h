@@ -45,6 +45,7 @@ private:
 	QThread *m_fftccWorkerThread;	    // FFTCC thread
 	CaptureThread *m_captureThread;		// Capture thread	
 	FFTCCTWorkerThread *m_fftccWorker;	// FFTCC worker
+	SharedResources *m_sharedResources;
 
 	bool m_isCameraConnected;
 	int m_iDeviceNumber;

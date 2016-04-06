@@ -199,4 +199,8 @@
       <Filter>CUDA</Filter>
     </CudaCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="frag.glsl" />
+    <None Include="vert.glsl" />
+  </ItemGroup>
 </Project>

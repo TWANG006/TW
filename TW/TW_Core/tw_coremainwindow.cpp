@@ -12,6 +12,7 @@ TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
 	, m_iSubsetX(0), m_iSubsetY(0)
 	, m_iMarginX(0), m_iMarginY(0)
 	, m_iGridSpaceX(0), m_iGridSpaceY(0)
+	, m_iImgWidth(0), m_iImgHeight(0)
 	, m_refBuffer(nullptr)
 	, m_tarBuffer(nullptr)
 {
@@ -117,7 +118,11 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 		m_iGridSpaceX = m_camParamDialog->GetGridX();
 		m_iGridSpaceY = m_camParamDialog->GetGridY();
 		m_isDropFrameChecked = m_camParamDialog->isDropFrame();
+		m_iImgWidth = m_camParamDialog->GetInputSourceWidth();
+		m_iImgHeight = m_camParamDialog->GetInputSourceHeight();
 
+		delete m_camParamDialog;
+		m_camParamDialog = nullptr;
 		
 		m_fftcc1camWidget = new FFTCC1CamWidget(0,
 												m_refBuffer,
@@ -125,8 +130,8 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 												this);
 
 		if(m_fftcc1camWidget->connectToCamera(m_isDropFrameChecked,
-										      m_camParamDialog->GetInputSourceWidth(),
-										      m_camParamDialog->GetInputSourceHeight(),
+										      m_iImgWidth,
+										      m_iImgHeight,
 										      m_iSubsetX, m_iSubsetY,
 										      m_iGridSpaceX, m_iGridSpaceY,
 										      m_iMarginX, m_iMarginY,
@@ -138,5 +143,6 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	else
 	{
 		delete m_camParamDialog;
+		m_camParamDialog = nullptr;
 	}		
 }

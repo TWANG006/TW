@@ -16,6 +16,7 @@ FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 {
 	ui.setupUi(this);
 
+	
 }
 
 FFTCC1CamWidget::~FFTCC1CamWidget()
@@ -71,6 +72,11 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 	// 2. Attempt to connect to camera
 	if(m_captureThread->connectToCamera())
 	{
+		m_fftccWorkerThread = new QThread;
+		m_sharedResources = new SharedResources;
+		m_twGLwidget = new GLWidget(m_sharedResources, m_fftccWorkerThread, this);
+		ui.gridLayout->addWidget(m_twGLwidget,0,1,1,1);
+
 		// 3. Aquire the first frame to initialize the FFTCCWorker
 		cv::Mat firstFrame;
 		m_captureThread->grabTheFirstRefFrame(firstFrame);
@@ -83,17 +89,12 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 											   iGridSpaceX, iGridSpaceY,
 											   iMarginX, iMarginY,
 											   roi,
-											   firstFrame);
+											   firstFrame,
+											   m_sharedResources);
 
 		// 5. Move the fftccworker to its own thread
-		m_fftccWorkerThread = new QThread;
-		m_fftccWorker->moveToThread(m_fftccWorkerThread);
-
-		// 6. Construct the GLWidget, and send the fftccWorkerThread to it
-		m_twGLwidget = new GLWidget(this, m_fftccWorkerThread);
-		ui.gridLayout->addWidget(m_twGLwidget,0,1,1,1);
-
 		
+		m_fftccWorker->moveToThread(m_fftccWorkerThread);
 
 		// Do the signal/slot connections here
 		connect(m_captureThread, &CaptureThread::newRefQImg, this, &FFTCC1CamWidget::updateRefFrame);
@@ -101,6 +102,7 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorker, &QObject::deleteLater);
 		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorkerThread, &QThread::deleteLater);
 		connect(m_captureThread, &CaptureThread::newTarFrame, m_fftccWorker, &FFTCCTWorkerThread::processFrame);
+		connect(m_fftccWorker, SIGNAL(frameReady()), m_twGLwidget, SLOT(update()));
 
 		m_captureThread->start();
 		m_fftccWorkerThread->start();

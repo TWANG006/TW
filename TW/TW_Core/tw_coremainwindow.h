@@ -43,6 +43,8 @@ private:
 	int m_iMarginY;
 	int m_iGridSpaceX;
 	int m_iGridSpaceY;
+	int m_iImgWidth;
+	int m_iImgHeight;
 
 	// Global parameters for the computation of FFTCC & ICGN
 	int m_d_iU;
