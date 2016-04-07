@@ -36,6 +36,7 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 FFTCCTWorkerThread::~FFTCCTWorkerThread()
 {
 	m_Fftcc2DPtr->cuDestroyFFTCC(m_d_iU, m_d_iV, m_d_fZNCC);
+
 	deleteObject(m_sharedResources->sharedContext);
 }
 
@@ -81,20 +82,31 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 		0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
 	};
 
-	m_sharedResources->sharedContext->makeCurrent(m_sharedResources->sharedSurface);
-		
-	m_sharedResources->sharedProgram->bind();
-	m_sharedResources->sharedTexture->bind();
+	if(m_sharedResources->sharedTexture!=nullptr &&
+	   m_sharedResources->sharedContext!=nullptr &&
+	   m_sharedResources->sharedProgram!=nullptr)
+	{
+		m_sharedResources->sharedContext->makeCurrent(m_sharedResources->sharedSurface);
 
-	m_sharedResources->sharedTexture->setData(0, QOpenGLTexture::Red,QOpenGLTexture::UInt8,texture_data);
-	
-	m_sharedResources->sharedTexture->release();
-	m_sharedResources->sharedProgram->release();
+		m_sharedResources->sharedProgram->bind();
+		m_sharedResources->sharedTexture->bind();
 
-	m_sharedResources->sharedContext->doneCurrent();
+		//m_sharedResources->sharedTexture->setData(0, QOpenGLTexture::Red,QOpenGLTexture::UInt8,texture_data);
 
-	emit frameReady();
+		checkCudaErrors(cudaMemcpyToArray(m_sharedResources->cudaImgArray,
+			0,
+			0,
+			m_Fftcc2DPtr->m_cuHandle.m_d_fTarImg,
+			640 * 480,
+			cudaMemcpyDeviceToDevice));
 
+		m_sharedResources->sharedTexture->release();
+		m_sharedResources->sharedProgram->release();
+
+		m_sharedResources->sharedContext->doneCurrent();
+
+		emit frameReady();
+	}
 	// 4. Calculate the color map for the iU and iV images
 
 

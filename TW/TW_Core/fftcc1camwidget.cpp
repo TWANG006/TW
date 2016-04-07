@@ -4,6 +4,8 @@
 FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 								 ImageBufferPtr refImgBuffer,
 								 ImageBufferPtr tarImgBuffer,
+								 int iImgWidth,
+								 int iImgHeight,
 								 QWidget *parent)
 	: m_iDeviceNumber(deviceNumber)
 	, m_refImgBuffer(refImgBuffer)
@@ -12,11 +14,20 @@ FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 	, m_captureThread(nullptr)
 	, m_fftccWorker(nullptr)
 	, m_fftccWorkerThread(nullptr)
+	, m_iImgWidth(iImgWidth)
+	, m_iImgHeight(iImgHeight)
 	, QWidget(parent)
 {
 	ui.setupUi(this);
 
-	
+	m_fftccWorkerThread = new QThread;
+	m_sharedResources = new SharedResources;
+	m_twGLwidget = new GLWidget(m_sharedResources, 
+								m_fftccWorkerThread, 
+								this,
+								m_iImgWidth,
+								m_iImgHeight);
+	ui.gridLayout->addWidget(m_twGLwidget, 0, 1, 1, 1);
 }
 
 FFTCC1CamWidget::~FFTCC1CamWidget()
@@ -47,7 +58,6 @@ FFTCC1CamWidget::~FFTCC1CamWidget()
 }
 
 bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame, 
-									  int width, int height,
 									  int iSubsetX, int iSubsetY,
 									  int iGridSpaceX, int iGridSpaceY,
 									  int iMarginX, int iMarginY,
@@ -63,8 +73,8 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 										m_tarImgBuffer,
 										ifDropFrame,
 										m_iDeviceNumber,
-										width,
-										height,
+										m_iImgWidth,
+										m_iImgHeight,
 										this);
 
 	connect(m_captureThread, &CaptureThread::finished, m_captureThread, &CaptureThread::deleteLater);
@@ -72,11 +82,6 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 	// 2. Attempt to connect to camera
 	if(m_captureThread->connectToCamera())
 	{
-		m_fftccWorkerThread = new QThread;
-		m_sharedResources = new SharedResources;
-		m_twGLwidget = new GLWidget(m_sharedResources, m_fftccWorkerThread, this);
-		ui.gridLayout->addWidget(m_twGLwidget,0,1,1,1);
-
 		// 3. Aquire the first frame to initialize the FFTCCWorker
 		cv::Mat firstFrame;
 		m_captureThread->grabTheFirstRefFrame(firstFrame);
@@ -84,7 +89,7 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 		// 4. Construct & initialize the fftccWorker
 		m_fftccWorker = new FFTCCTWorkerThread(m_refImgBuffer,
 											   m_tarImgBuffer,
-											   width, height,
+											   m_iImgWidth, m_iImgHeight,
 											   iSubsetX, iSubsetY,
 											   iGridSpaceX, iGridSpaceY,
 											   iMarginX, iMarginY,

@@ -12,7 +12,11 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 	Q_OBJECT
 
 public:
-	GLWidget(SharedResources*&, QThread *&, QWidget *parent);
+	GLWidget(SharedResources*&, 
+			 QThread *&, 
+			 QWidget *parent,
+			 int iWidth,
+			 int iHeight);
 	~GLWidget();
 
 protected:
@@ -20,10 +24,16 @@ protected:
 	void paintGL() Q_DECL_OVERRIDE;
 	void resizeGL(int w, int h) Q_DECL_OVERRIDE;
 
+	void initCUDAArray();
+	void initGLTexture();
+
 private:
 	SharedResources *m_sharedResources;
 	QThread *m_renderThread;
 	QOpenGLVertexArrayObject m_vao;
+
+	int m_iImgWidth;
+	int m_iImgHeight;
 
 	GLint m_viewWidth;
 	GLint m_viewHeight;

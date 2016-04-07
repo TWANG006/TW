@@ -1,11 +1,17 @@
 #include "glwidget.h"
 
-GLWidget::GLWidget(SharedResources *&s, QThread *&t, QWidget *parent)
+GLWidget::GLWidget(SharedResources *&s, 
+				   QThread *&t, 
+				   QWidget *parent,
+				   int iWidth,
+				   int iHeight)
 	: QOpenGLWidget(parent)
 	, m_sharedResources(s)
 	, m_renderThread(t)
 	, m_viewWidth(0)
 	, m_viewHeight(0)
+	, m_iImgWidth(iWidth)
+	, m_iImgHeight(iHeight)
 {
 	setMinimumSize(640, 960);
 }
@@ -38,7 +44,6 @@ void GLWidget::initializeGL()
 	m_sharedResources->sharedContext->moveToThread(m_renderThread);
 
 	initializeOpenGLFunctions();
-	//glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glClearDepth(1.0f);
@@ -69,10 +74,10 @@ void GLWidget::initializeGL()
 
 	static const GLfloat quad_data[] =
 	{
-		-0.75f, 0.75f,
-		0.75f, 0.75f,
-		0.75f, -0.75f,
-		-0.75f, -0.75f,
+		-1.0f, 1.0f,
+		1.0f, 1.0f,
+		1.0f, -1.0f,
+		-1.0f, -1.0f,
 
 		0.0f, 0.0f,
 		1.0f, 0.0f,
@@ -104,31 +109,10 @@ void GLWidget::initializeGL()
 	m_sharedResources->sharedProgram->enableAttributeArray(1);
 	m_sharedResources->sharedVBO->release();
 	m_sharedResources->sharedProgram->release();
-
-	m_sharedResources->sharedTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-	m_sharedResources->sharedTexture->create();
-	m_sharedResources->sharedTexture->bind();
-	m_sharedResources->sharedTexture->setSize(8,8);
-	m_sharedResources->sharedTexture->setFormat(QOpenGLTexture::R8_UNorm);
-	m_sharedResources->sharedTexture->allocateStorage(QOpenGLTexture::Red, QOpenGLTexture::UInt8);
-
-	
-
-	m_sharedResources->sharedTexture->setSwizzleMask(
-		QOpenGLTexture::RedValue,
-		QOpenGLTexture::RedValue,
-		QOpenGLTexture::RedValue,
-		QOpenGLTexture::OneValue);
-	m_sharedResources->sharedTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
-	m_sharedResources->sharedTexture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToEdge);
-	m_sharedResources->sharedTexture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToEdge);
-	m_sharedResources->sharedTexture->generateMipMaps();
-	
-	m_sharedResources->sharedTexture->release();
 	m_vao.release();
 
-	/*m_capThread->start();
-	m_renderThread->start();*/
+	initGLTexture();
+	initCUDAArray();
 }
 
 void GLWidget::paintGL()
@@ -167,4 +151,49 @@ void GLWidget::resizeGL(int w, int h)
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 	
+	m_viewHeight = h;
+	m_viewWidth = w;
+}
+
+void GLWidget::initCUDAArray()
+{
+	// Register textures in CUDA
+	checkCudaErrors(cudaGraphicsGLRegisterImage(&m_sharedResources->cuda_ImgTex_Resource,
+												m_sharedResources->sharedTexture->textureId(),
+												GL_TEXTURE_2D,
+												cudaGraphicsMapFlagsWriteDiscard));
+	checkCudaErrors(cudaGraphicsMapResources(1, 
+											 &m_sharedResources->cuda_ImgTex_Resource,
+											 0));
+
+	// Bind texutres to their respective CUDA arrays
+	checkCudaErrors(cudaGraphicsSubResourceGetMappedArray(&m_sharedResources->cudaImgArray,
+														  m_sharedResources->cuda_ImgTex_Resource,
+														  0,
+														  0));
+	checkCudaErrors(cudaGraphicsUnmapResources(1,
+											   &m_sharedResources->cuda_ImgTex_Resource,
+											   0));
+}
+
+void GLWidget::initGLTexture()
+{
+	m_sharedResources->sharedTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+	m_sharedResources->sharedTexture->create();
+	m_sharedResources->sharedTexture->bind();
+	m_sharedResources->sharedTexture->setSize(m_iImgWidth, m_iImgHeight);
+	m_sharedResources->sharedTexture->setFormat(QOpenGLTexture::R8_UNorm);
+	m_sharedResources->sharedTexture->allocateStorage(QOpenGLTexture::Red, QOpenGLTexture::UInt8);	
+
+	m_sharedResources->sharedTexture->setSwizzleMask(
+		QOpenGLTexture::RedValue,
+		QOpenGLTexture::RedValue,
+		QOpenGLTexture::RedValue,
+		QOpenGLTexture::OneValue);
+	m_sharedResources->sharedTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+	m_sharedResources->sharedTexture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToEdge);
+	m_sharedResources->sharedTexture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToEdge);
+	m_sharedResources->sharedTexture->generateMipMaps();
+
+	m_sharedResources->sharedTexture->release();
 }

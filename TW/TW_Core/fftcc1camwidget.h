@@ -19,11 +19,12 @@ public:
 	FFTCC1CamWidget(int deviceNumber,
 					ImageBufferPtr refImgBuffer,
 					ImageBufferPtr tarImgBuffer,
+					int iImgWidth,
+					int iImgHeight,
 					QWidget *parent = 0);
 	~FFTCC1CamWidget();
 
 	bool connectToCamera(bool ifDropFrame, 
-						 int width, int height,
 						 int iSubsetX, int iSubsetY,
 						 int iGridSpaceX, int iGridSpaceY,
 						 int iMarginX, int iMarginY,
@@ -51,6 +52,8 @@ private:
 	int m_iDeviceNumber;
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
+	int m_iImgWidth;
+	int m_iImgHeight;
 };
 
 #endif // FFTCC1CAMWIDGET_H

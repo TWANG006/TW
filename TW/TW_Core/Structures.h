@@ -1,12 +1,11 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
-#include <QRect>
 #include <TW_Concurrent_Buffer.h>
 #include <TW_paDIC_cuFFTCC2D.h>
 #include <opencv2\opencv.hpp>
 
-
+#include <QRect>
 #include <QOpenGLcontext>
 #include <QOpenGLBuffer>
 #include <QOpenGLtexture>
@@ -14,6 +13,10 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QMutex>
+
+#include <helper_cuda.h>
+#include <cuda_runtime.h>
+#include <cuda_gl_interop.h>
 
 template<typename T>
 void deleteObject(T*& param)
@@ -31,8 +34,9 @@ struct SharedResources{
 	QOpenGLTexture *sharedTexture;
 	QOpenGLShaderProgram *sharedProgram;
 	QSurface *sharedSurface;
-	bool isDataReady;
-	QMutex m;
+
+	cudaArray *cudaImgArray;		// CUDA texture array
+	cudaGraphicsResource *cuda_ImgTex_Resource;
 
 	SharedResources()
 		: sharedContext(nullptr)
@@ -40,7 +44,8 @@ struct SharedResources{
 		, sharedTexture(nullptr)
 		, sharedProgram(nullptr)
 		, sharedSurface(nullptr)
-		, isDataReady(false)
+		, cudaImgArray(nullptr)
+		, cuda_ImgTex_Resource(nullptr)
 	{}
 };
 

@@ -17,7 +17,6 @@ TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
 	, m_tarBuffer(nullptr)
 {
 	ui.setupUi(this);
-
 	/*m_testCap = new CaptureThread(m_refBuffer,m_testCap, false,0,-1,-1,this);*/
 
 	connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(OnOpenImgFile()));
@@ -96,7 +95,7 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 
 	// Set the width & height to -1 to accept the default resolution of the 
 	// camera or set the resolution by hand.
-	if(!m_camParamDialog->connectToCamera(300,300))
+	if(!m_camParamDialog->connectToCamera(640, 480))
 	{
 		QMessageBox::critical(this, 
 							  tr("Fail!"),
@@ -121,17 +120,16 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 		m_iImgWidth = m_camParamDialog->GetInputSourceWidth();
 		m_iImgHeight = m_camParamDialog->GetInputSourceHeight();
 
-		delete m_camParamDialog;
-		m_camParamDialog = nullptr;
+		deleteObject(m_camParamDialog);
 		
 		m_fftcc1camWidget = new FFTCC1CamWidget(0,
 												m_refBuffer,
 												m_tarBuffer,
+												m_iImgWidth,
+												m_iImgHeight,
 												this);
 
 		if(m_fftcc1camWidget->connectToCamera(m_isDropFrameChecked,
-										      m_iImgWidth,
-										      m_iImgHeight,
 										      m_iSubsetX, m_iSubsetY,
 										      m_iGridSpaceX, m_iGridSpaceY,
 										      m_iMarginX, m_iMarginY,
@@ -142,7 +140,6 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	}
 	else
 	{
-		delete m_camParamDialog;
-		m_camParamDialog = nullptr;
+		deleteObject(m_camParamDialog);
 	}		
 }

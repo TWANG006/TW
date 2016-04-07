@@ -232,7 +232,6 @@
     </ClCompile>
     <ClCompile Include="glwidget.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Structures.cpp" />
     <ClCompile Include="tw_coremainwindow.cpp" />
   </ItemGroup>
   <ItemGroup>
