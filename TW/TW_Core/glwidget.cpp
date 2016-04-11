@@ -1,6 +1,6 @@
 #include "glwidget.h"
 
-GLWidget::GLWidget(SharedResources *&s, 
+GLWidget::GLWidget(std::shared_ptr<SharedResources> &s, 
 				   QThread *&t, 
 				   QWidget *parent,
 				   int iWidth,

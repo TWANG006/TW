@@ -12,7 +12,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 	Q_OBJECT
 
 public:
-	GLWidget(SharedResources*&, 
+	GLWidget(std::shared_ptr<SharedResources>&, 
 			 QThread *&, 
 			 QWidget *parent,
 			 int iWidth,
@@ -28,7 +28,7 @@ protected:
 	void initGLTexture();
 
 private:
-	SharedResources *m_sharedResources;
+	std::shared_ptr<SharedResources> m_sharedResources;
 	QThread *m_renderThread;
 	QOpenGLVertexArrayObject m_vao;
 

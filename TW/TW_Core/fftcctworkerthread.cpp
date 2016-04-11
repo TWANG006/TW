@@ -11,7 +11,7 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 									   int iMarginX, int iMarginY,
 									   const QRect &roi,
 									   const cv::Mat &firstFrame,
-									   SharedResources*& s)
+									   std::shared_ptr<SharedResources>& s)
 	: m_refImgBuffer(refImgBuffer)
 	, m_tarImgBuffer(tarImgBuffer)
 	, m_iWidth(iWidth)
@@ -36,6 +36,8 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 FFTCCTWorkerThread::~FFTCCTWorkerThread()
 {
 	m_Fftcc2DPtr->cuDestroyFFTCC(m_d_iU, m_d_iV, m_d_fZNCC);
+
+	cudaDeviceReset();
 
 	deleteObject(m_sharedResources->sharedContext);
 }
@@ -70,7 +72,7 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	cudaMemcpy(i, &m_d_fZNCC[0], sizeof(float), cudaMemcpyDeviceToHost);
 
 	qDebug()<<"tar"<<"  "<<*i;*/
-	static const unsigned char texture_data[] =
+	/*static const unsigned char texture_data[] =
 	{
 		0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
 		0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
@@ -80,7 +82,7 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 		0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
 		0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
 		0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
-	};
+	};*/
 
 	if(m_sharedResources->sharedTexture!=nullptr &&
 	   m_sharedResources->sharedContext!=nullptr &&

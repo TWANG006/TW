@@ -20,7 +20,7 @@ public:
 					   int iMarginX, int iMarginY,
 					   const QRect &roi,
 					   const cv::Mat &firstFrame,
-					   SharedResources*&);
+					   std::shared_ptr<SharedResources>&);
 	~FFTCCTWorkerThread();
 
 public slots:
@@ -40,7 +40,7 @@ private:
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
 	QRect m_ROI;
-	SharedResources *m_sharedResources;
+	std::shared_ptr<SharedResources> m_sharedResources;
 };
 
 #endif // FFTCCTWORKERTHREAD_H
