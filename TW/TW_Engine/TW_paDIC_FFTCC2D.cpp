@@ -93,27 +93,6 @@ bool Fftcc2D::recomputeNumPOI()
 	return ((m_iNumPOIX > 0 && m_iNumPOIY > 0) ? true : false);
 }
 
-void Fftcc2D::cuInitializeFFTCC(// Output
-								int_t *& i_d_U,
-								int_t *& i_d_V,
-								real_t*& f_d_ZNCC,
-								// Input
-								const cv::Mat& refImg)
-{}
-
-void Fftcc2D::cuComputeFFTCC(// Output
-							 int_t *& i_d_U,
-							 int_t *& i_d_V,
-							 real_t*& f_d_ZNCC,
-							 // Input
-							 const cv::Mat& tarImg)
-{}
-
-void Fftcc2D::cuDestroyFFTCC(int_t *& i_d_U,
-							 int_t *& i_d_V,
-						     real_t*& f_d_ZNCC)
-{}
-
 } //!- namespace paDIC
 } //!- namespace TW
 

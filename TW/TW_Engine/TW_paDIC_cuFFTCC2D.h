@@ -166,7 +166,7 @@ public:
 								   int_t *& i_d_V,
 								   real_t*& f_d_ZNCC,
 								   // Input
-								   const cv::Mat& refImg) override;
+								   const cv::Mat& refImg);
 
 	/// \brief Execute the FFTCC algorithm, including FFT and max-finding. The result is not passed 
 	/// from device to host memory. The resources have been initialized by the cuInitializeFFTCC()
@@ -179,7 +179,7 @@ public:
 								int_t *& i_d_V,
 								real_t*& f_d_ZNCC,
 								// Input
-								const cv::Mat& tarImg) override;
+								const cv::Mat& tarImg);
 
 	/// \brief Finalize the FFTCC computation: deallocate memory on device, destroy
 	/// the CUFFT plans
@@ -189,7 +189,7 @@ public:
 	/// \param refImg input reference image
 	virtual void cuDestroyFFTCC(int_t *& i_d_U,
 								int_t *& i_d_V,
-								real_t*& f_d_ZNCC) override;
+								real_t*& f_d_ZNCC);
 
 	// -----------------------------------Low level method end--------------------------------------!
 
