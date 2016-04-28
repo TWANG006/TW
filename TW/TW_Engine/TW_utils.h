@@ -3,6 +3,7 @@
 
 #include "TW.h"
 
+#include <opencv2\opencv.hpp>
 #include <cuda_runtime.h>
 #include <cmath>
 
@@ -194,6 +195,56 @@ TW_LIB_DLL_EXPORTS void ComputePOIPositions_m(// Output
 											  int_t iSubsetX, int_t iSubsetY,
 											  int_t iGridSpaceX, int_t iGridSpaceY);
 
+enum AccuracyOrder
+{	
+	Quadratic,
+	Quartic,
+	Octic
+};
+
+/// \brief Sequential Function to compute the gradient X of an image using Central Difference Scheme
+/// Note: The cv::Mat must be 8UC1 format, otherwise this method cannot be called
+///
+/// \param image cv::Mat image used to calculate the gradients
+/// \param iStartX, iStartY The start positions of the ROI
+/// \param iROIWidth, iROIHeight The width&height of the ROI
+/// \param iImgWidth, iImgHeight THe width&height of the image
+/// \param accuracyOrder The accuracy order of the gradients (Taylor's series)
+/// \param Gx gradient in x direction, Gx = nullptr if no need to calculate it
+/// \param Gy gradient in y direction, Gy = nullptr if no need to calculate it
+/// \param Gxy gradient in xy direction, Gxy = nullptr if no need to calculate it
+TW_LIB_DLL_EXPORTS void Gradient_s(//Inputs
+								   const cv::Mat& image,
+								   int_t iStartX, int_t iStartY,
+								   int_t iROIWidth, int_t iROIHeight,
+								   int_t iImgWidth, int_t iImgHeight,
+								   AccuracyOrder accuracyOrder,
+								   //Output
+								   real_t *Gx,
+								   real_t *Gy,
+								   real_t *Gxy);
+
+/// \brief Multi-threaded Function to compute the gradient X of an image using Central Difference Scheme
+/// Note: The cv::Mat must be 8UC1 format, otherwise this method cannot be called
+///
+/// \param image cv::Mat image used to calculate the gradients
+/// \param iStartX, iStartY The start positions of the ROI
+/// \param iROIWidth, iROIHeight The width&height of the ROI
+/// \param iImgWidth, iImgHeight THe width&height of the image
+/// \param accuracyOrder The accuracy order of the gradients (Taylor's series)
+/// \param Gx gradient in x direction, Gx = nullptr if no need to calculate it
+/// \param Gy gradient in y direction, Gy = nullptr if no need to calculate it
+/// \param Gxy gradient in xy direction, Gxy = nullptr if no need to calculate it
+TW_LIB_DLL_EXPORTS void Gradient_m(//Inputs
+								   const cv::Mat& image,
+								   int_t iStartX, int_t iStartY,
+								   int_t iROIWidth, int_t iROIHeight,
+								   int_t iImgWidth, int_t iImgHeight,
+								   AccuracyOrder accuracyOrder,
+								   //Output
+								   real_t *Gx,
+								   real_t *Gy,
+								   real_t *Gxy);
 // ---------------------------CPU Utility Functions End-------------------------------!
 
 // !----------------------------GPU Wrapper Functions----------------------------------
