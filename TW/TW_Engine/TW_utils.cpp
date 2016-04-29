@@ -45,7 +45,7 @@ void Gradient_s(//Inputs
 	default:
 		if(iStartX<1 || iStartY<1 || iMarginX<1 || iMarginY <1)
 		{
-			std::cout<<"Error: Maximum allowed ROI exceeded!"<<std::endl;
+			throw("Error: Not enough boundary pixels for gradients!");
 		}
 		else
 		{
@@ -59,8 +59,16 @@ void Gradient_s(//Inputs
 
 		break;
 	case TW::Quartic:
+		if(iStartX<2 || iStartY<2 || iMarginX<2 || iMarginY <2)
+		{
+			throw("Error: Not enough boundary pixels for gradients!");
+		}
 		break;
 	case TW::Octic:
+		if(iStartX<4 || iStartY<4 || iMarginX<4 || iMarginY <4)
+		{
+			throw("Error: Not enough boundary pixels for gradients!");
+		}
 		break;
 	}
 }
