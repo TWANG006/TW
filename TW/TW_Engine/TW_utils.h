@@ -245,6 +245,24 @@ TW_LIB_DLL_EXPORTS void Gradient_m(//Inputs
 								   real_t *Gx,
 								   real_t *Gy,
 								   real_t *Gxy);
+
+/// \brief Sequential function to precompute the Bicubic B-spline interpolation coefficients LUT.
+/// NOTE: The control points are assumed to be on the B-spline surface
+/// Reference: 刘洪臣, et al. (2007). "基于双三次B样条曲面亚像元图像插值方法." 哈尔滨工业大学学报 39(7): 1121-1124.
+///
+/// \param image cv::Mat image
+/// \param iStartX, iStartY The start positions of the ROI
+/// \param iROIWidth, iROIHeight The width&height of the ROI
+/// \param iImgWidth, iImgHeight THe width&height of the image
+/// \param fBSpline Bspline LUT
+TW_LIB_DLL_EXPORTS void BicubicSplineCoefficients_s(//Inputs
+												    const cv::Mat& image,
+												    int_t iStartX, int_t iStartY,
+												    int_t iROIWidth, int_t iROIHeight,
+												    int_t iImgWidth, int_t iImgHeight,
+												    //Output
+												    real_t ****fBSpline);
+
 // ---------------------------CPU Utility Functions End-------------------------------!
 
 // !----------------------------GPU Wrapper Functions----------------------------------

@@ -2,4 +2,14 @@
 
 namespace TW{
 
+ICGN2D::ICGN2D()
+{
+
+}
+
+ICGN2D::~ICGN2D()
+{
+
+}
+
 } //!- namespace TW

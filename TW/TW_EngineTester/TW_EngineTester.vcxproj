@@ -154,6 +154,7 @@
     <ClCompile Include="FftccTest.cpp" />
     <ClCompile Include="GPUutils_test.cpp" />
     <ClCompile Include="gtest-all.cpp" />
+    <ClCompile Include="icgnTest.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemAllocatorTest.cpp" />
     <ClCompile Include="Other_Test.cpp" />

@@ -42,6 +42,9 @@
     <ClCompile Include="GPUutils_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="icgnTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="GPUThrust.cu">
