@@ -31,8 +31,8 @@ signals:
 	void frameReady();
 
 private:
-	int *m_d_iU;
-	int *m_d_iV;
+	float *m_d_fU;
+	float *m_d_fV;
 	float *m_d_fZNCC;
 	int m_iWidth;
 	int m_iHeight;

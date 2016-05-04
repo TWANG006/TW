@@ -72,21 +72,21 @@ public:
 
 	//!- Pure virtual functions
 	virtual void InitializeFFTCC(// Output
-								 int_t**& iU,
-								 int_t**& iV,
+								 real_t**& fU,
+								 real_t**& fV,
 								 real_t**& fZNCC,
 								 // Input
 								 const cv::Mat& refImg) = 0;
 
 	virtual void ComputeFFTCC(// Output
-							  int_t**& iU,
-							  int_t**& iV,
+							  real_t**& fU,
+							  real_t**& fV,
 							  real_t**& fZNCC,
 							  // Input
 							  const cv::Mat& tarImg) = 0;
 
-	virtual void DestroyFFTCC(int_t**& iU,
-			  				  int_t**& iV,
+	virtual void DestroyFFTCC(real_t**& fU,
+			  				  real_t**& fV,
 							  real_t**& fZNCC) = 0;
 
 	/// \brief Reset the Reference image with refImg

@@ -57,7 +57,7 @@ __global__ void findMax(real_t*w_SubsetC,
 						int_t m_iFFTSubH, int_t m_iFFTSubW,
 						int_t m_iSubsetX, int_t m_iSubsetY,
 						//return val
-						int_t *m_iU, int_t *m_iV,
+						real_t *m_fU, real_t *m_fV,
 						real_t *m_dZNCC)
 {
 	auto tid = threadIdx.x;
@@ -90,8 +90,8 @@ __global__ void findMax(real_t*w_SubsetC,
 		peaky -= m_iFFTSubH;
 	if (tid == 0)
 	{
-		m_iU[bid] = peakx;
-		m_iV[bid] = peaky;
+		m_fU[bid] = real_t(peakx);
+		m_fV[bid] = real_t(peaky);
 		m_dZNCC[bid] = sdata[0];
 		//m_dZNCC[bid] = data;
 	}
@@ -214,8 +214,8 @@ cuFFTCC2D::~cuFFTCC2D()
 
 
 void cuFFTCC2D::InitializeFFTCC(// Output
-								int_t**& iU,
-								int_t**& iV,
+								real_t**& fU,
+								real_t**& fV,
 								real_t**& fZNCC,
 								// Input
 								const cv::Mat& refImg)
@@ -247,8 +247,8 @@ void cuFFTCC2D::InitializeFFTCC(// Output
 	int_t iPOINum = GetNumPOIs();
 
 	//!- Allocate host memory
-	hcreateptr<int_t>(iU, m_iNumPOIX, m_iNumPOIX);
-	hcreateptr<int_t>(iV, m_iNumPOIX, m_iNumPOIX);
+	hcreateptr<real_t>(fU, m_iNumPOIX, m_iNumPOIX);
+	hcreateptr<real_t>(fV, m_iNumPOIX, m_iNumPOIX);
 	hcreateptr<real_t>(fZNCC, m_iNumPOIX, m_iNumPOIX);
 	
 	int_t iROISize = GetROISize();
@@ -266,10 +266,10 @@ void cuFFTCC2D::InitializeFFTCC(// Output
 	checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fTarImg, 
 							   /*sizeof(uchar)**/refImg.rows*refImg.cols));
 
-	checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_iU, 
-							   sizeof(int_t)*iPOINum));
-	checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_iV, 
-							   sizeof(int_t)*iPOINum));
+	checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fU, 
+							   sizeof(real_t)*iPOINum));
+	checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fV, 
+							   sizeof(real_t)*iPOINum));
 	checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_d_fZNCC, 
 							   sizeof(real_t)*iPOINum));
 	checkCudaErrors(cudaMalloc((void**)&m_cuHandle.m_dev_FreqDom1, 
@@ -311,8 +311,8 @@ void cuFFTCC2D::InitializeFFTCC(// Output
 }
 
 void cuFFTCC2D::ComputeFFTCC(// Output
-							 int_t**& iU,
-							 int_t**& iV,
+							 real_t**& fU,
+							 real_t**& fV,
 							 real_t**& fZNCC,
 							 // Input
 							 const cv::Mat& tarImg)
@@ -372,26 +372,26 @@ void cuFFTCC2D::ComputeFFTCC(// Output
 	findMax <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_fSubsetC,
 											iFFTSubH, iFFTSubW,
 											m_iSubsetX, m_iSubsetY,
-											m_cuHandle.m_d_iU,
-											m_cuHandle.m_d_iV,
+											m_cuHandle.m_d_fU,
+											m_cuHandle.m_d_fV,
 											m_cuHandle.m_d_fZNCC);
 
-	checkCudaErrors(cudaMemcpy(iU[0],
-							   m_cuHandle.m_d_iU,
-							   sizeof(int)*iPOINum,
+	checkCudaErrors(cudaMemcpy(fU[0],
+							   m_cuHandle.m_d_fU,
+							   sizeof(real_t)*iPOINum,
 							   cudaMemcpyDeviceToHost));
-	checkCudaErrors(cudaMemcpy(iV[0], 
-					           m_cuHandle.m_d_iV,
-							   sizeof(int)*iPOINum,
+	checkCudaErrors(cudaMemcpy(fV[0], 
+					           m_cuHandle.m_d_fV,
+							   sizeof(real_t)*iPOINum,
 							   cudaMemcpyDeviceToHost));
 	checkCudaErrors(cudaMemcpy(fZNCC[0], 
 							   m_cuHandle.m_d_fZNCC, 
-							   sizeof(float)*iPOINum, 
+							   sizeof(real_t)*iPOINum, 
 							   cudaMemcpyDeviceToHost));
 }
 
-void cuFFTCC2D::DestroyFFTCC(int_t**& iU,
-							 int_t**& iV,
+void cuFFTCC2D::DestroyFFTCC(real_t**& fU,
+							 real_t**& fV,
 							 real_t**& fZNCC)
 {
 	checkCudaErrors(cudaFree(m_cuHandle.m_d_fRefImg));
@@ -406,14 +406,14 @@ void cuFFTCC2D::DestroyFFTCC(int_t**& iU,
 	checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubset2));
 	checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubsetC));
 	checkCudaErrors(cudaFree(m_cuHandle.m_d_fZNCC));
-	checkCudaErrors(cudaFree(m_cuHandle.m_d_iU));
-	checkCudaErrors(cudaFree(m_cuHandle.m_d_iV));
+	checkCudaErrors(cudaFree(m_cuHandle.m_d_fU));
+	checkCudaErrors(cudaFree(m_cuHandle.m_d_fV));
 
 	cufftDestroy(m_cuHandle.m_forwardPlanXY);
 	cufftDestroy(m_cuHandle.m_reversePlanXY);
 
-	hdestroyptr<int_t>(iU);
-	hdestroyptr<int_t>(iV);
+	hdestroyptr<real_t>(fU);
+	hdestroyptr<real_t>(fV);
 	hdestroyptr<real_t>(fZNCC);
 
 	isDestroyed = true;
@@ -421,8 +421,8 @@ void cuFFTCC2D::DestroyFFTCC(int_t**& iU,
 
 
 void cuFFTCC2D::cuInitializeFFTCC(// Output
-								  int_t *& i_d_U,
-								  int_t *& i_d_V,
+								  real_t *& f_d_U,
+								  real_t *& f_d_V,
 								  real_t*& f_d_ZNCC,
 								  // Input
 								  const cv::Mat& refImg)
@@ -463,10 +463,10 @@ void cuFFTCC2D::cuInitializeFFTCC(// Output
 							   /*sizeof(uchar)**/refImg.rows*refImg.cols));
 
 	//!- Use these three parameters instead of the ones in m_cuHandle
-	checkCudaErrors(cudaMalloc((void**)&i_d_U, 
-							   sizeof(int_t)*iPOINum));
-	checkCudaErrors(cudaMalloc((void**)&i_d_V, 
-							   sizeof(int_t)*iPOINum));
+	checkCudaErrors(cudaMalloc((void**)&f_d_U, 
+							   sizeof(real_t)*iPOINum));
+	checkCudaErrors(cudaMalloc((void**)&f_d_V, 
+							   sizeof(real_t)*iPOINum));
 	checkCudaErrors(cudaMalloc((void**)&f_d_ZNCC, 
 							   sizeof(real_t)*iPOINum));
 
@@ -507,8 +507,8 @@ void cuFFTCC2D::cuInitializeFFTCC(// Output
 }
 
 void cuFFTCC2D::cuComputeFFTCC(// Output
-							   int_t *& i_d_U,
-							   int_t *& i_d_V,
+							   real_t *& f_d_U,
+							   real_t *& f_d_V,
 							   real_t*& f_d_ZNCC,
 							   // Input
 							   const cv::Mat& tarImg)
@@ -570,14 +570,14 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 	findMax <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_fSubsetC,
 											iFFTSubH, iFFTSubW,
 											m_iSubsetX, m_iSubsetY,
-											i_d_U,
-											i_d_V,
+											f_d_U,
+											f_d_V,
 											f_d_ZNCC);
 	getLastCudaError("Error in calling findMax_Kernel");
 }
 
-void  cuFFTCC2D::cuDestroyFFTCC(int_t *& i_d_U,
-								int_t *& i_d_V,
+void  cuFFTCC2D::cuDestroyFFTCC(real_t *& f_d_U,
+								real_t *& f_d_V,
 								real_t*& f_d_ZNCC)
 {
 	checkCudaErrors(cudaFree(m_cuHandle.m_d_fRefImg));
@@ -591,15 +591,15 @@ void  cuFFTCC2D::cuDestroyFFTCC(int_t *& i_d_U,
 	checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubset1));
 	checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubset2));
 	checkCudaErrors(cudaFree(m_cuHandle.m_d_fSubsetC));
-	checkCudaErrors(cudaFree(m_cuHandle.m_d_fZNCC));
-	checkCudaErrors(cudaFree(m_cuHandle.m_d_iU));
-	checkCudaErrors(cudaFree(m_cuHandle.m_d_iV));
+	/*checkCudaErrors(cudaFree(m_cuHandle.m_d_fZNCC));
+	checkCudaErrors(cudaFree(m_cuHandle.m_d_fU));
+	checkCudaErrors(cudaFree(m_cuHandle.m_d_fV));*/
 
 	cufftDestroy(m_cuHandle.m_forwardPlanXY);
 	cufftDestroy(m_cuHandle.m_reversePlanXY);
 
-	checkCudaErrors(cudaFree(i_d_U));
-	checkCudaErrors(cudaFree(i_d_V));
+	checkCudaErrors(cudaFree(f_d_U));
+	checkCudaErrors(cudaFree(f_d_V));
 	checkCudaErrors(cudaFree(f_d_ZNCC));
 
 	isDestroyed = true;

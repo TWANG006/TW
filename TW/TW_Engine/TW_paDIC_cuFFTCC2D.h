@@ -20,8 +20,8 @@ struct GPUHandle
 	uchar1 *m_d_fTarImg;			// Target image
 
 	int_t *m_d_iPOIXY;				// POI positions on device
-	int_t *m_d_iU;					// Displacement in x-direction
-	int_t *m_d_iV;					// Displacement in y-direction
+	real_t *m_d_fU;					// Displacement in x-direction
+	real_t *m_d_fV;					// Displacement in y-direction
 	real_t *m_d_fZNCC;				// ZNCC coefficients of each subset
 
 	// Fourier Transform needed parameters
@@ -38,7 +38,7 @@ struct GPUHandle
 
 	GPUHandle()
 		:m_d_fRefImg(nullptr), m_d_fTarImg(nullptr), m_d_iPOIXY(nullptr),
-		 m_d_iV(nullptr), m_d_iU(nullptr), m_d_fZNCC(nullptr),
+		 m_d_fV(nullptr), m_d_fU(nullptr), m_d_fZNCC(nullptr),
 		 m_d_fSubset1(nullptr), m_d_fSubset2(nullptr), m_d_fSubsetC(nullptr),
 		 m_d_fMod1(nullptr), m_d_fMod2(nullptr),
 		 m_dev_FreqDom1(nullptr), m_dev_FreqDom2(nullptr), m_dev_FreqDomfg(nullptr)
@@ -112,8 +112,8 @@ public:
 	/// \param fZNCC ZNCC coefficients of all POIs 
 	/// \param refImg input reference image
 	virtual void InitializeFFTCC(// Output
-								 int_t**& iU,
-								 int_t**& iV,
+								 real_t**& fU,
+								 real_t**& fV,
 								 real_t**& fZNCC,
 								 // Input
 								 const cv::Mat& refImg) override;
@@ -124,8 +124,8 @@ public:
 	/// \param iV displacement field of all POIs in x direction on host to be computed
 	/// \param fZNCC ZNCC coefficients of all POIs on host to be computed
 	virtual void ComputeFFTCC(// Output
-				              int_t**& iU,
-							  int_t**& iV,
+				              real_t**& fU,
+							  real_t**& fV,
 							  real_t**& fZNCC,
 							  // Input
 							  const cv::Mat& tarImg) override;
@@ -136,8 +136,8 @@ public:
 	/// \param iU displacement field of all POIs in x direction on host
 	/// \param iV displacement field of all POIs in x direction on host
 	/// \param fZNCC ZNCC coefficients of all POIs on host
-	virtual void DestroyFFTCC(int_t**& iU,
-							  int_t**& iV,
+	virtual void DestroyFFTCC(real_t**& fU,
+							  real_t**& fV,
 							  real_t**& fZNCC) override;
 
 	/// \brief Update the reference image 
@@ -162,8 +162,8 @@ public:
 	/// \param f_d_ZNCC ZNCC coefficients of all POIs on device
 	/// \param refImg input reference image
 	virtual void cuInitializeFFTCC(// Output
-								   int_t *& i_d_U,
-								   int_t *& i_d_V,
+								   real_t *& f_d_U,
+								   real_t *& f_d_V,
 								   real_t*& f_d_ZNCC,
 								   // Input
 								   const cv::Mat& refImg);
@@ -175,8 +175,8 @@ public:
 	/// \param i_d_V displacement field of all POIs in x direction on host to be computed
 	/// \param f_d_ZNCC ZNCC coefficients of all POIs on host to be computed
 	virtual void cuComputeFFTCC(// Output
-								int_t *& i_d_U,
-								int_t *& i_d_V,
+								real_t *& f_d_U,
+								real_t *& f_d_V,
 								real_t*& f_d_ZNCC,
 								// Input
 								const cv::Mat& tarImg);
@@ -187,8 +187,8 @@ public:
 	/// \param i_d_V displacement field of all POIs in y direction on device
 	/// \param f_d_ZNCC ZNCC coefficients of all POIs on device
 	/// \param refImg input reference image
-	virtual void cuDestroyFFTCC(int_t *& i_d_U,
-								int_t *& i_d_V,
+	virtual void cuDestroyFFTCC(real_t *& f_d_U,
+								real_t *& f_d_V,
 								real_t*& f_d_ZNCC);
 
 	// -----------------------------------Low level method end--------------------------------------!

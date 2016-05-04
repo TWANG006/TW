@@ -30,12 +30,12 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 												iMarginX, iMarginY));
 	
 	//2. Do the initialization for cuFFTCC2D object
-	m_Fftcc2DPtr->cuInitializeFFTCC(m_d_iU, m_d_iV, m_d_fZNCC, firstFrame);
+	m_Fftcc2DPtr->cuInitializeFFTCC(m_d_fU, m_d_fV, m_d_fZNCC, firstFrame);
 }
 
 FFTCCTWorkerThread::~FFTCCTWorkerThread()
 {
-	m_Fftcc2DPtr->cuDestroyFFTCC(m_d_iU, m_d_iV, m_d_fZNCC);
+	m_Fftcc2DPtr->cuDestroyFFTCC(m_d_fU, m_d_fV, m_d_fZNCC);
 
 	cudaDeviceReset();
 
@@ -66,7 +66,7 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	m_tarImgBuffer->DeQueue(tarImg);
 
 	// 2. Do the FFTCC computation
-	m_Fftcc2DPtr->cuComputeFFTCC(m_d_iU, m_d_iV, m_d_fZNCC, tarImg);
+	m_Fftcc2DPtr->cuComputeFFTCC(m_d_fU, m_d_fV, m_d_fZNCC, tarImg);
 
 	/*float *i = new float;
 	cudaMemcpy(i, &m_d_fZNCC[0], sizeof(float), cudaMemcpyDeviceToHost);
