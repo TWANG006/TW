@@ -48,6 +48,9 @@
     <ClCompile Include="TW_ICGN2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TW_paDIC_ICGN2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TW_utils.h">
@@ -83,6 +86,12 @@
     <ClInclude Include="TW_ICGN2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TW_cuTempUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TW_paDIC_ICGN2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="TW_cuUtils.cu">
@@ -94,10 +103,5 @@
     <CudaCompile Include="TW_cuTempUtils.cu">
       <Filter>CUDA</Filter>
     </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="TW_cuTempUtils.cuh">
-      <Filter>Header Files</Filter>
-    </None>
   </ItemGroup>
 </Project>
