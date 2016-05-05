@@ -71,23 +71,23 @@ public:
 	//	iU, iV, ZNCC) = 0;
 
 	//!- Pure virtual functions
-	virtual void InitializeFFTCC(// Output
-								 real_t**& fU,
-								 real_t**& fV,
-								 real_t**& fZNCC,
-								 // Input
-								 const cv::Mat& refImg) = 0;
+	//virtual void InitializeFFTCC(// Output
+	//							 real_t**& fU,
+	//							 real_t**& fV,
+	//							 real_t**& fZNCC,
+	//							 // Input
+	//							 const cv::Mat& refImg) = 0;
 
-	virtual void ComputeFFTCC(// Output
-							  real_t**& fU,
-							  real_t**& fV,
-							  real_t**& fZNCC,
-							  // Input
-							  const cv::Mat& tarImg) = 0;
+	//virtual void ComputeFFTCC(// Output
+	//						  real_t**& fU,
+	//						  real_t**& fV,
+	//						  real_t**& fZNCC,
+	//						  // Input
+	//						  const cv::Mat& tarImg) = 0;
 
-	virtual void DestroyFFTCC(real_t**& fU,
-			  				  real_t**& fV,
-							  real_t**& fZNCC) = 0;
+	//virtual void DestroyFFTCC(real_t**& fU,
+	//		  				  real_t**& fV,
+	//						  real_t**& fZNCC) = 0;
 
 	/// \brief Reset the Reference image with refImg
 	///

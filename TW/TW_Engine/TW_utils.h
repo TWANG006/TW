@@ -220,9 +220,8 @@ TW_LIB_DLL_EXPORTS void Gradient_s(//Inputs
 								   int_t iImgWidth, int_t iImgHeight,
 								   AccuracyOrder accuracyOrder,
 								   //Output
-								   real_t *Gx,
-								   real_t *Gy,
-								   real_t *Gxy);
+								   real_t **Gx,
+								   real_t **Gy);
 
 /// \brief Multi-threaded Function to compute the gradient X of an image using Central Difference Scheme
 /// Note: The cv::Mat must be 8UC1 format, otherwise this method cannot be called
@@ -242,9 +241,8 @@ TW_LIB_DLL_EXPORTS void Gradient_m(//Inputs
 								   int_t iImgWidth, int_t iImgHeight,
 								   AccuracyOrder accuracyOrder,
 								   //Output
-								   real_t *Gx,
-								   real_t *Gy,
-								   real_t *Gxy);
+								   real_t **Gx,
+								   real_t **Gy);
 
 /// \brief Sequential function to precompute the Bicubic B-spline interpolation coefficients LUT.
 /// NOTE: The control points are assumed to be on the B-spline surface

@@ -247,9 +247,9 @@ void cuFFTCC2D::InitializeFFTCC(// Output
 	int_t iPOINum = GetNumPOIs();
 
 	//!- Allocate host memory
-	hcreateptr<real_t>(fU, m_iNumPOIX, m_iNumPOIX);
-	hcreateptr<real_t>(fV, m_iNumPOIX, m_iNumPOIX);
-	hcreateptr<real_t>(fZNCC, m_iNumPOIX, m_iNumPOIX);
+	hcreateptr<real_t>(fU, m_iNumPOIY, m_iNumPOIX);
+	hcreateptr<real_t>(fV, m_iNumPOIY, m_iNumPOIX);
+	hcreateptr<real_t>(fZNCC, m_iNumPOIY, m_iNumPOIX);
 	
 	int_t iROISize = GetROISize();
 	int_t iFFTSubW = m_iSubsetX * 2, iFFTSubH = m_iSubsetY * 2;

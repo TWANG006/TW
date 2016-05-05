@@ -116,7 +116,7 @@ public:
 								 real_t**& fV,
 								 real_t**& fZNCC,
 								 // Input
-								 const cv::Mat& refImg) override;
+								 const cv::Mat& refImg);
 			
 	/// \brief Execute the FFTCC algorithm, including FFT and max-finding
 	/// 
@@ -128,7 +128,7 @@ public:
 							  real_t**& fV,
 							  real_t**& fZNCC,
 							  // Input
-							  const cv::Mat& tarImg) override;
+							  const cv::Mat& tarImg);
 
 	/// \brief Finalize the FFTCC computation: deallocate memory on host & device, destroy
 	/// the CUFFT plans
@@ -138,7 +138,7 @@ public:
 	/// \param fZNCC ZNCC coefficients of all POIs on host
 	virtual void DestroyFFTCC(real_t**& fU,
 							  real_t**& fV,
-							  real_t**& fZNCC) override;
+							  real_t**& fZNCC);
 
 	/// \brief Update the reference image 
 	/// NOTE: This function should only be called after calling InitializeFFTCC 

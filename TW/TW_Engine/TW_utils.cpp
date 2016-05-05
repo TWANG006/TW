@@ -32,9 +32,8 @@ void Gradient_s(//Inputs
 				int_t iImgWidth, int_t iImgHeight,
 				AccuracyOrder accuracyOrder,
 				//Output
-				real_t *Gx,
-				real_t *Gy,
-				real_t *Gxy)
+				real_t **Gx,
+				real_t **Gy)
 {
 	int_t iMarginX = iImgWidth - (iStartX + iROIWidth) + 1;
 	int_t iMarginY = iImgHeight -(iStartY + iROIHeight) + 1;
@@ -49,20 +48,18 @@ void Gradient_s(//Inputs
 		}
 		else
 		{
-			if(Gx != nullptr && Gy != nullptr && Gxy!= nullptr)
+			for (int i = iStartY; i < (iStartY + iROIHeight); i++)
 			{
-				for(int i=iStartY; i<(iStartY + iROIHeight); i++)
+				for (int j = iStartX; j < (iStartX + iROIWidth); j++)
 				{
-					for(int j=iStartX; j<(iStartX + iROIWidth); j++)
-					{
-						int index = (i - iStartY)*iROIWidth + (j - iStartX);
-						Gx[index] = 0.5 * real_t(image.at<uchar>(i,j+1) - image.at<uchar>(i,j-1));
-						Gy[index] = 0.5 * real_t(image.at<uchar>(i+1,j) - image.at<uchar>(i-1,j));
-						Gxy[index]= 0.25*real_t(image.at<uchar>(i+1,j+1) - image.at<uchar>(i-1,j+1)
-							- image.at<uchar>(i+1,j-1) + image.at<uchar>(i-1,j-1));
-					}
+					//int index = (i - iStartY)*iROIWidth + (j - iStartX);
+					Gx[i-iStartY][j-iStartX] = 0.5 * real_t(image.at<uchar>(i, j + 1) - image.at<uchar>(i, j - 1));
+					Gy[i-iStartY][j-iStartX] = 0.5 * real_t(image.at<uchar>(i + 1, j) - image.at<uchar>(i - 1, j));
+					/*Gxy[index]= 0.25*real_t(image.at<uchar>(i+1,j+1) - image.at<uchar>(i-1,j+1)
+						- image.at<uchar>(i+1,j-1) + image.at<uchar>(i-1,j-1));*/
 				}
 			}
+
 		}
 		break;
 	case TW::Quartic:
@@ -95,9 +92,8 @@ void Gradient_m(//Inputs
 				int_t iImgWidth, int_t iImgHeight,
 				AccuracyOrder accuracyOrder,
 				//Output
-				real_t *Gx,
-				real_t *Gy,
-				real_t *Gxy)
+				real_t **Gx,
+				real_t **Gy)
 {
 	// TODO
 }
