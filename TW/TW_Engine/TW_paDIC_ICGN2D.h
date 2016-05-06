@@ -45,6 +45,9 @@ protected:
 	int m_iROIHeight;
 	int m_iSubsetX;
 	int m_iSubsetY;
+	int m_iSubsetH;
+	int m_iSubsetW;
+	int m_iSubsetSize;
 	int m_iNumberX;
 	int m_iNumberY;
 	int m_iPOINumber;

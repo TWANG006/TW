@@ -67,11 +67,9 @@ void ICGN2D_CPU::ICGN2D_Precomputation_Finalize()
 
 void ICGN2D_CPU::ICGN2D_Prepare()
 {
-	int iSubsetW = 2 * m_iSubsetX + +1;
-	int iSubsetH = 2 * m_iSubsetY + +1;
-
-	hcreateptr(m_fSubsetR, m_iPOINumber, iSubsetH, iSubsetW);
-	hcreateptr(m_fSubsetT, m_iPOINumber, iSubsetH, iSubsetW);
+	hcreateptr(m_fSubsetR, m_iPOINumber, m_iSubsetH, m_iSubsetW);
+	hcreateptr(m_fSubsetT, m_iPOINumber, m_iSubsetH, m_iSubsetW);
+	hcreateptr(m_fRDescent,m_iPOINumber, m_iSubsetH, m_iSubsetW, 6);
 }
 
 void ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
@@ -87,6 +85,7 @@ void ICGN2D_CPU::ICGN2D_Finalize()
 {
 	hdestroyptr(m_fSubsetR);
 	hdestroyptr(m_fSubsetT);
+	hdestroyptr(m_fRDescent);
 }
 
 } //!- namespace paDIC

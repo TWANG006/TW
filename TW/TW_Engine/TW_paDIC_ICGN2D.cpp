@@ -25,6 +25,9 @@ ICGN2D::ICGN2D(const cv::Mat& refImg,
 			   , m_fDeltaP(fDeltaP)
 {
 	m_iPOINumber = m_iNumberX * m_iNumberY;
+	m_iSubsetH = m_iSubsetY * 2 +1;
+	m_iSubsetW = m_iSubsetX * 2 +1;
+	m_iSubsetSize = m_iSubsetH * m_iSubsetW;
 }
 
 ICGN2D::~ICGN2D()
