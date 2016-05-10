@@ -157,15 +157,15 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 
 	// 
 	
-	// For debug use
-	for (int i = 0; i < 6; i++)
-	{
-		for (int j = 0; j < 6; j++)
-		{
-			std::cout << m_Hessian[i*6+j] << ",\t";
-		}
-		std::cout << "\n";
-	}
+	//// For debug use
+	//for (int i = 0; i < 6; i++)
+	//{
+	//	for (int j = 0; j < 6; j++)
+	//	{
+	//		std::cout << m_Hessian[i*6+j] << ",\t";
+	//	}
+	//	std::cout << "\n";
+	//}
 
 	// Calculate R_m and make sure R_m != 0
 	fRefSubsetMean /= real_t(m_iSubsetSize);	// R_m
@@ -258,9 +258,9 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	}
 
 	// For Debug
-	for(int i=0; i< v_RHS.size(); i++)
+	/*for(int i=0; i< v_RHS.size(); i++)
 		std::cout<<v_RHS[i]<<", ";
-	std::cout<<std::endl;
+	std::cout<<std::endl;*/
 
 	// Using MKL's LAPACK routing to solve the linear equations ""m_H * v_dP = v_RHS""
 	// H is symmetric£¬ but not guaranteed to be positive definite
@@ -291,7 +291,41 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	if(std::abs(fTemp) <= std::numeric_limits<real_t>::epsilon())
 		return ICGN2DFlag::SingularWarp;
 
+	// Update m_W
+	m_W[0][0] = ((1 + v_P[1]) * (1 + v_RHS[5]) - v_P[2] * v_RHS[4]) / fTemp;
+	m_W[0][1] = (v_P[2] * (1 + v_RHS[1]) - (1 + v_P[1]) * v_RHS[2]) / fTemp;
+	m_W[0][2] = v_P[0] + (v_P[2] * (v_RHS[0] * v_RHS[4] - v_RHS[3] - v_RHS[3] * v_RHS[1]) - (1 + v_P[1]) * (v_RHS[0] * v_RHS[5] + v_RHS[0] - v_RHS[2] * v_RHS[3])) / fTemp;
+	m_W[1][0] = (v_P[4] * (1 + v_RHS[5]) - (1 + v_P[5]) * v_RHS[4]) / fTemp;
+	m_W[1][1] = ((1 + v_P[5]) * (1 + v_RHS[1]) - v_P[4] * v_RHS[2]) / fTemp;
+	m_W[1][2] = v_P[3] + ((1 + v_P[5]) * (v_RHS[0] * v_RHS[4] - v_RHS[3] - v_RHS[3] * v_RHS[1]) - v_P[4] * (v_RHS[0] * v_RHS[5] + v_RHS[0] - v_RHS[2] * v_RHS[3])) / fTemp;
+	m_W[2][0] = 0;
+	m_W[2][1] = 0;
+	m_W[2][2] = 1;
 
+	// For Debug
+	/*for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			std::cout << m_W[i][j]<< ",\t";
+		}
+		std::cout << "\n";
+	}*/
+
+	// Update P & the output fU&fV
+	v_P[0] = fU = m_W[0][2];
+	v_P[1] = m_W[0][0] - 1;
+	v_P[2] = m_W[0][1];
+	v_P[3] = fV = m_W[1][2];
+	v_P[4] = m_W[1][0];
+	v_P[5] = m_W[1][1] - 1;
+
+
+	/* Perform the ICGN iterative optimizatin from this point, with preset maximum iteration step*/
+	while (true)
+	{
+		// TODO
+	}
 
 	return ICGN2DFlag::Success;
 
