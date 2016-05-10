@@ -27,12 +27,21 @@ public:
 	virtual void ICGN2D_Precomputation() override;
 	virtual void ICGN2D_Precomputation_Finalize() override;
 
+	///\brief Allocate required memory for the ICNG2D application
 	void ICGN2D_Prepare();
-	void ICGN2D_Compute(real_t &fU,
-						real_t &fV,
-						const int iPOIx,
-						const int iPOIy,
-						const int id);
+
+	///\brief Core ICGN2D algorithm. The calculation unit is subset.
+	///
+	///\param fU Initial guees for the displacement in U(x) direction
+	///\param fV Initial guees for the displacement in V(Y) direction
+	///\param iPOIx POI x-position 
+	///\param iPOIy POI y-position
+	///\param id the id of the current POI being processed (For multi-threaded computation)
+	ICGN2DFlag ICGN2D_Compute(real_t &fU,
+							  real_t &fV,
+							  const int iPOIx,
+							  const int iPOIy,
+							  const int id);
 	void ICGN2D_Finalize();
 
 private:

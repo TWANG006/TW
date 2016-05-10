@@ -7,6 +7,15 @@
 namespace TW{
 namespace paDIC{
 
+	enum class ICGN2DFlag
+	{
+		Success,
+		DarkSubset,
+		SingularHessian,
+		SingularWarp,
+		OutofROI
+	};
+
 /// \brief ICGN2D base class fo 2D paDIC method
 /// This class implement the general CPU-based ICGN algorithm. The computation
 /// unit is based on two entire images. 
@@ -17,6 +26,7 @@ namespace paDIC{
 class TW_LIB_DLL_EXPORTS ICGN2D
 {
 public:
+
 	ICGN2D(const cv::Mat& refImg, 
 		   const cv::Mat& tarImg,
 		   int iStartX, int iStartY,

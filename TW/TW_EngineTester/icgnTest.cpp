@@ -1,6 +1,7 @@
 #include "TW_paDIC_cuFFTCC2D.h"
 #include "TW_utils.h"
 #include "TW_MemManager.h"
+#include "TW_paDIC_ICGN2D_CPU.h"
 #include <opencv2\opencv.hpp>
 #include <opencv2\highgui.hpp>
 #include <gtest\gtest.h>
@@ -66,4 +67,30 @@ TEST(BSpline, BSplineInterpolation)
 		std::cout<<std::endl;
 	}
 	hdestroyptr(fBSpline);
+}
+
+TEST(ICGN2D, ICGN2D_CPU_Hessian)
+{
+	cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_00.bmp");
+	cv::Mat mat1= cv::imread("Example2\\crop_oht_cfrp_01.bmp");
+
+	auto imgWidth = mat.cols;
+	auto imgHeight= mat.rows;
+
+	cv::Mat matR(cv::Size(imgWidth, imgHeight), CV_8UC1);
+	cv::Mat matT(cv::Size(imgWidth, imgHeight), CV_8UC1);
+	cv::cvtColor(mat, matR, CV_BGR2GRAY);
+	cv::cvtColor(mat1, matT, CV_BGR2GRAY);
+
+
+	TW::paDIC::ICGN2D_CPU icgn(matR,matT,2,2,imgWidth-4,imgHeight-4,16,16,181,45,20,0.001);
+	icgn.ICGN2D_Precomputation_Prepare();
+	icgn.ICGN2D_Precomputation();
+
+	icgn.ICGN2D_Prepare();
+	float u=0, v=0;
+	icgn.ICGN2D_Compute(u,v,28,28,0);
+
+	icgn.ICGN2D_Precomputation_Finalize();
+	icgn.ICGN2D_Finalize();
 }

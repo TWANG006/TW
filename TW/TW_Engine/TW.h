@@ -49,6 +49,7 @@ using cudafftComplex = cufftComplex;
 using int_t = int;
 using uint_t = unsigned int;
 
+
 // !- Setup whether to use CUDA, multicore or single core
 enum PARALLEL_COMPUTING_TYPE
 {
