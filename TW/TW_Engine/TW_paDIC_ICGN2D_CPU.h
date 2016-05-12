@@ -39,6 +39,7 @@ public:
 	///\param id the id of the current POI being processed (For multi-threaded computation)
 	ICGN2DFlag ICGN2D_Compute(real_t &fU,
 							  real_t &fV,
+							  int &iNumIterations,
 							  const int iPOIx,
 							  const int iPOIy,
 							  const int id);

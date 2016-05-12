@@ -43,7 +43,7 @@ TEST(Gradient, Gradient_s)
 
 TEST(BSpline, BSplineInterpolation)
 {                                                  
-	cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_00.bmp");
+	cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_01.bmp");
 
 	auto imgWidth = mat.cols;
 	auto imgHeight= mat.rows;
@@ -71,8 +71,8 @@ TEST(BSpline, BSplineInterpolation)
 
 TEST(ICGN2D, ICGN2D_CPU_Hessian)
 {
-	cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_00.bmp");
-	cv::Mat mat1= cv::imread("Example2\\crop_oht_cfrp_01.bmp");
+	cv::Mat mat = cv::imread("Example1\\fu_0.bmp");
+	cv::Mat mat1= cv::imread("Example1\\fu_1.bmp");
 
 	auto imgWidth = mat.cols;
 	auto imgHeight= mat.rows;
@@ -83,13 +83,16 @@ TEST(ICGN2D, ICGN2D_CPU_Hessian)
 	cv::cvtColor(mat1, matT, CV_BGR2GRAY);
 
 
-	TW::paDIC::ICGN2D_CPU icgn(matR,matT,2,2,imgWidth-4,imgHeight-4,16,16,181,45,20,0.001);
+	TW::paDIC::ICGN2D_CPU icgn(matR,matT,2,2,imgWidth-4,imgHeight-4,16,16,92,92,20,0.001);
 	icgn.ICGN2D_Precomputation_Prepare();
 	icgn.ICGN2D_Precomputation();
 
 	icgn.ICGN2D_Prepare();
 	float u=0, v=0;
-	icgn.ICGN2D_Compute(u,v,28,28,0);
+	int iter = 0;
+	icgn.ICGN2D_Compute(u,v, iter, 28,28,0);
+
+	std::cout<<"The displacement is [" << u << ", " << v << "]\n";
 
 	icgn.ICGN2D_Precomputation_Finalize();
 	icgn.ICGN2D_Finalize();

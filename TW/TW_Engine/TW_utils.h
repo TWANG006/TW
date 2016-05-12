@@ -202,7 +202,7 @@ enum AccuracyOrder
 	Octic
 };
 
-/// \brief Sequential Function to compute the gradient X of an image using Central Difference Scheme
+/// \brief Sequential Function to compute the gradients x&y of an image using Central Difference Scheme
 /// Note: The cv::Mat must be 8UC1 format, otherwise this method cannot be called
 ///
 /// \param image cv::Mat image used to calculate the gradients
@@ -212,7 +212,6 @@ enum AccuracyOrder
 /// \param accuracyOrder The accuracy order of the gradients (Taylor's series)
 /// \param Gx gradient in x direction, Gx = nullptr if no need to calculate it
 /// \param Gy gradient in y direction, Gy = nullptr if no need to calculate it
-/// \param Gxy gradient in xy direction, Gxy = nullptr if no need to calculate it
 TW_LIB_DLL_EXPORTS void Gradient_s(//Inputs
 								   const cv::Mat& image,
 								   int_t iStartX, int_t iStartY,
@@ -223,7 +222,7 @@ TW_LIB_DLL_EXPORTS void Gradient_s(//Inputs
 								   real_t **Gx,
 								   real_t **Gy);
 
-/// \brief Multi-threaded Function to compute the gradient X of an image using Central Difference Scheme
+/// \brief Sequential Function to compute the gradients x&y of an image using Central Difference Scheme
 /// Note: The cv::Mat must be 8UC1 format, otherwise this method cannot be called
 ///
 /// \param image cv::Mat image used to calculate the gradients
@@ -234,6 +233,27 @@ TW_LIB_DLL_EXPORTS void Gradient_s(//Inputs
 /// \param Gx gradient in x direction, Gx = nullptr if no need to calculate it
 /// \param Gy gradient in y direction, Gy = nullptr if no need to calculate it
 /// \param Gxy gradient in xy direction, Gxy = nullptr if no need to calculate it
+TW_LIB_DLL_EXPORTS void GradientXY_s(//Inputs
+								     const cv::Mat& image,
+								     int_t iStartX, int_t iStartY,
+								     int_t iROIWidth, int_t iROIHeight,
+								     int_t iImgWidth, int_t iImgHeight,
+								     AccuracyOrder accuracyOrder,
+								     //Output
+								     real_t **Gx,
+								     real_t **Gy,
+									 real_t **Gxy);
+
+/// \brief Multi-threaded Function to compute the gradients x&y of an image using Central Difference Scheme
+/// Note: The cv::Mat must be 8UC1 format, otherwise this method cannot be called
+///
+/// \param image cv::Mat image used to calculate the gradients
+/// \param iStartX, iStartY The start positions of the ROI
+/// \param iROIWidth, iROIHeight The width&height of the ROI
+/// \param iImgWidth, iImgHeight THe width&height of the image
+/// \param accuracyOrder The accuracy order of the gradients (Taylor's series)
+/// \param Gx gradient in x direction, Gx = nullptr if no need to calculate it
+/// \param Gy gradient in y direction, Gy = nullptr if no need to calculate it
 TW_LIB_DLL_EXPORTS void Gradient_m(//Inputs
 								   const cv::Mat& image,
 								   int_t iStartX, int_t iStartY,
@@ -244,6 +264,28 @@ TW_LIB_DLL_EXPORTS void Gradient_m(//Inputs
 								   real_t **Gx,
 								   real_t **Gy);
 
+/// \brief Multi-core Function to compute the gradients x&y of an image using Central Difference Scheme
+/// Note: The cv::Mat must be 8UC1 format, otherwise this method cannot be called
+///
+/// \param image cv::Mat image used to calculate the gradients
+/// \param iStartX, iStartY The start positions of the ROI
+/// \param iROIWidth, iROIHeight The width&height of the ROI
+/// \param iImgWidth, iImgHeight THe width&height of the image
+/// \param accuracyOrder The accuracy order of the gradients (Taylor's series)
+/// \param Gx gradient in x direction, Gx = nullptr if no need to calculate it
+/// \param Gy gradient in y direction, Gy = nullptr if no need to calculate it
+/// \param Gxy gradient in xy direction, Gxy = nullptr if no need to calculate it
+TW_LIB_DLL_EXPORTS void GradientXY_m(//Inputs
+								     const cv::Mat& image,
+								     int_t iStartX, int_t iStartY,
+								     int_t iROIWidth, int_t iROIHeight,
+								     int_t iImgWidth, int_t iImgHeight,
+								     AccuracyOrder accuracyOrder,
+								     //Output
+								     real_t **Gx,
+								     real_t **Gy,
+									 real_t **Gxy);
+
 /// \brief Sequential function to precompute the Bicubic B-spline interpolation coefficients LUT.
 /// NOTE: The control points are assumed to be on the B-spline surface
 /// Reference: 刘洪臣, et al. (2007). "基于双三次B样条曲面亚像元图像插值方法." 哈尔滨工业大学学报 39(7): 1121-1124.
@@ -253,13 +295,24 @@ TW_LIB_DLL_EXPORTS void Gradient_m(//Inputs
 /// \param iROIWidth, iROIHeight The width&height of the ROI
 /// \param iImgWidth, iImgHeight THe width&height of the image
 /// \param fBSpline Bspline LUT
-TW_LIB_DLL_EXPORTS void BicubicSplineCoefficients_s(//Inputs
+TW_LIB_DLL_EXPORTS void BicubicSplineCoefficients_s(// Inputs
 												    const cv::Mat& image,
 												    int_t iStartX, int_t iStartY,
 												    int_t iROIWidth, int_t iROIHeight,
 												    int_t iImgWidth, int_t iImgHeight,
-												    //Output
+												    // Output
 												    real_t ****fBSpline);
+
+TW_LIB_DLL_EXPORTS void BicubicCoefficients_s(// Inputs
+											  const cv::Mat& image,
+											  const real_t **Tx,
+											  const real_t **Ty,
+											  const real_t **Txy,
+											  int_t iStartX, int_t iStartY,
+											  int_t iROIWidth, int_t iROIHeight,
+											  int_t iImgWidth, int_t iImgHeight,
+											  // Outputs
+											  real_t ****fBicubic);
 
 // ---------------------------CPU Utility Functions End-------------------------------!
 

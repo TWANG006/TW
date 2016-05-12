@@ -85,6 +85,67 @@ void Gradient_s(//Inputs
 	}
 }
 
+void GradientXY_s(//Inputs
+			      const cv::Mat& image,
+				  int_t iStartX, int_t iStartY,
+				  int_t iROIWidth, int_t iROIHeight,
+				  int_t iImgWidth, int_t iImgHeight,
+				  AccuracyOrder accuracyOrder,
+				  //Output
+				  real_t **Gx,
+				  real_t **Gy,
+				  real_t **Gxy)
+{
+	int_t iMarginX = iImgWidth - (iStartX + iROIWidth) + 1;
+	int_t iMarginY = iImgHeight -(iStartY + iROIHeight) + 1;
+
+	switch (accuracyOrder)
+	{
+	case TW::Quadratic:
+	default:
+		if(iStartX<1 || iStartY<1 || iMarginX<1 || iMarginY <1)
+		{
+			throw("Error: Not enough boundary pixels for gradients!");
+		}
+		else
+		{
+			for (int i = iStartY; i < (iStartY + iROIHeight); i++)
+			{
+				for (int j = iStartX; j < (iStartX + iROIWidth); j++)
+				{
+					//int index = (i - iStartY)*iROIWidth + (j - iStartX);
+					 Gx[i-iStartY][j-iStartX] = 0.5 * real_t(image.at<uchar>(i, j + 1) - image.at<uchar>(i, j - 1));
+					 Gy[i-iStartY][j-iStartX] = 0.5 * real_t(image.at<uchar>(i + 1, j) - image.at<uchar>(i - 1, j));
+					Gxy[i-iStartY][j-iStartX] = 0.25* real_t(image.at<uchar>(i + 1,j + 1)- image.at<uchar>(i-1,j+1)
+						- image.at<uchar>(i+1,j-1) + image.at<uchar>(i-1,j-1));
+				}
+			}
+
+		}
+		break;
+	case TW::Quartic:
+		if(iStartX<2 || iStartY<2 || iMarginX<2 || iMarginY <2)
+		{
+			throw("Error: Not enough boundary pixels for gradients!");
+		}
+		else
+		{
+			// TODO
+		}
+		break;
+	case TW::Octic:
+		if(iStartX<4 || iStartY<4 || iMarginX<4 || iMarginY <4)
+		{
+			throw("Error: Not enough boundary pixels for gradients!");
+		}
+		else
+		{
+			// TODO
+		}
+		break;
+	}
+}
+
 void Gradient_m(//Inputs
 				const cv::Mat& image,
 				int_t iStartX, int_t iStartY,
@@ -94,6 +155,20 @@ void Gradient_m(//Inputs
 				//Output
 				real_t **Gx,
 				real_t **Gy)
+{
+	// TODO
+}
+
+void GradientXY_m(//Inputs
+				  const cv::Mat& image,
+				  int_t iStartX, int_t iStartY,
+				  int_t iROIWidth, int_t iROIHeight,
+				  int_t iImgWidth, int_t iImgHeight,
+				  AccuracyOrder accuracyOrder,
+				  //Output
+				  real_t **Gx,
+				  real_t **Gy,
+				  real_t **Gxy)
 {
 	// TODO
 }
@@ -176,6 +251,104 @@ void BicubicSplineCoefficients_s(//Inputs
 					fBSpline[i][j][3 - k][3 - l] = fTemp; 
 				}
 			}
+		}
+	}
+}
+
+void BicubicCoefficients_s(// Inputs
+ 						   const cv::Mat& image,
+						   const real_t **Tx,
+						   const real_t **Ty,
+						   const real_t **Txy,
+						   int_t iStartX, int_t iStartY,
+						   int_t iROIWidth, int_t iROIHeight,
+						   int_t iImgWidth, int_t iImgHeight,
+						   // Outputs
+						   real_t ****fBicubic)
+{
+	if( (iImgHeight - (iROIHeight + iStartY +1) < 0) || 
+	    (iImgWidth  - (iROIWidth  + iStartX +1) < 0) )
+	{
+		throw("Error! Maximum boundary condition exceeded!");
+	}
+
+	// The coefficient matrix of the Bicubic interpolation
+	real_t fBicubicMatrix[16][16] = { 
+		{  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
+		{  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
+		{ -3,  3,  0,  0, -2, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
+		{  2, -2,  0,  0,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
+		{  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0 }, 
+		{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0 }, 
+		{  0,  0,  0,  0,  0,  0,  0,  0, -3,  3,  0,  0, -2, -1,  0,  0 }, 
+		{  0,  0,  0,  0,  0,  0,  0,  0,  2, -2,  0,  0,  1,  1,  0,  0 },
+		{ -3,  0,  3,  0,  0,  0,  0,  0, -2,  0, -1,  0,  0,  0,  0,  0 }, 
+		{  0,  0,  0,  0, -3,  0,  3,  0,  0,  0,  0,  0, -2,  0, -1,  0 }, 
+		{  9, -9, -9,  9,  6,  3, -6, -3,  6, -6,  3, -3,  4,  2,  2,  1 },
+		{ -6,  6,  6, -6, -3, -3,  3,  3, -4,  4, -2,  2, -2, -2, -1, -1 }, 
+		{  2,  0, -2,  0,  0,  0,  0,  0,  1,  0,  1,  0,  0,  0,  0,  0 }, 
+		{  0,  0,  0,  0,  2,  0, -2,  0,  0,  0,  0,  0,  1,  0,  1,  0 }, 
+		{ -6,  6,  6, -6, -4, -2,  4,  2, -3,  3, -3,  3, -2, -1, -2, -1 },
+		{  4, -4, -4,  4,  2,  2, -2, -2,  2, -2,  2, -2,  1,  1,  1,  1 }};
+
+	real_t fTao[16];
+	real_t fAlpha[16];
+
+	for(int i = 0; i < iROIHeight - 1; i++)
+	{
+		for(int j = 0; j < iROIWidth - 1; j++)
+		{
+			fTao[0] = static_cast<real_t>(image.at<uchar>(i + iStartY,     j + iStartX));
+			fTao[1] = static_cast<real_t>(image.at<uchar>(i + iStartY,     j + iStartX + 1));
+			fTao[2] = static_cast<real_t>(image.at<uchar>(i + iStartY + 1, j + iStartX));
+			fTao[3] = static_cast<real_t>(image.at<uchar>(i + iStartY + 1, j + iStartX + 1));
+			fTao[4] = Tx[i][j];
+			fTao[5] = Tx[i][j + 1];
+			fTao[6] = Tx[i + 1][j];
+			fTao[7] = Tx[i + 1][j + 1];
+			fTao[8] = Ty[i][j];
+			fTao[9] = Ty[i][j + 1];
+			fTao[10]= Ty[i + 1][j];
+			fTao[11]= Ty[i + 1][j + 1];
+			fTao[12]= Txy[i][j];
+			fTao[13]= Txy[i][j + 1];
+			fTao[14]= Txy[i + 1][j];
+			fTao[15]= Txy[i + 1][j + 1]; 
+
+			for(int k = 0; k < 16; k++)
+			{
+				fAlpha[k] = 0;
+				for(int l = 0; l < 16; l++)
+				{
+					fAlpha[k] += fBicubicMatrix[k][l] * fTao[16];
+				}
+			}
+
+			fBicubic[i][j][0][0] = fAlpha[0];
+			fBicubic[i][j][0][1] = fAlpha[1];
+			fBicubic[i][j][0][2] = fAlpha[2];
+			fBicubic[i][j][0][3] = fAlpha[3];
+			fBicubic[i][j][1][0] = fAlpha[4];
+			fBicubic[i][j][1][1] = fAlpha[5];
+			fBicubic[i][j][1][2] = fAlpha[6];
+			fBicubic[i][j][1][3] = fAlpha[7];
+			fBicubic[i][j][2][0] = fAlpha[8];
+			fBicubic[i][j][2][1] = fAlpha[9];
+			fBicubic[i][j][2][2] = fAlpha[10];
+			fBicubic[i][j][2][3] = fAlpha[11];
+			fBicubic[i][j][3][0] = fAlpha[12];
+			fBicubic[i][j][3][1] = fAlpha[13];
+			fBicubic[i][j][3][2] = fAlpha[14];
+			fBicubic[i][j][3][3] = fAlpha[15];
+		}
+	}
+
+	// Padding the boundary ones with zeros
+	for (int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			fBicubic[iROIHeight - 1][iROIWidth - 1][i][j] = 0;
 		}
 	}
 }
