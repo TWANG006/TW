@@ -25,7 +25,7 @@ TEST(Gradient, Gradient_s)
 	//hcreateptr(Gxy, (imgWidth-2)*(imgHeight-2));
 
 	try{
-		Gradient_s(matS, 1,1,imgWidth-2, imgHeight-2, imgWidth, imgHeight, TW::Quadratic, Gx, Gy/*, Gxy*/);
+		Gradient_s(matS, 1,1,imgWidth-2, imgHeight-2, imgWidth, imgHeight, TW::AccuracyOrder::Quadratic, Gx, Gy/*, Gxy*/);
 	}
 	catch(const char* c)
 	{
@@ -39,6 +39,40 @@ TEST(Gradient, Gradient_s)
 	hdestroyptr(Gx);
 	hdestroyptr(Gy);
 	//hdestroyptr(Gxy);
+}
+
+TEST(Bicubic, BicubicInterpolation)
+{
+	cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_01.bmp");
+
+	auto imgWidth = mat.cols;
+	auto imgHeight= mat.rows;
+
+	cv::Mat matS(cv::Size(imgWidth, imgHeight), CV_8UC1);
+	cv::cvtColor(mat, matS, CV_BGR2GRAY);
+
+	float****fBSpline;
+
+	float **Tx,**Ty, **Txy;
+
+	hcreateptr(Tx,  imgHeight-4, imgWidth-4);
+	hcreateptr(Ty,  imgHeight-4, imgWidth-4);
+	hcreateptr(Txy, imgHeight-4, imgWidth-4);
+	hcreateptr(fBSpline, imgHeight-4, imgWidth-4, 4, 4);
+	GradientXY_s(matS,2, 2, imgWidth-4, imgHeight-4, imgWidth, imgHeight,TW::AccuracyOrder::Quadratic,Tx,Ty,Txy);
+	BicubicCoefficients_s(matS, Tx, Ty, Txy, 2, 2, imgWidth-4, imgHeight-4, imgWidth, imgHeight, fBSpline);
+
+
+	std::cout<<"First: "<<std::endl;
+	for(int i=0;i<4;i++)
+	{
+		for(int j=0;j<4;j++)
+		{
+			std::cout<<fBSpline[0][0][i][j]<<", ";
+		}
+		std::cout<<std::endl;
+	}
+	hdestroyptr(fBSpline);
 }
 
 TEST(BSpline, BSplineInterpolation)
@@ -83,9 +117,15 @@ TEST(ICGN2D, ICGN2D_CPU_Hessian)
 	cv::cvtColor(mat1, matT, CV_BGR2GRAY);
 
 
-	TW::paDIC::ICGN2D_CPU icgn(matR,matT,2,2,imgWidth-4,imgHeight-4,16,16,92,92,20,0.001);
-	icgn.ICGN2D_Precomputation_Prepare();
-	icgn.ICGN2D_Precomputation();
+	TW::paDIC::ICGN2D_CPU icgn(matR,matT,
+								2,2,
+								imgWidth-4,imgHeight-4,
+								16,16,
+								92,92,
+								20,
+								0.001f,
+								TW::paDIC::ICGN2DInterpolationFLag::Bicubic,
+								TW::paDIC::ICGN2DThreadFlag::Single);
 
 	icgn.ICGN2D_Prepare();
 	float u=0, v=0;
@@ -94,6 +134,5 @@ TEST(ICGN2D, ICGN2D_CPU_Hessian)
 
 	std::cout<<"The displacement is [" << u << ", " << v << "]\n";
 
-	icgn.ICGN2D_Precomputation_Finalize();
 	icgn.ICGN2D_Finalize();
 }

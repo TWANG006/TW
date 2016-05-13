@@ -195,7 +195,7 @@ TW_LIB_DLL_EXPORTS void ComputePOIPositions_m(// Output
 											  int_t iSubsetX, int_t iSubsetY,
 											  int_t iGridSpaceX, int_t iGridSpaceY);
 
-enum AccuracyOrder
+enum class AccuracyOrder
 {	
 	Quadratic,
 	Quartic,
@@ -243,6 +243,20 @@ TW_LIB_DLL_EXPORTS void GradientXY_s(//Inputs
 								     real_t **Gx,
 								     real_t **Gy,
 									 real_t **Gxy);
+
+TW_LIB_DLL_EXPORTS void GradientXY_2Images_s(//Inputs
+											 const cv::Mat& image1,
+											 const cv::Mat& image2,
+											 int_t iStartX, int_t iStartY,
+											 int_t iROIWidth, int_t iROIHeight,
+											 int_t iImgWidth, int_t iImgHeight,
+											 AccuracyOrder accuracyOrder,
+											 //Outputs
+											 real_t **Fx,
+											 real_t **Fy,
+											 real_t **Gx,
+											 real_t **Gy,
+											 real_t **Gxy);
 
 /// \brief Multi-threaded Function to compute the gradients x&y of an image using Central Difference Scheme
 /// Note: The cv::Mat must be 8UC1 format, otherwise this method cannot be called
@@ -305,9 +319,9 @@ TW_LIB_DLL_EXPORTS void BicubicSplineCoefficients_s(// Inputs
 
 TW_LIB_DLL_EXPORTS void BicubicCoefficients_s(// Inputs
 											  const cv::Mat& image,
-											  const real_t **Tx,
-											  const real_t **Ty,
-											  const real_t **Txy,
+											  real_t **Tx,
+											  real_t **Ty,
+											  real_t **Txy,
 											  int_t iStartX, int_t iStartY,
 											  int_t iROIWidth, int_t iROIHeight,
 											  int_t iImgWidth, int_t iImgHeight,

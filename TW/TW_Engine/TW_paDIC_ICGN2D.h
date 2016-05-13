@@ -16,6 +16,18 @@ namespace paDIC{
 		OutofROI
 	};
 
+	enum class ICGN2DThreadFlag
+	{
+		Single,
+		Multicore
+	};
+
+	enum class ICGN2DInterpolationFLag
+	{
+		Bicubic,
+		BicubicSpline
+	};
+
 /// \brief ICGN2D base class fo 2D paDIC method
 /// This class implement the general CPU-based ICGN algorithm. The computation
 /// unit is based on two entire images. 
@@ -35,14 +47,15 @@ public:
 		   int iNumberX, int iNumberY,
 		   int iNumIterations,
 		   real_t fDeltaP);
-	virtual ~ICGN2D();
+
+	virtual ~ICGN2D() = 0;	// To make this class an abstract base-class
 
 	/*virtual void ICGN2D_Compute(real_t *fU,
 								real_t *fV,
 								int    *iPOIPos) = 0;*/
-	virtual void ICGN2D_Precomputation_Prepare() = 0;
+	/*virtual void ICGN2D_Precomputation_Prepare() = 0;
 	virtual void ICGN2D_Precomputation() = 0;
-	virtual void ICGN2D_Precomputation_Finalize() = 0;
+	virtual void ICGN2D_Precomputation_Finalize() = 0;*/
 
 protected:
 
@@ -61,8 +74,8 @@ protected:
 	int m_iNumberX;
 	int m_iNumberY;
 	int m_iPOINumber;
-	int m_iNumIterations;
-	real_t m_fDeltaP;
+	int m_iNumIterations;	// Max number of allowed iterations
+	real_t m_fDeltaP;		// Threshold of the convergence
 
 	// Parameters for computation
 

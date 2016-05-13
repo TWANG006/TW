@@ -1,5 +1,6 @@
 #include "TW_utils.h"
 #include <iostream>
+#include <omp.h>
 
 namespace TW
 {
@@ -40,7 +41,7 @@ void Gradient_s(//Inputs
 
 	switch (accuracyOrder)
 	{
-	case TW::Quadratic:
+	case TW::AccuracyOrder::Quadratic:
 	default:
 		if(iStartX<1 || iStartY<1 || iMarginX<1 || iMarginY <1)
 		{
@@ -62,7 +63,7 @@ void Gradient_s(//Inputs
 
 		}
 		break;
-	case TW::Quartic:
+	case TW::AccuracyOrder::Quartic:
 		if(iStartX<2 || iStartY<2 || iMarginX<2 || iMarginY <2)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
@@ -72,7 +73,7 @@ void Gradient_s(//Inputs
 			// TODO
 		}
 		break;
-	case TW::Octic:
+	case TW::AccuracyOrder::Octic:
 		if(iStartX<4 || iStartY<4 || iMarginX<4 || iMarginY <4)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
@@ -101,7 +102,7 @@ void GradientXY_s(//Inputs
 
 	switch (accuracyOrder)
 	{
-	case TW::Quadratic:
+	case TW::AccuracyOrder::Quadratic:
 	default:
 		if(iStartX<1 || iStartY<1 || iMarginX<1 || iMarginY <1)
 		{
@@ -123,7 +124,7 @@ void GradientXY_s(//Inputs
 
 		}
 		break;
-	case TW::Quartic:
+	case TW::AccuracyOrder::Quartic:
 		if(iStartX<2 || iStartY<2 || iMarginX<2 || iMarginY <2)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
@@ -133,7 +134,74 @@ void GradientXY_s(//Inputs
 			// TODO
 		}
 		break;
-	case TW::Octic:
+	case TW::AccuracyOrder::Octic:
+		if(iStartX<4 || iStartY<4 || iMarginX<4 || iMarginY <4)
+		{
+			throw("Error: Not enough boundary pixels for gradients!");
+		}
+		else
+		{
+			// TODO
+		}
+		break;
+	}
+}
+
+void GradientXY_2Images_s(//Inputs
+						  const cv::Mat& image1,
+						  const cv::Mat& image2,
+						  int_t iStartX, int_t iStartY,
+						  int_t iROIWidth, int_t iROIHeight,
+						  int_t iImgWidth, int_t iImgHeight,
+						  AccuracyOrder accuracyOrder,
+						  //Outputs
+						  real_t **Fx,
+						  real_t **Fy,
+						  real_t **Gx,
+						  real_t **Gy,
+						  real_t **Gxy)
+{
+	int_t iMarginX = iImgWidth - (iStartX + iROIWidth) + 1;
+	int_t iMarginY = iImgHeight -(iStartY + iROIHeight) + 1;
+
+	switch (accuracyOrder)
+	{
+	case TW::AccuracyOrder::Quadratic:
+	default:
+		if(iStartX<1 || iStartY<1 || iMarginX<1 || iMarginY <1)
+		{
+			throw("Error: Not enough boundary pixels for gradients!");
+		}
+		else
+		{
+			for (int i = iStartY; i < (iStartY + iROIHeight); i++)
+			{
+				for (int j = iStartX; j < (iStartX + iROIWidth); j++)
+				{
+					//int index = (i - iStartY)*iROIWidth + (j - iStartX);
+					 Fx[i-iStartY][j-iStartX] = 0.5 * real_t(image1.at<uchar>(i, j + 1) - image1.at<uchar>(i, j - 1));
+					 Fy[i-iStartY][j-iStartX] = 0.5 * real_t(image1.at<uchar>(i + 1, j) - image1.at<uchar>(i - 1, j));
+					
+					 Gx[i-iStartY][j-iStartX] = 0.5 * real_t(image2.at<uchar>(i, j + 1) - image2.at<uchar>(i, j - 1));
+					 Gy[i-iStartY][j-iStartX] = 0.5 * real_t(image2.at<uchar>(i + 1, j) - image2.at<uchar>(i - 1, j));
+					Gxy[i-iStartY][j-iStartX] = 0.25* real_t(image2.at<uchar>(i + 1,j + 1)- image2.at<uchar>(i-1,j+1)
+						- image2.at<uchar>(i+1,j-1) + image2.at<uchar>(i-1,j-1));
+				}
+			}
+
+		}
+		break;
+	case TW::AccuracyOrder::Quartic:
+		if(iStartX<2 || iStartY<2 || iMarginX<2 || iMarginY <2)
+		{
+			throw("Error: Not enough boundary pixels for gradients!");
+		}
+		else
+		{
+			// TODO
+		}
+		break;
+	case TW::AccuracyOrder::Octic:
 		if(iStartX<4 || iStartY<4 || iMarginX<4 || iMarginY <4)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
@@ -257,9 +325,9 @@ void BicubicSplineCoefficients_s(//Inputs
 
 void BicubicCoefficients_s(// Inputs
  						   const cv::Mat& image,
-						   const real_t **Tx,
-						   const real_t **Ty,
-						   const real_t **Txy,
+						   real_t **Tx,
+						   real_t **Ty,
+						   real_t **Txy,
 						   int_t iStartX, int_t iStartY,
 						   int_t iROIWidth, int_t iROIHeight,
 						   int_t iImgWidth, int_t iImgHeight,
@@ -320,7 +388,7 @@ void BicubicCoefficients_s(// Inputs
 				fAlpha[k] = 0;
 				for(int l = 0; l < 16; l++)
 				{
-					fAlpha[k] += fBicubicMatrix[k][l] * fTao[16];
+					fAlpha[k] += fBicubicMatrix[k][l] * fTao[l];
 				}
 			}
 

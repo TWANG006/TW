@@ -64,6 +64,8 @@ __global__  void Precompute_POIPosition_kernel(// Input
 	}
 }
 
+/// \brief CUDA kernel to compute the 
+
 /// \brief CUDA kernel to Compute the point (POI) position in each x, y direction within
 /// the whole image
 ///

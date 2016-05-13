@@ -15,7 +15,9 @@ ICGN2D_CPU::ICGN2D_CPU(const cv::Mat& refImg,
 					   int iSubsetX, int iSubsetY,
 					   int iNumberX, int iNumberY,
 					   int iNumIterations,
-					   real_t fDeltaP)
+					   real_t fDeltaP,
+					   ICGN2DInterpolationFLag Iflag,
+					   ICGN2DThreadFlag Tflag)
 	: ICGN2D(refImg, 
 		 	 tarImg,
 		 	 iStartX, iStartY,
@@ -24,42 +26,151 @@ ICGN2D_CPU::ICGN2D_CPU(const cv::Mat& refImg,
 			 iNumberX, iNumberY,
 			 iNumIterations,
 			 fDeltaP)
-{
-
-}
+	, m_Iflag(Iflag)
+	, m_Tflag(Tflag)
+{}
 
 ICGN2D_CPU::~ICGN2D_CPU()
 {
 }
 
+void ICGN2D_CPU:: ICGN2D_Algorithm(real_t *fU,
+							       real_t *fV,
+								   int *iNumIterations,
+								   const int *&iPOIpos)
+{
+	switch (m_Tflag)
+	{
+	case TW::paDIC::ICGN2DThreadFlag::Single:
+		for (int i = 0; i < m_iPOINumber; i++)
+		{
+			ICGN2D_Compute(fU[i],
+						   fV[i],
+						   iNumIterations[i],
+						   iPOIpos[2 * i + 1],
+						   iPOIpos[2 * i + 0],
+						   i);
+		}
+		break;
+
+	case TW::paDIC::ICGN2DThreadFlag::Multicore:
+#pragma	omp for	
+		for (int i = 0; i < m_iPOINumber; i++)
+		{
+			ICGN2D_Compute(fU[i],
+						   fV[i],
+						   iNumIterations[i],
+						   iPOIpos[2 * i + 1],
+						   iPOIpos[2 * i + 0],
+						   i);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+
+
 void ICGN2D_CPU::ICGN2D_Precomputation_Prepare()
 {
-	hcreateptr<real_t>(m_fRx, m_iROIHeight, m_iROIWidth);
-	hcreateptr<real_t>(m_fRy, m_iROIHeight, m_iROIWidth);
-	hcreateptr<real_t>(m_fBsplineInterpolation, m_iROIHeight, m_iROIWidth, 4, 4);
+	switch (m_Iflag)	
+	{
+	case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
+		hcreateptr<real_t>(m_fRx, m_iROIHeight, m_iROIWidth);
+		hcreateptr<real_t>(m_fRy, m_iROIHeight, m_iROIWidth);
+		hcreateptr<real_t>(m_fTx, m_iROIHeight, m_iROIWidth);
+		hcreateptr<real_t>(m_fTy, m_iROIHeight, m_iROIWidth);
+		hcreateptr<real_t>(m_fTxy,m_iROIHeight, m_iROIWidth);
+		hcreateptr<real_t>(m_fInterpolation, m_iROIHeight, m_iROIWidth, 4, 4);
+		break;
+
+	case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
+		hcreateptr<real_t>(m_fRx, m_iROIHeight, m_iROIWidth);
+		hcreateptr<real_t>(m_fRy, m_iROIHeight, m_iROIWidth);
+		hcreateptr<real_t>(m_fInterpolation, m_iROIHeight, m_iROIWidth, 4, 4);
+		break;
+
+	default:
+		break;
+	}
 }
 
 void ICGN2D_CPU::ICGN2D_Precomputation() 
 {
-	// Compute gradients of m_refImg
-	Gradient_s(m_refImg, 
-			   m_iStartX, m_iStartY, 
-			   m_iROIWidth, m_iROIHeight,
-			   m_refImg.cols, m_refImg.rows,
-			   TW::Quadratic,
-			   m_fRx,
-			   m_fRy);
+	switch (m_Tflag)
+	{
+	case TW::paDIC::ICGN2DThreadFlag::Single:
+		switch (m_Iflag)
+		{
+		case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
+			// Compute gradients of m_refImg & m_tarImg
+			GradientXY_2Images_s(m_refImg,
+								 m_tarImg,
+								 m_iStartX, m_iStartY,
+								 m_iROIWidth, m_iROIHeight,
+								 m_refImg.cols, m_refImg.rows,
+								 TW::AccuracyOrder::Quadratic,
+								 m_fRx,
+								 m_fRy,
+								 m_fTx,
+								 m_fTy,
+								 m_fTxy);
+			// Compute the LUT for bicubic interpolation
+			BicubicCoefficients_s(m_tarImg,
+								  m_fTx,
+								  m_fTy,
+								  m_fTxy,
+								  m_iStartX, m_iStartY,
+								  m_iROIWidth, m_iROIHeight,
+								  m_tarImg.cols, m_tarImg.cols,
+								  m_fInterpolation);
+			break;
 
-	// Compute the LUT for bicubic B-Spline interpolation
-	BicubicSplineCoefficients_s(m_tarImg,
-								m_iStartX,
-								m_iStartY,
-								m_iROIWidth,
-								m_iROIHeight,
-								m_tarImg.cols,
-								m_tarImg.rows,
-								m_fBsplineInterpolation);
+		case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
+			// Compute gradients of m_refImg
+			Gradient_s(m_refImg,
+				  	   m_iStartX, m_iStartY,
+					   m_iROIWidth, m_iROIHeight,
+					   m_refImg.cols, m_refImg.rows,
+					   TW::AccuracyOrder::Quadratic,
+					   m_fRx,
+					   m_fRy);
+			// Compute the LUT for bicubic B-Spline interpolation
+			BicubicSplineCoefficients_s(m_tarImg,
+										m_iStartX,	
+										m_iStartY,
+										m_iROIWidth,
+										m_iROIHeight,
+										m_tarImg.cols,
+										m_tarImg.rows,
+										m_fInterpolation);
+			break;
 
+		default:
+			break;
+		
+		}
+		break;
+
+	case TW::paDIC::ICGN2DThreadFlag::Multicore:
+		switch (m_Iflag)
+		{
+		case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
+			break;
+
+		case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+	default:
+		break;
+	}
 	// For debug
 	/*std::cout<<"First: "<<std::endl;
 	for(int i=0;i<4;i++)
@@ -83,16 +194,41 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 
 void ICGN2D_CPU::ICGN2D_Precomputation_Finalize()
 {
-	hdestroyptr(m_fRx);
-	hdestroyptr(m_fRy);
-	hdestroyptr(m_fBsplineInterpolation);
+
+	switch (m_Iflag)	
+	{
+	case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
+	{
+		hdestroyptr(m_fRx);
+		hdestroyptr(m_fRy);
+		hdestroyptr(m_fTx);
+		hdestroyptr(m_fTy);
+		hdestroyptr(m_fTxy);
+		hdestroyptr(m_fInterpolation);
+	}
+		break;
+
+	case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
+	{
+		hdestroyptr(m_fRx);
+		hdestroyptr(m_fRy);
+		hdestroyptr(m_fInterpolation);
+	}
+		break;
+	default:
+		break;
+	}	
 }
 
 void ICGN2D_CPU::ICGN2D_Prepare()
 {
+	ICGN2D_Precomputation_Prepare();
+
 	hcreateptr(m_fSubsetR, m_iPOINumber, m_iSubsetH, m_iSubsetW);
 	hcreateptr(m_fSubsetT, m_iPOINumber, m_iSubsetH, m_iSubsetW);
 	hcreateptr(m_fRDescent,m_iPOINumber, m_iSubsetH, m_iSubsetW, 6);
+
+	ICGN2D_Precomputation();
 }
 
 ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
@@ -376,7 +512,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 						{
 							// Note the indices in m_fBsplineInterpolation should minus the start position [X,Y]
 							// of the ROI
-							m_fSubsetT[id][l][m] += m_fBsplineInterpolation[iIntPixY - m_iStartY][iIntPixX - m_iStartX][k][n] * pow(fTempY, k) * pow(fTempX, n);
+							m_fSubsetT[id][l][m] += m_fInterpolation[iIntPixY - m_iStartY][iIntPixX - m_iStartX][k][n] * pow(fTempY, k) * pow(fTempX, n);
 						}
 					}
 					fTarSubsetMean += m_fSubsetT[id][l][m];
@@ -503,6 +639,8 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 
 void ICGN2D_CPU::ICGN2D_Finalize()
 {
+	ICGN2D_Precomputation_Finalize();
+
 	hdestroyptr(m_fSubsetR);
 	hdestroyptr(m_fSubsetT);
 	hdestroyptr(m_fRDescent);

@@ -31,9 +31,7 @@ ICGN2D::ICGN2D(const cv::Mat& refImg,
 }
 
 ICGN2D::~ICGN2D()
-{
-
-}
+{}
 
 } //!- namespace paDIC
 } //!- namespace TW
