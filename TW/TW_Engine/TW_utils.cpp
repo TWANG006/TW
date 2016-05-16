@@ -43,7 +43,8 @@ void Gradient_s(//Inputs
 	{
 	case TW::AccuracyOrder::Quadratic:
 	default:
-		if(iStartX<1 || iStartY<1 || iMarginX<1 || iMarginY <1)
+	{
+		if (iStartX < 1 || iStartY < 1 || iMarginX < 1 || iMarginY < 1)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -54,8 +55,8 @@ void Gradient_s(//Inputs
 				for (int j = iStartX; j < (iStartX + iROIWidth); j++)
 				{
 					//int index = (i - iStartY)*iROIWidth + (j - iStartX);
-					Gx[i-iStartY][j-iStartX] = 0.5 * real_t(image.at<uchar>(i, j + 1) - image.at<uchar>(i, j - 1));
-					Gy[i-iStartY][j-iStartX] = 0.5 * real_t(image.at<uchar>(i + 1, j) - image.at<uchar>(i - 1, j));
+					Gx[i - iStartY][j - iStartX] = 0.5 * real_t(image.at<uchar>(i, j + 1) - image.at<uchar>(i, j - 1));
+					Gy[i - iStartY][j - iStartX] = 0.5 * real_t(image.at<uchar>(i + 1, j) - image.at<uchar>(i - 1, j));
 					/*Gxy[index]= 0.25*real_t(image.at<uchar>(i+1,j+1) - image.at<uchar>(i-1,j+1)
 						- image.at<uchar>(i+1,j-1) + image.at<uchar>(i-1,j-1));*/
 				}
@@ -63,8 +64,10 @@ void Gradient_s(//Inputs
 
 		}
 		break;
+	}
 	case TW::AccuracyOrder::Quartic:
-		if(iStartX<2 || iStartY<2 || iMarginX<2 || iMarginY <2)
+	{
+		if (iStartX < 2 || iStartY < 2 || iMarginX < 2 || iMarginY < 2)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -73,8 +76,11 @@ void Gradient_s(//Inputs
 			// TODO
 		}
 		break;
+	}
+
 	case TW::AccuracyOrder::Octic:
-		if(iStartX<4 || iStartY<4 || iMarginX<4 || iMarginY <4)
+	{
+		if (iStartX < 4 || iStartY < 4 || iMarginX < 4 || iMarginY < 4)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -83,6 +89,7 @@ void Gradient_s(//Inputs
 			// TODO
 		}
 		break;
+	}
 	}
 }
 
@@ -104,7 +111,8 @@ void GradientXY_s(//Inputs
 	{
 	case TW::AccuracyOrder::Quadratic:
 	default:
-		if(iStartX<1 || iStartY<1 || iMarginX<1 || iMarginY <1)
+	{
+		if (iStartX < 1 || iStartY < 1 || iMarginX < 1 || iMarginY < 1)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -115,17 +123,20 @@ void GradientXY_s(//Inputs
 				for (int j = iStartX; j < (iStartX + iROIWidth); j++)
 				{
 					//int index = (i - iStartY)*iROIWidth + (j - iStartX);
-					 Gx[i-iStartY][j-iStartX] = 0.5 * real_t(image.at<uchar>(i, j + 1) - image.at<uchar>(i, j - 1));
-					 Gy[i-iStartY][j-iStartX] = 0.5 * real_t(image.at<uchar>(i + 1, j) - image.at<uchar>(i - 1, j));
-					Gxy[i-iStartY][j-iStartX] = 0.25* real_t(image.at<uchar>(i + 1,j + 1)- image.at<uchar>(i-1,j+1)
-						- image.at<uchar>(i+1,j-1) + image.at<uchar>(i-1,j-1));
+					Gx[i - iStartY][j - iStartX] = 0.5 * real_t(image.at<uchar>(i, j + 1) - image.at<uchar>(i, j - 1));
+					Gy[i - iStartY][j - iStartX] = 0.5 * real_t(image.at<uchar>(i + 1, j) - image.at<uchar>(i - 1, j));
+					Gxy[i - iStartY][j - iStartX] = 0.25* real_t(image.at<uchar>(i + 1, j + 1) - image.at<uchar>(i - 1, j + 1)
+						- image.at<uchar>(i + 1, j - 1) + image.at<uchar>(i - 1, j - 1));
 				}
 			}
 
 		}
 		break;
+	}
+
 	case TW::AccuracyOrder::Quartic:
-		if(iStartX<2 || iStartY<2 || iMarginX<2 || iMarginY <2)
+	{
+		if (iStartX < 2 || iStartY < 2 || iMarginX < 2 || iMarginY < 2)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -134,8 +145,11 @@ void GradientXY_s(//Inputs
 			// TODO
 		}
 		break;
+	}
+
 	case TW::AccuracyOrder::Octic:
-		if(iStartX<4 || iStartY<4 || iMarginX<4 || iMarginY <4)
+	{
+		if (iStartX < 4 || iStartY < 4 || iMarginX < 4 || iMarginY < 4)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -144,6 +158,7 @@ void GradientXY_s(//Inputs
 			// TODO
 		}
 		break;
+	}
 	}
 }
 
@@ -168,7 +183,8 @@ void GradientXY_2Images_s(//Inputs
 	{
 	case TW::AccuracyOrder::Quadratic:
 	default:
-		if(iStartX<1 || iStartY<1 || iMarginX<1 || iMarginY <1)
+	{
+		if (iStartX < 1 || iStartY < 1 || iMarginX < 1 || iMarginY < 1)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -179,20 +195,23 @@ void GradientXY_2Images_s(//Inputs
 				for (int j = iStartX; j < (iStartX + iROIWidth); j++)
 				{
 					//int index = (i - iStartY)*iROIWidth + (j - iStartX);
-					 Fx[i-iStartY][j-iStartX] = 0.5 * real_t(image1.at<uchar>(i, j + 1) - image1.at<uchar>(i, j - 1));
-					 Fy[i-iStartY][j-iStartX] = 0.5 * real_t(image1.at<uchar>(i + 1, j) - image1.at<uchar>(i - 1, j));
-					
-					 Gx[i-iStartY][j-iStartX] = 0.5 * real_t(image2.at<uchar>(i, j + 1) - image2.at<uchar>(i, j - 1));
-					 Gy[i-iStartY][j-iStartX] = 0.5 * real_t(image2.at<uchar>(i + 1, j) - image2.at<uchar>(i - 1, j));
-					Gxy[i-iStartY][j-iStartX] = 0.25* real_t(image2.at<uchar>(i + 1,j + 1)- image2.at<uchar>(i-1,j+1)
-						- image2.at<uchar>(i+1,j-1) + image2.at<uchar>(i-1,j-1));
+					Fx[i - iStartY][j - iStartX] = 0.5 * real_t(image1.at<uchar>(i, j + 1) - image1.at<uchar>(i, j - 1));
+					Fy[i - iStartY][j - iStartX] = 0.5 * real_t(image1.at<uchar>(i + 1, j) - image1.at<uchar>(i - 1, j));
+
+					Gx[i - iStartY][j - iStartX] = 0.5 * real_t(image2.at<uchar>(i, j + 1) - image2.at<uchar>(i, j - 1));
+					Gy[i - iStartY][j - iStartX] = 0.5 * real_t(image2.at<uchar>(i + 1, j) - image2.at<uchar>(i - 1, j));
+					Gxy[i - iStartY][j - iStartX] = 0.25* real_t(image2.at<uchar>(i + 1, j + 1) - image2.at<uchar>(i - 1, j + 1)
+						- image2.at<uchar>(i + 1, j - 1) + image2.at<uchar>(i - 1, j - 1));
 				}
 			}
 
 		}
 		break;
+	}
+
 	case TW::AccuracyOrder::Quartic:
-		if(iStartX<2 || iStartY<2 || iMarginX<2 || iMarginY <2)
+	{
+		if (iStartX < 2 || iStartY < 2 || iMarginX < 2 || iMarginY < 2)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -201,8 +220,11 @@ void GradientXY_2Images_s(//Inputs
 			// TODO
 		}
 		break;
+	}
+
 	case TW::AccuracyOrder::Octic:
-		if(iStartX<4 || iStartY<4 || iMarginX<4 || iMarginY <4)
+	{
+		if (iStartX < 4 || iStartY < 4 || iMarginX < 4 || iMarginY < 4)
 		{
 			throw("Error: Not enough boundary pixels for gradients!");
 		}
@@ -211,6 +233,7 @@ void GradientXY_2Images_s(//Inputs
 			// TODO
 		}
 		break;
+	}
 	}
 }
 

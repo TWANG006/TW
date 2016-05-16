@@ -37,11 +37,12 @@ ICGN2D_CPU::~ICGN2D_CPU()
 void ICGN2D_CPU:: ICGN2D_Algorithm(real_t *fU,
 							       real_t *fV,
 								   int *iNumIterations,
-								   const int *&iPOIpos)
+								   const int *iPOIpos)
 {
 	switch (m_Tflag)
 	{
 	case TW::paDIC::ICGN2DThreadFlag::Single:
+	{
 		for (int i = 0; i < m_iPOINumber; i++)
 		{
 			ICGN2D_Compute(fU[i],
@@ -52,9 +53,11 @@ void ICGN2D_CPU:: ICGN2D_Algorithm(real_t *fU,
 						   i);
 		}
 		break;
+	}
 
 	case TW::paDIC::ICGN2DThreadFlag::Multicore:
-#pragma	omp for	
+	{
+#pragma	omp parallel for	
 		for (int i = 0; i < m_iPOINumber; i++)
 		{
 			ICGN2D_Compute(fU[i],
@@ -65,9 +68,12 @@ void ICGN2D_CPU:: ICGN2D_Algorithm(real_t *fU,
 						   i);
 		}
 		break;
+	}
 
 	default:
+	{
 		break;
+	}
 	}
 }
 
@@ -75,25 +81,31 @@ void ICGN2D_CPU:: ICGN2D_Algorithm(real_t *fU,
 
 void ICGN2D_CPU::ICGN2D_Precomputation_Prepare()
 {
-	switch (m_Iflag)	
+	switch (m_Iflag)
 	{
 	case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
+	{
 		hcreateptr<real_t>(m_fRx, m_iROIHeight, m_iROIWidth);
 		hcreateptr<real_t>(m_fRy, m_iROIHeight, m_iROIWidth);
 		hcreateptr<real_t>(m_fTx, m_iROIHeight, m_iROIWidth);
 		hcreateptr<real_t>(m_fTy, m_iROIHeight, m_iROIWidth);
-		hcreateptr<real_t>(m_fTxy,m_iROIHeight, m_iROIWidth);
+		hcreateptr<real_t>(m_fTxy, m_iROIHeight, m_iROIWidth);
 		hcreateptr<real_t>(m_fInterpolation, m_iROIHeight, m_iROIWidth, 4, 4);
 		break;
+	}
 
 	case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
+	{
 		hcreateptr<real_t>(m_fRx, m_iROIHeight, m_iROIWidth);
 		hcreateptr<real_t>(m_fRy, m_iROIHeight, m_iROIWidth);
 		hcreateptr<real_t>(m_fInterpolation, m_iROIHeight, m_iROIWidth, 4, 4);
 		break;
+	}
 
 	default:
+	{
 		break;
+	}
 	}
 }
 
@@ -102,9 +114,11 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 	switch (m_Tflag)
 	{
 	case TW::paDIC::ICGN2DThreadFlag::Single:
+	{
 		switch (m_Iflag)
 		{
 		case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
+		{
 			// Compute gradients of m_refImg & m_tarImg
 			GradientXY_2Images_s(m_refImg,
 								 m_tarImg,
@@ -127,8 +141,10 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 								  m_tarImg.cols, m_tarImg.cols,
 								  m_fInterpolation);
 			break;
+		}
 
 		case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
+		{
 			// Compute gradients of m_refImg
 			Gradient_s(m_refImg,
 				  	   m_iStartX, m_iStartY,
@@ -147,29 +163,43 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 										m_tarImg.rows,
 										m_fInterpolation);
 			break;
+		}
 
 		default:
+		{
 			break;
+		}
 		
 		}
 		break;
+	}
 
 	case TW::paDIC::ICGN2DThreadFlag::Multicore:
+	{
 		switch (m_Iflag)
 		{
 		case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
-			break;
-
-		case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
-			break;
-
-		default:
+		{
 			break;
 		}
+
+		case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
+		{
+			break;
+		}
+
+		default:
+		{
+			break;
+		}
+		}
 		break;
+	}
 
 	default:
+	{
 		break;
+	}
 	}
 	// For debug
 	/*std::cout<<"First: "<<std::endl;
@@ -246,6 +276,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	//				[gradient(R)(\partial(W)/\partial(p)]^T  [T_m - T_ij] }
 	// where R_s = sqrt[ Sigma_ij(R_ij - R_m)^2], T_s = sqrt[ Sigma_ij(T_ij - T_m)^2]
 
+	real_t fError = 0;										// R_s / T_s ( T_i - R_i)
 	real_t fRefSubsetMean = 0, fTarSubsetMean = 0;			// Mean intensity values within Ref & Tar subsets
 	real_t fRefSubsetNorm = 0, fTarSubsetNorm = 0;			// sqrt(Sigma(R_i - R_mean)^2) Normalization parameter for Ref & Tar subsets
 	std::vector<real_t> v_P(6,0);							// Deformation parameter P(u,ux,uy,v,vx,vy);
@@ -315,14 +346,15 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	// 
 	
 	//// For debug use
-	//for (int i = 0; i < 6; i++)
-	//{
-	//	for (int j = 0; j < 6; j++)
-	//	{
-	//		std::cout << m_Hessian[i*6+j] << ",\t";
-	//	}
-	//	std::cout << "\n";
-	//}
+	std::cout << "Hessian Before\n";
+	for (int i = 0; i < 6; i++)
+	{
+		for (int j = 0; j < 6; j++)
+		{
+			std::cout << m_Hessian[i*6+j] << ",\t";
+		}
+		std::cout << "\n";
+	}
 
 	// Calculate R_m and make sure R_m != 0
 	fRefSubsetMean /= real_t(m_iSubsetSize);	// R_m
@@ -401,7 +433,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		return ICGN2DFlag::DarkSubset;
 
 	// Construct the RHS vector v_RHS
-	real_t fError = 0;	// R_s / T_s ( T_i - R_i)
+	//real_t fError = 0;	// R_s / T_s ( T_i - R_i)
 	for(int l = 0; l < m_iSubsetH; l++)
 	{
 		for(int m = 0; m < m_iSubsetW; m++)
@@ -436,10 +468,11 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		return ICGN2DFlag::SingularHessian;
 	}
 	//// For Debug
-	//for(int i=0; i< v_RHS.size(); i++)
-	//	std::cout<<v_RHS[i]<<", ";
+	std::cout<<"DeltaP Befor"<<std::endl;
+	for(int i=0; i< v_RHS.size(); i++)
+		std::cout<<v_RHS[i]<<", ";
 
-	//std::cout<<std::endl;
+	std::cout<<std::endl;
 
 	// NOTE: Now dP's value is stored in v_RHS [ du dux duy dv dvx dvy]
 	// Update warp m_W and deformation parameter p v_P
@@ -460,7 +493,8 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	m_W[2][2] = 1;
 
 	// For Debug
-	/*for (int i = 0; i < 3; i++)
+	std::cout<<"Warp Befor"<<std::endl;
+	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -468,7 +502,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		}
 		std::cout << "\n";
 	}
-*/
+
 	// Update P & the output fU&fV
 	v_P[0] = fU = m_W[0][2];
 	v_P[1] = m_W[0][0] - 1;
@@ -544,12 +578,13 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		for (int k = 0; k < 6; k++)
 			v_RHS[k] = 0;
 
-		real_t fError = 0;	// R_s / T_s ( T_i - R_i)
+		
 		for (int l = 0; l < m_iSubsetH; l++)
 		{
 			for (int m = 0; m < m_iSubsetW; m++)
 			{
-				fError = (fRefSubsetNorm / fTarSubsetNorm) * m_fSubsetT[id][l][m] - m_fSubsetR[id][l][m];
+				fError  = (fRefSubsetNorm / fTarSubsetNorm) * m_fSubsetT[id][l][m];
+				fError -= m_fSubsetR[id][l][m];
 				
 				// Calculate the RHS = Sigma{[m_RDescent]^T[ R_s / T_s  * T_i - R_i]}
 				for (int k = 0; k < 6; k++)
@@ -558,14 +593,21 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		}
 
 		// For Debug
-		/*if (iNumIterations == 2)
+		std::cout<<"Third Iteration: "<<"\n";
+		if (iNumIterations == 2)
 		{
+			std::cout.precision(10);
 			std::cout<<m_fSubsetT[id][0][0]<<std::endl;
-			std::cout << fRefSubsetNorm <<", "<<", "<<fTarSubsetMean<<", "<<fTarSubsetNorm<<", \n";
+			std::cout<<m_fSubsetR[id][32][32]<<std::endl;
+			std::cout << fRefSubsetNorm <<", "<<", "<<fTarSubsetMean<<", "<<fTarSubsetNorm<<", "<<fError
+				<<", "<<m_fSubsetT[id][m_iSubsetH-1][m_iSubsetW-1]<<","<<m_fSubsetR[id][m_iSubsetH-1][m_iSubsetW-1]<<", "
+				<< (fRefSubsetNorm / fTarSubsetNorm)<<", "
+				<< (fRefSubsetNorm / fTarSubsetNorm)* m_fSubsetT[id][m_iSubsetH-1][m_iSubsetW-1]<<", "
+				<< (fRefSubsetNorm / fTarSubsetNorm)* m_fSubsetT[id][m_iSubsetH-1][m_iSubsetW-1] - m_fSubsetR[id][m_iSubsetH-1][m_iSubsetW-1]<<"\n";
 
 			for (int i = 0; i < v_RHS.size(); i++)
 				std::cout << v_RHS[i] << ", ";
-		}*/
+		}
 
 		// Using MKL's LAPACK routing to solve the linear equations ""m_H * v_dP = v_RHS""
 		// H is symmetric£¬ but not guaranteed to be positive definite
@@ -603,14 +645,15 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		m_W[2][2] = 1;
 
 		// For Debug
-		/*for (int i = 0; i < 3; i++)
+		std::cout<<"Warp After"<<std::endl;
+		for (int i = 0; i < 3; i++)
 		{
 		for (int j = 0; j < 3; j++)
 		{
 		std::cout << m_W[i][j]<< ",\t";
 		}
 		std::cout << "\n";
-		}*/
+		}
 
 		// Update P & the output fU&fV
 		v_P[0] = fU = m_W[0][2];
@@ -622,17 +665,17 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	}
 
 	// For Debug
-	//std::cout<<fTarSubsetMean<<std::endl;
-	//std::cout<<fTarSubsetNorm<<std::endl;
-	//std::cout<<iNumIterations<<std::endl;
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	for (int j = 0; j < 3; j++)
-	//	{
-	//		std::cout << m_W[i][j]<< ",\t";
-	//	}
-	//	std::cout << "\n";
-	//}
+	std::cout<<fTarSubsetMean<<std::endl;
+	std::cout<<fTarSubsetNorm<<std::endl;
+	std::cout<<iNumIterations<<std::endl;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			std::cout << m_W[i][j]<< ",\t";
+		}
+		std::cout << "\n";
+	}
 
 	return ICGN2DFlag::Success;
 }

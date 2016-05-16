@@ -37,7 +37,7 @@ public:
 	void ICGN2D_Algorithm(real_t *fU,
 						  real_t *fV,
 						  int *iNumIterations,
-						  const int *&iPOIpos);
+						  const int *iPOIpos);
 
 
 	void ICGN2D_Precomputation_Prepare();

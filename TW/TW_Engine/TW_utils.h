@@ -423,6 +423,63 @@ TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Outputs
 											  int_t iSubsetX, int_t iSubsetY,
 											  int_t iGridSpaceX, int_t iGridSpaceY);
 
+/// \brief Function to compute Gradients of fImgF & fImgG on GPU, the results are stored in device
+/// arrays. NOTE: The memory must be pre-allocated before calling this function. This rountine is 
+/// especially useful for ICGN + Bicubic interpolation
+///
+/// \param fImgF Reference Image 
+/// \param fImgG Target Image
+/// \param iStartX x coordinate of the top-left point of ROI
+/// \param iStartY y coordinate of the top-left point of ROI
+/// \param iROIWidth Width of ROI
+/// \param iROIHeight Height of ROI
+/// \param iImgWidth Width of the image
+/// \param iImgHeight Height of the image
+/// \param AccuracyOrder The accuracy order of the gradients (Taylor's series)
+/// \param Fx, Fy Gradient of fImgF in x,y dimensions
+/// \param Gx, Gy, Gxy Gradient of fImgG in x, y adn xy dimensions
+TW_LIB_DLL_EXPORTS void cuGradientXY_2Images(// Inputs
+									  		 uchar1 *fImgF, uchar1 *fImgG,
+											 int_t iStartX,   int_t iStartY,
+											 int_t iROIWidth, int_t iROIHeight,
+											 int_t iImgWidth, int_t iImgHeight,
+											 AccuracyOrder accuracy,
+										     // Outputs
+											 real_t *Fx, real_t *Fy,
+											 real_t *Gx, real_t *Gy, real_t *Gxy);
+
+/// \brief Function to compute Gradients of fImg on GPU, the results are stored in device
+/// arrays. NOTE: The memory must be pre-allocated before calling this function. This rountine is 
+/// especially useful for ICGN + Bicubic Bspline interpolation
+///
+/// \param fImg input image
+/// \param iStartX x coordinate of the top-left point of ROI
+/// \param iStartY y coordinate of the top-left point of ROI
+/// \param iROIWidth Width of ROI
+/// \param iROIHeight Height of ROI
+/// \param iImgWidth Width of the image
+/// \param iImgHeight Height of the image
+/// \param AccuracyOrder The accuracy order of the gradients (Taylor's series)
+/// \param Gx, Gy Gradient of fImgF in x,y dimensions
+TW_LIB_DLL_EXPORTS void cuGradient(// Inputs
+								   uchar1 *fImg,
+								   int_t iStartX,   int_t iStartY,
+								   int_t iROIWidth, int_t iROIHeight,
+								   int_t iImgWidth, int_t iImgHeight,
+								   AccuracyOrder accuracy,
+								   // Outputs
+								   real_t *Gx, real_t *Gy);
+
+TW_LIB_DLL_EXPORTS void cuBicubicCoefficients(// Inputs
+				  							  const uchar1* dIn_fImgT, 
+											  const real_t* dIn_fTx,
+											  const real_t* dIn_fTy, 
+											  const real_t* dIn_fTxy, 
+											  const int iStartX, const int iStartY,
+											  const int iROIWidth, const int iROIHeight, 
+											  const int iImgWidth, const int iImgHeight, 
+											  // Outputs
+											  float4* dOut_fBicubicInterpolants);
 
 /// \brief GPU function to compute z = ax + y in parallel.
 /// \ strided for loop is used for the optimized performance and kernel size 

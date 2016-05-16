@@ -34,6 +34,8 @@
 #include <cufft.h>
 #include <cfloat>
 
+//#define TW_USE_DOUBLE
+
 namespace TW
 {
 	//!- TW basic types

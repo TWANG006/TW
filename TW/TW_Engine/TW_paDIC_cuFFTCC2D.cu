@@ -37,9 +37,9 @@ __global__ void complexMulandScale_kernel(// Inputs
 	auto bid = blockIdx.x;
 	auto dim = blockDim.x;
 	auto size = m_iFFTSubW * (m_iFFTSubH / 2 + 1);
-	const cufftComplex * a = w_a + bid*size;
-	const cufftComplex * b = w_b + bid*size;
-	cufftComplex * c = w_c + bid*size;
+	const cudafftComplex * a = w_a + bid*size;
+	const cudafftComplex * b = w_b + bid*size;
+	cudafftComplex * c = w_c + bid*size;
 
 	for (auto i = tid; i < size; i += dim)
 	{
