@@ -1,4 +1,4 @@
-
+#include "TW.h"
 #include "TW_paDIC_cuFFTCC2D.h"
 #include "TW_utils.h"
 #include "TW_MemManager.h"
@@ -302,109 +302,240 @@ using namespace TW;
 //	hdestroyptr(fBSpline);
 //}
 //
-TEST(ICGN2D, ICGN2D_CPU_Hessian)
-{
-	cv::Mat mat = cv::imread("Example1\\fu_0.bmp");
-	cv::Mat mat1= cv::imread("Example1\\fu_1.bmp");
-
-	auto imgWidth = mat.cols;
-	auto imgHeight= mat.rows;
-
-	cv::Mat matR(cv::Size(imgWidth, imgHeight), CV_8UC1);
-	cv::Mat matT(cv::Size(imgWidth, imgHeight), CV_8UC1);
-	cv::cvtColor(mat, matR, CV_BGR2GRAY);
-	cv::cvtColor(mat1, matT, CV_BGR2GRAY);
 
 
-	TW::paDIC::ICGN2D_CPU icgn(matR,matT,
-								2,2,
-								imgWidth-4,imgHeight-4,
-								16,16,
-								92,92,
-								20,
-								0.001,
-								TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline,
-								TW::paDIC::ICGN2DThreadFlag::Single);
-
-	icgn.ICGN2D_Prepare();
-	float u=0, v=0;
-	int iter = 0;
-	icgn.ICGN2D_Compute(u,v, iter, 28,28,0);
-
-	std::cout<<"The displacement is [" << u << ", " << v << "]\n";
-	std::cout<<iter<<"\n";
-
-	icgn.ICGN2D_Finalize();
-}
-
-//TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
+//void BicubicSplineCoefficients(//Inputs
+//	    						 const cv::Mat& image,
+//								 int iStartX, int iStartY,
+//								 int iROIWidth, int iROIHeight,
+//								 int iImgWidth, int iImgHeight,
+//								 //Output
+//								 double ****fBSpline)
+//{
+//	if( (iImgHeight - (iROIHeight + iStartY +1) < 0) || 
+//	    (iImgWidth  - (iROIWidth  + iStartX +1) < 0) )
+//	{
+//		throw("Error! Maximum boundary condition exceeded!");
+//	}
+//
+//	double BSplineCP[4][4] = {
+//		 {  71 / 56.0, -19 / 56.0,   5 / 56.0,  -1 / 56.0 }, 
+//		 { -19 / 56.0,  95 / 56.0, -25 / 56.0,   5 / 56.0 }, 
+//		 {   5 / 56.0, -25 / 56.0,  95 / 56.0, -19 / 56.0 },
+//		 {  -1 / 56.0,   5 / 56.0, -19 / 56.0,  71 / 56.0 } 
+//	};
+//	double BSplineBase[4][4] = {
+//		{ -1 / 6.0,  3 / 6.0,  -3 / 6.0, 1 / 6.0 }, 
+//		{  3 / 6.0, -6 / 6.0,   3 / 6.0,       0 }, 
+//		{ -3 / 6.0,        0,   3 / 6.0,       0 }, 
+//		{  1 / 6.0,  4 / 6.0,   1 / 6.0,       0 } 
+//	};
+//
+//	double fOmega[4][4];
+//	double fBeta[4][4];
+//
+//	for(int i=0; i<iROIHeight; i++)
+//	{
+//		for(int j=0; j<iROIWidth; j++)
+//		{
+//			for(int k=0; k<4; k++)
+//			{
+//				for(int l=0; l<4; l++)
+//				{
+//					fOmega[k][l] = static_cast<double>(image.at<uchar>(i + iStartY - 1 + k, j + iStartX - 1 + l));
+//				}
+//			}
+//			for(int k=0; k<4; k++)
+//			{
+//				for(int l=0; l<4; l++)
+//				{
+//					fBeta[k][l] = 0;
+//					for(int m=0; m<4; m++)
+//					{
+//						for(int n=0; n<4; n++)
+//						{
+//							fBeta[k][l] += BSplineCP[k][m] * BSplineCP[l][n] * fOmega[n][m];
+//						}
+//					}
+//				}
+//			}
+//			for(int k=0; k<4; k++)
+//			{
+//				for(int l=0; l<4; l++)
+//				{
+//					fBSpline[i][j][k][l] = 0;
+//					for(int m=0; m<4; m++)
+//					{
+//						for(int n=0; n<4; n++)
+//						{
+//							fBSpline[i][j][k][l] += BSplineBase[k][m] * BSplineBase[l][n] * fBeta[n][m];
+//						}
+//					}
+//				}
+//			}
+//			for(int k=0; k<2; k++)
+//			{
+//				for(int l=0; l<4; l++)
+//				{
+//					double fTemp = fBSpline[i][j][k][l];
+//					fBSpline[i][j][k][l] = fBSpline[i][j][3 - k][3 - l];
+//					fBSpline[i][j][3 - k][3 - l] = fTemp; 
+//				}
+//			}
+//		}
+//	}
+//}
+//
+//TEST(BicubicSpline, DoubleCase)
+//{
+//	cv::Mat mat = cv::imread("Example1\\fu_1.bmp");
+//
+//	auto imgWidth = mat.cols;
+//	auto imgHeight= mat.rows;
+//
+//	cv::Mat matR(cv::Size(imgWidth, imgHeight), CV_8UC1);
+//	cv::cvtColor(mat, matR, CV_BGR2GRAY);
+//
+//	double ****fBSpline;
+//	hcreateptr(fBSpline, imgHeight-4, imgWidth-4,4,4);
+//	
+//	BicubicSplineCoefficients(matR, 2, 2, imgWidth-4, imgHeight-4,imgWidth,imgHeight,fBSpline);
+//
+//	std::cout<<"Bicubic First: "<<std::endl;
+//	std::cout.precision(10);
+//	for(int i=0;i<4;i++)
+//	{
+//		for(int j=0;j<4;j++)
+//		{
+//			std::cout<<fBSpline[0][0][i][j]<<", ";
+//		}
+//		std::cout<<std::endl;
+//	}
+//
+//	for(int i=0;i<4;i++)
+//	{
+//		for(int j=0;j<4;j++)
+//		{
+//			std::cout<<fBSpline[imgHeight-4-1][imgWidth-4-1][i][j]<<", ";
+//		}
+//		std::cout<<"\n";
+//	}
+//
+//}
+//
+//TEST(ICGN2D, ICGN2D_CPU_Hessian)
 //{
 //	cv::Mat mat = cv::imread("Example1\\fu_0.bmp");
 //	cv::Mat mat1= cv::imread("Example1\\fu_1.bmp");
 //
 //	auto imgWidth = mat.cols;
 //	auto imgHeight= mat.rows;
-//	auto m_iROIWidth = mat.cols - 4;
-//	auto m_iROIHeight = mat.rows - 4;
-//	
-//	int m_iSubsetX = 16;
-//	int m_iSubsetY = 16;
-//	int	m_iMarginX = 10;
-//	int m_iMarginY = 10;
-//	int m_iGridSpaceX = 5;
-//	int m_iGridSpaceY = 5;
 //
 //	cv::Mat matR(cv::Size(imgWidth, imgHeight), CV_8UC1);
 //	cv::Mat matT(cv::Size(imgWidth, imgHeight), CV_8UC1);
 //	cv::cvtColor(mat, matR, CV_BGR2GRAY);
 //	cv::cvtColor(mat1, matT, CV_BGR2GRAY);
 //
-//	int_t m_iNumPOIX = int_t(floor((m_iROIWidth - m_iSubsetX * 2 - m_iMarginX * 2) / real_t(m_iGridSpaceX))) + 1;
-//	int_t m_iNumPOIY = int_t(floor((m_iROIHeight - m_iSubsetY * 2 - m_iMarginY * 2) / real_t(m_iGridSpaceY))) + 1;
-//
-//	float *fU, *fV;
-//	int *iters;
-//	hcreateptr(fU, m_iNumPOIX * m_iNumPOIY);
-//	hcreateptr(fV, m_iNumPOIX * m_iNumPOIY);
-//	hcreateptr(iters, m_iNumPOIX * m_iNumPOIY);
-//
-//	int *hPOI, *dPOI;
-//	hcreateptr(hPOI, m_iNumPOIX*m_iNumPOIY);
-//	cudaMalloc((void**)&dPOI, sizeof(int)*m_iNumPOIX*m_iNumPOIY);
-//
-//	cuComputePOIPositions(dPOI, hPOI, 2, 2,
-//		m_iNumPOIX, m_iNumPOIY,m_iMarginX, m_iMarginY, m_iSubsetX, m_iSubsetY, m_iGridSpaceX, m_iGridSpaceY);
-//	
 //
 //	TW::paDIC::ICGN2D_CPU icgn(matR,matT,
 //								2,2,
-//								m_iROIWidth, m_iROIHeight,
-//								m_iSubsetX, m_iSubsetY,
-//								m_iNumPOIX, m_iNumPOIY,
+//								imgWidth-4,imgHeight-4,
+//								16,16,
+//								92,92,
 //								20,
-//								0.001f,
+//								0.001,
 //								TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline,
 //								TW::paDIC::ICGN2DThreadFlag::Single);
 //
 //	icgn.ICGN2D_Prepare();
-//	
-//	icgn.ICGN2D_Algorithm(fU, fV, iters, hPOI);
+//	float u=0, v=0;
+//	int iter = 0;
+//	icgn.ICGN2D_Compute(u,v, iter, 38,28,0);
 //
-//	std::cout<<"POI number is: "<<m_iNumPOIX * m_iNumPOIY<<"\n";
-//	
-//	for(int i = 0; i<m_iNumPOIY; i++)
-//	{
-//		for(int j=0; j<m_iNumPOIX; j++)
-//		{
-//			std::cout<<hPOI[(i*m_iNumPOIX+j)*2+1]<<", "<<hPOI[(i*m_iNumPOIX+j)*2+0]<<", "
-//				<<fU[i*m_iNumPOIX+j]<<", "<<fV[i*m_iNumPOIX+j]<<", "<<iters[i*m_iNumPOIX+j]<<"\n";
-//		}
-//	}
-//
-//	cudaFree(dPOI);
-//	hdestroyptr(fU);
-//	hdestroyptr(fV);
-//	hdestroyptr(iters);
+//	std::cout<<"The displacement is [" << u << ", " << v << "]\n";
+//	std::cout<<iter<<"\n";
 //
 //	icgn.ICGN2D_Finalize();
 //}
+
+TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
+{
+	cv::Mat mat = cv::imread("Example1\\fu_0.bmp");
+	cv::Mat mat1= cv::imread("Example1\\fu_1.bmp");
+
+	auto imgWidth = mat.cols;
+	auto imgHeight= mat.rows;
+	auto m_iROIWidth = mat.cols - 4;
+	auto m_iROIHeight = mat.rows - 4;
+	
+	int m_iSubsetX = 16;
+	int m_iSubsetY = 16;
+	int	m_iMarginX = 10;
+	int m_iMarginY = 10;
+	int m_iGridSpaceX = 5;
+	int m_iGridSpaceY = 5;
+
+	cv::Mat matR(cv::Size(imgWidth, imgHeight), CV_8UC1);
+	cv::Mat matT(cv::Size(imgWidth, imgHeight), CV_8UC1);
+	cv::cvtColor(mat, matR, CV_BGR2GRAY);
+	cv::cvtColor(mat1, matT, CV_BGR2GRAY);
+
+	int_t m_iNumPOIX = int_t(floor((m_iROIWidth - m_iSubsetX * 2 - m_iMarginX * 2) / real_t(m_iGridSpaceX))) + 1;
+	int_t m_iNumPOIY = int_t(floor((m_iROIHeight - m_iSubsetY * 2 - m_iMarginY * 2) / real_t(m_iGridSpaceY))) + 1;
+
+	float *fU, *fV;
+	int *iters;
+	hcreateptr(fU, m_iNumPOIX * m_iNumPOIY);
+	hcreateptr(fV, m_iNumPOIX * m_iNumPOIY);
+	hcreateptr(iters, m_iNumPOIX * m_iNumPOIY);
+
+	int *hPOI, *dPOI;
+	hcreateptr(hPOI, m_iNumPOIX*m_iNumPOIY);
+	cudaMalloc((void**)&dPOI, sizeof(int)*m_iNumPOIX*m_iNumPOIY);
+
+	cuComputePOIPositions(dPOI, hPOI, 2, 2,
+		m_iNumPOIX, m_iNumPOIY,m_iMarginX, m_iMarginY, m_iSubsetX, m_iSubsetY, m_iGridSpaceX, m_iGridSpaceY);
+	
+
+	TW::paDIC::ICGN2D_CPU icgn(matR,matT,
+								2,2,
+								m_iROIWidth, m_iROIHeight,
+								m_iSubsetX, m_iSubsetY,
+								m_iNumPOIX, m_iNumPOIY,
+								20,
+								0.001f,
+								TW::paDIC::ICGN2DInterpolationFLag::Bicubic,
+								TW::paDIC::ICGN2DThreadFlag::Multicore);
+
+	icgn.ICGN2D_Prepare();
+
+	/*#pragma	omp parallel for	
+		for (int i = 0; i < m_iNumPOIX * m_iNumPOIY; i++)
+		{
+			icgn.ICGN2D_Compute(fU[i],
+								fV[i],
+								iters[i],
+						   hPOI[2 * i + 1],
+						   hPOI[2 * i + 0],
+						   i);
+		}*/
+	icgn.ICGN2D_Algorithm(fU, fV, iters, hPOI);
+
+	std::cout<<"POI number is: "<<m_iNumPOIX * m_iNumPOIY<<"\n";
+	
+	for(int i = 0; i<m_iNumPOIY; i++)
+	{
+		for(int j=0; j<m_iNumPOIX; j++)
+		{
+			std::cout<<hPOI[(i*m_iNumPOIX+j)*2+1]<<", "<<hPOI[(i*m_iNumPOIX+j)*2+0]<<", "
+				<<fU[i*m_iNumPOIX+j]<<", "<<fV[i*m_iNumPOIX+j]<<", "<<iters[i*m_iNumPOIX+j]<<"\n";
+		}
+	}
+
+	cudaFree(dPOI);
+	hdestroyptr(fU);
+	hdestroyptr(fV);
+	hdestroyptr(iters);
+
+	icgn.ICGN2D_Finalize();
+}

@@ -4,6 +4,7 @@
 
 #include <QDebug>
 #include <mkl.h>
+#include <omp.h>
 
 namespace TW{
 namespace paDIC{
@@ -180,11 +181,51 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 		{
 		case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
 		{
+			// Compute gradients of m_refImg & m_tarImg
+			GradientXY_2Images_m(m_refImg,
+								 m_tarImg,
+								 m_iStartX, m_iStartY,
+								 m_iROIWidth, m_iROIHeight,
+								 m_refImg.cols, m_refImg.rows,
+								 TW::AccuracyOrder::Quadratic,
+								 m_fRx,
+								 m_fRy,
+								 m_fTx,
+								 m_fTy,
+								 m_fTxy);
+			// Compute the LUT for bicubic interpolation
+			BicubicCoefficients_m(m_tarImg,
+								  m_fTx,
+								  m_fTy,
+								  m_fTxy,
+								  m_iStartX, m_iStartY,
+								  m_iROIWidth, m_iROIHeight,
+								  m_tarImg.cols, m_tarImg.cols,
+								  m_fInterpolation);
+
 			break;
 		}
 
 		case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
 		{
+			// Compute gradients of m_refImg
+			Gradient_m(m_refImg,
+				  	   m_iStartX, m_iStartY,
+					   m_iROIWidth, m_iROIHeight,
+					   m_refImg.cols, m_refImg.rows,
+					   TW::AccuracyOrder::Quadratic,
+					   m_fRx,
+					   m_fRy);
+			// Compute the LUT for bicubic B-Spline interpolation
+			BicubicSplineCoefficients_m(m_tarImg,
+										m_iStartX,	
+										m_iStartY,
+										m_iROIWidth,
+										m_iROIHeight,
+										m_tarImg.cols,
+										m_tarImg.rows,
+										m_fInterpolation);
+
 			break;
 		}
 
@@ -202,12 +243,13 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 	}
 	}
 	// For debug
-	/*std::cout<<"First: "<<std::endl;
+	/*std::cout<<"Bicubic First: "<<std::endl;
+	std::cout.precision(10);
 	for(int i=0;i<4;i++)
 	{
 		for(int j=0;j<4;j++)
 		{
-			std::cout<<m_fBsplineInterpolation[0][0][i][j]<<", ";
+			std::cout<<m_fInterpolation[0][0][i][j]<<", ";
 		}
 		std::cout<<std::endl;
 	}
@@ -216,7 +258,7 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 	{
 		for(int j=0;j<4;j++)
 		{
-			std::cout<<m_fBsplineInterpolation[m_iROIHeight-1][m_iROIWidth-1][i][j]<<", ";
+			std::cout<<m_fInterpolation[m_iROIHeight-1][m_iROIWidth-1][i][j]<<", ";
 		}
 		std::cout<<"\n";
 	}*/
@@ -346,7 +388,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	// 
 	
 	//// For debug use
-	std::cout << "Hessian Before\n";
+	/*std::cout << "Hessian Before\n";
 	for (int i = 0; i < 6; i++)
 	{
 		for (int j = 0; j < 6; j++)
@@ -354,7 +396,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 			std::cout << m_Hessian[i*6+j] << ",\t";
 		}
 		std::cout << "\n";
-	}
+	}*/
 
 	// Calculate R_m and make sure R_m != 0
 	fRefSubsetMean /= real_t(m_iSubsetSize);	// R_m
@@ -406,7 +448,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 				(iIntPixX < m_iStartX + m_iROIWidth) && (iIntPixY < m_iStartY + m_iROIHeight))	
 			{
 				// Initially this is the interger locations
-				m_fSubsetT[id][l][m] = static_cast<float>(m_tarImg.at<uchar>(iIntPixY,iIntPixX));
+				m_fSubsetT[id][l][m] = static_cast<real_t>(m_tarImg.at<uchar>(iIntPixY,iIntPixX));
 				fTarSubsetMean += m_fSubsetT[id][l][m];
 			}
 			else
@@ -455,9 +497,13 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	// H is symmetric£¬ but not guaranteed to be positive definite
 	MKL_INT ipiv[6];
 #ifdef TW_USE_DOUBLE
-	int infor = LAPACKE_dsysv(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, ipiv, v_RHS.data(), 1);;
+	int infor = LAPACKE_dpotrf(LAPACK_ROW_MAJOR, 'L', 6, m_Hessian.data(), 6);
+	LAPACKE_dpotrs(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, v_RHS.data(), 1);
+	//int infor = LAPACKE_dsysv(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, ipiv, v_RHS.data(), 1);;
 #else
-	int infor = LAPACKE_ssysv(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, ipiv, v_RHS.data(), 1);
+	int infor = LAPACKE_spotrf(LAPACK_ROW_MAJOR, 'L', 6, m_Hessian.data(), 6);
+	LAPACKE_spotrs(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, v_RHS.data(), 1);
+	//int infor = LAPACKE_ssysv(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, ipiv, v_RHS.data(), 1);
 #endif // TW_USE_DOUBLE
 	
 	// Check for the exact singularity 
@@ -468,11 +514,20 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		return ICGN2DFlag::SingularHessian;
 	}
 	//// For Debug
+	/*std::cout << "\nHessian After\n";
+	for (int i = 0; i < 6; i++)
+	{
+		for (int j = 0; j < 6; j++)
+		{
+			std::cout << m_Hessian[i*6+j] << ",\t";
+		}
+		std::cout << "\n";
+	}
 	std::cout<<"DeltaP Befor"<<std::endl;
 	for(int i=0; i< v_RHS.size(); i++)
 		std::cout<<v_RHS[i]<<", ";
 
-	std::cout<<std::endl;
+	std::cout<<std::endl;*/
 
 	// NOTE: Now dP's value is stored in v_RHS [ du dux duy dv dvx dvy]
 	// Update warp m_W and deformation parameter p v_P
@@ -493,7 +548,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	m_W[2][2] = 1;
 
 	// For Debug
-	std::cout<<"Warp Befor"<<std::endl;
+	/*std::cout<<"Warp Befor"<<std::endl;
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -501,7 +556,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 			std::cout << m_W[i][j]<< ",\t";
 		}
 		std::cout << "\n";
-	}
+	}*/
 
 	// Update P & the output fU&fV
 	v_P[0] = fU = m_W[0][2];
@@ -593,9 +648,10 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		}
 
 		// For Debug
-		std::cout<<"Third Iteration: "<<"\n";
-		if (iNumIterations == 2)
+		
+		/*if (iNumIterations == 2)
 		{
+			std::cout<<"Third Iteration: "<<"\n";
 			std::cout.precision(10);
 			std::cout<<m_fSubsetT[id][0][0]<<std::endl;
 			std::cout<<m_fSubsetR[id][32][32]<<std::endl;
@@ -607,21 +663,30 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 
 			for (int i = 0; i < v_RHS.size(); i++)
 				std::cout << v_RHS[i] << ", ";
-		}
+		}*/
 
 		// Using MKL's LAPACK routing to solve the linear equations ""m_H * v_dP = v_RHS""
 		// H is symmetric£¬ but not guaranteed to be positive definite
-		MKL_INT ipiv[6];
 #ifdef TW_USE_DOUBLE
-		int infor = LAPACKE_dsysv(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, ipiv, v_RHS.data(), 1);;
+		infor = LAPACKE_dpotrs(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, v_RHS.data(), 1);
+		//int infor = LAPACKE_dtrtrs(LAPACK_ROW_MAJOR, 'L', 'N', 'N', 6, 1, m_Hessian.data(), 6, v_RHS.data(), 1);
+		/*int infor = LAPACKE_dsysv(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, ipiv, v_RHS.data(), 1);;*/
 #else
-		int infor = LAPACKE_ssysv(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, ipiv, v_RHS.data(), 1);
+		infor = LAPACKE_spotrs(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, v_RHS.data(), 1);
+		//int infor = LAPACKE_ssysv(LAPACK_ROW_MAJOR, 'L', 6, 1, m_Hessian.data(), 6, ipiv, v_RHS.data(), 1);
 #endif // TW_USE_DOUBLE
 
+		/*if (iNumIterations == 2)
+		{
+			std::cout<<"\nDeltaP after for Iteration 2"<<"\n";
+			for (int i = 0; i < v_RHS.size(); i++)
+				std::cout << v_RHS[i] << ", ";
+		}*/
+
 		// Check for the exact singularity 
-		if (infor > 0) {
+		if (infor < 0) {
 			qDebug() << "The element of the diagonal factor ";
-			qDebug() << "D(" << infor << "," << infor << ") is zero, so that D is singular;\n";
+			qDebug() << "D(" << infor << "," << infor << ") is ellegal, so that\n";
 			qDebug() << "the solution could not be computed.\n";
 			return ICGN2DFlag::SingularHessian;
 		}
@@ -645,7 +710,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		m_W[2][2] = 1;
 
 		// For Debug
-		std::cout<<"Warp After"<<std::endl;
+		/*std::cout<<"Warp After"<<std::endl;
 		for (int i = 0; i < 3; i++)
 		{
 		for (int j = 0; j < 3; j++)
@@ -653,7 +718,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 		std::cout << m_W[i][j]<< ",\t";
 		}
 		std::cout << "\n";
-		}
+		}*/
 
 		// Update P & the output fU&fV
 		v_P[0] = fU = m_W[0][2];
@@ -665,9 +730,10 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	}
 
 	// For Debug
-	std::cout<<fTarSubsetMean<<std::endl;
+	/*std::cout<<fTarSubsetMean<<std::endl;
 	std::cout<<fTarSubsetNorm<<std::endl;
 	std::cout<<iNumIterations<<std::endl;
+	std::cout<<"Warp After"<<std::endl;
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -675,7 +741,7 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 			std::cout << m_W[i][j]<< ",\t";
 		}
 		std::cout << "\n";
-	}
+	}*/
 
 	return ICGN2DFlag::Success;
 }

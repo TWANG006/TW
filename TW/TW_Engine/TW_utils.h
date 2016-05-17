@@ -300,6 +300,20 @@ TW_LIB_DLL_EXPORTS void GradientXY_m(//Inputs
 								     real_t **Gy,
 									 real_t **Gxy);
 
+TW_LIB_DLL_EXPORTS void GradientXY_2Images_m(//Inputs
+											 const cv::Mat& image1,
+											 const cv::Mat& image2,
+											 int_t iStartX, int_t iStartY,
+											 int_t iROIWidth, int_t iROIHeight,
+											 int_t iImgWidth, int_t iImgHeight,
+											 AccuracyOrder accuracyOrder,
+											 //Outputs
+											 real_t **Fx,
+											 real_t **Fy,
+											 real_t **Gx,
+											 real_t **Gy,
+											 real_t **Gxy);
+
 /// \brief Sequential function to precompute the Bicubic B-spline interpolation coefficients LUT.
 /// NOTE: The control points are assumed to be on the B-spline surface
 /// Reference: 刘洪臣, et al. (2007). "基于双三次B样条曲面亚像元图像插值方法." 哈尔滨工业大学学报 39(7): 1121-1124.
@@ -317,7 +331,53 @@ TW_LIB_DLL_EXPORTS void BicubicSplineCoefficients_s(// Inputs
 												    // Output
 												    real_t ****fBSpline);
 
+/// \brief Sequential function to precompute Bicubic interpolation coefficients LUT
+/// 
+/// \param image cv::Mat image
+/// \param Tx, Ty, Txy Gradients of the image in x, y&xy directions
+/// \param iStartX, iStartY The start positions of the ROI
+/// \param iROIWidth, iROIHeight The width&height of the ROI
+/// \param iImgWidth, iImgHeight THe width&height of the image
+/// \param fBicubic Bspline LUT
 TW_LIB_DLL_EXPORTS void BicubicCoefficients_s(// Inputs
+											  const cv::Mat& image,
+											  real_t **Tx,
+											  real_t **Ty,
+											  real_t **Txy,
+											  int_t iStartX, int_t iStartY,
+											  int_t iROIWidth, int_t iROIHeight,
+											  int_t iImgWidth, int_t iImgHeight,
+											  // Outputs
+											  real_t ****fBicubic);
+
+/// \brief Multi-core function to precompute the Bicubic B-spline interpolation coefficients LUT.
+/// NOTE: The control points are assumed to be on the B-spline surface
+/// Reference: 刘洪臣, et al. (2007). "基于双三次B样条曲面亚像元图像插值方法." 哈尔滨工业大学学报 39(7): 1121-1124.
+///
+/// \param image cv::Mat image
+/// \param iStartX, iStartY The start positions of the ROI
+/// \param iROIWidth, iROIHeight The width&height of the ROI
+/// \param iImgWidth, iImgHeight THe width&height of the image
+/// \param fBSpline Bspline LUT
+/// OpenMP is used for the parallelization
+TW_LIB_DLL_EXPORTS void BicubicSplineCoefficients_m(// Inputs
+												    const cv::Mat& image,
+												    int_t iStartX, int_t iStartY,
+												    int_t iROIWidth, int_t iROIHeight,
+												    int_t iImgWidth, int_t iImgHeight,
+												    // Output
+												    real_t ****fBSpline);
+
+/// \brief Multi-core function to precompute Bicubic interpolation coefficients LUT
+/// 
+/// \param image cv::Mat image
+/// \param Tx, Ty, Txy Gradients of the image in x, y&xy directions
+/// \param iStartX, iStartY The start positions of the ROI
+/// \param iROIWidth, iROIHeight The width&height of the ROI
+/// \param iImgWidth, iImgHeight THe width&height of the image
+/// \param fBicubic Bspline LUT
+/// OpenMP is used for parallelization.
+TW_LIB_DLL_EXPORTS void BicubicCoefficients_m(// Inputs
 											  const cv::Mat& image,
 											  real_t **Tx,
 											  real_t **Ty,
@@ -470,6 +530,20 @@ TW_LIB_DLL_EXPORTS void cuGradient(// Inputs
 								   // Outputs
 								   real_t *Gx, real_t *Gy);
 
+/// \brief Function to Compute the Bicubic Interpolation Coefficients on GPU, the results are 
+/// stroed in device memory
+/// 
+/// \param dIn_fImgT The image
+/// \param dIn_fTx	 The Gradient X, but with range [iStar, iStart + iROI - 1]
+/// \param dIn_fTy	 The Gradient Y, but with range [iStar, iStart + iROI - 1]
+/// \param dIn_fTxy	 The Gradient XY,but with range [iStar, iStart + iROI - 1]
+/// \param iStartX x coordinate of the top-left point of ROI
+/// \param iStartY y coordinate of the top-left point of ROI
+/// \param iROIWidth Width of ROI
+/// \param iROIHeight Height of ROI
+/// \param iImgWidth Width of the image
+/// \param iImgHeight Height of the image
+/// \param dOut_fBicubicInterpolants The LUT size: iROIHeight*iROIWidth*4*float4
 TW_LIB_DLL_EXPORTS void cuBicubicCoefficients(// Inputs
 				  							  const uchar1* dIn_fImgT, 
 											  const real_t* dIn_fTx,
@@ -484,7 +558,7 @@ TW_LIB_DLL_EXPORTS void cuBicubicCoefficients(// Inputs
 /// \brief GPU function to compute z = ax + y in parallel.
 /// \ strided for loop is used for the optimized performance and kernel size 
 /// \ flexibility. NOTE: results are saved in vector y
-
+///
 /// \param n number of elements of x and y vector
 /// \param a multiplier
 /// \param x, y input vectors

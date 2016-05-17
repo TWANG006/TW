@@ -79,7 +79,7 @@ __global__ void findMax(real_t*w_SubsetC,
 			ind = id;
 		}
 	}
-	reduceToMaxBlock<BLOCK_SIZE_256, float>(sdata, sind, data, ind, tid);
+	reduceToMaxBlock<BLOCK_SIZE_256, real_t>(sdata, sind, data, ind, tid);
 
 	ind = sind[0];
 	int_t peakx = ind%m_iFFTSubW;
@@ -108,7 +108,7 @@ __global__ void cufft_prepare_kernel(// Inputs
 									 real_t *w_Subset1, real_t * w_Subset2,
 									 real_t *m_dMod1, real_t *m_dMod2)
 {
-	__shared__ float sm[BLOCK_SIZE_256];
+	__shared__ real_t sm[BLOCK_SIZE_256];
 	auto bid = blockIdx.x;
 	auto dim = blockDim.x;
 	auto tid = threadIdx.x;
@@ -158,10 +158,10 @@ __global__ void cufft_prepare_kernel(// Inputs
 		d_sumT += pow(d_tempt, 2);
 	}
 
-	reduceBlock<BLOCK_SIZE_256, float>(sm, d_sumR, tid);
+	reduceBlock<BLOCK_SIZE_256, real_t>(sm, d_sumR, tid);
 	if (tid == 0)
 		d_aveR = sm[0];
-	reduceBlock<BLOCK_SIZE_256, float>(sm, d_sumT, tid);
+	reduceBlock<BLOCK_SIZE_256, real_t>(sm, d_sumT, tid);
 	if (tid == 0)
 		d_aveT = sm[0];
 
@@ -351,12 +351,24 @@ void cuFFTCC2D::ComputeFFTCC(// Output
 															 m_cuHandle.m_d_fMod2);
 	getLastCudaError("Error in calling cufft_prepare_kernel");
 
+#ifdef TW_USE_DOUBLE
+	cufftExecD2Z(m_cuHandle.m_forwardPlanXY, 
+				 m_cuHandle.m_d_fSubset1, 
+				 m_cuHandle.m_dev_FreqDom1);
+	cufftExecD2Z(m_cuHandle.m_forwardPlanXY, 
+				 m_cuHandle.m_d_fSubset2,
+				 m_cuHandle.m_dev_FreqDom2);
+#else
 	cufftExecR2C(m_cuHandle.m_forwardPlanXY, 
 				 m_cuHandle.m_d_fSubset1, 
 				 m_cuHandle.m_dev_FreqDom1);
 	cufftExecR2C(m_cuHandle.m_forwardPlanXY, 
 				 m_cuHandle.m_d_fSubset2,
 				 m_cuHandle.m_dev_FreqDom2);
+#endif // TW_USE_DOUBLE
+
+
+	
 
 	complexMulandScale_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_dev_FreqDom1,
 															  m_cuHandle.m_dev_FreqDom2,
@@ -364,10 +376,17 @@ void cuFFTCC2D::ComputeFFTCC(// Output
 															  m_cuHandle.m_d_fMod1,
 															  m_cuHandle.m_d_fMod2,
 															  m_cuHandle.m_dev_FreqDomfg);
-
+#ifdef TW_USE_DOUBLE
+	cufftExecZ2D(m_cuHandle.m_reversePlanXY, 
+				 m_cuHandle.m_dev_FreqDomfg, 
+				 m_cuHandle.m_d_fSubsetC);
+#else
 	cufftExecC2R(m_cuHandle.m_reversePlanXY, 
 				 m_cuHandle.m_dev_FreqDomfg, 
 				 m_cuHandle.m_d_fSubsetC);
+#endif // TW_USE_DOUBLE
+
+	
 
 	findMax <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_fSubsetC,
 											iFFTSubH, iFFTSubW,
@@ -546,13 +565,21 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 															 m_cuHandle.m_d_fMod2);
 	getLastCudaError("Error in calling cufft_prepare_kernel");
 
+#ifdef TW_USE_DOUBLE
+	cufftExecD2Z(m_cuHandle.m_forwardPlanXY, 
+				 m_cuHandle.m_d_fSubset1, 
+				 m_cuHandle.m_dev_FreqDom1);
+	cufftExecD2Z(m_cuHandle.m_forwardPlanXY, 
+				 m_cuHandle.m_d_fSubset2,
+				 m_cuHandle.m_dev_FreqDom2);
+#else
 	cufftExecR2C(m_cuHandle.m_forwardPlanXY, 
 				 m_cuHandle.m_d_fSubset1, 
 				 m_cuHandle.m_dev_FreqDom1);
-
 	cufftExecR2C(m_cuHandle.m_forwardPlanXY, 
 				 m_cuHandle.m_d_fSubset2,
 				 m_cuHandle.m_dev_FreqDom2);
+#endif // TW_USE_DOUBLE
 
 	complexMulandScale_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_dev_FreqDom1,
 															  m_cuHandle.m_dev_FreqDom2,
@@ -562,9 +589,15 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 															  m_cuHandle.m_dev_FreqDomfg);
 	getLastCudaError("Error in calling complexMulandScale_kernel");
 
+#ifdef TW_USE_DOUBLE
+	cufftExecZ2D(m_cuHandle.m_reversePlanXY, 
+				 m_cuHandle.m_dev_FreqDomfg, 
+				 m_cuHandle.m_d_fSubsetC);
+#else
 	cufftExecC2R(m_cuHandle.m_reversePlanXY, 
 				 m_cuHandle.m_dev_FreqDomfg, 
 				 m_cuHandle.m_d_fSubsetC);
+#endif // TW_USE_DOUBLE
 
 	//!- Use the three arguments instead of the ones in m_cuHandle member
 	findMax <<<iPOINum, BLOCK_SIZE_256 >>> (m_cuHandle.m_d_fSubsetC,

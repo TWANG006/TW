@@ -4,6 +4,7 @@
 #include <QObject>
 #include "Structures.h"
 
+#include "TW.h"
 #include "TW_paDIC_cuFFTCC2D.h"
 
 class FFTCCTWorkerThread : public QObject, protected QOpenGLFunctions_3_3_Core
@@ -31,9 +32,9 @@ signals:
 	void frameReady();
 
 private:
-	float *m_d_fU;
-	float *m_d_fV;
-	float *m_d_fZNCC;
+	TW::real_t *m_d_fU;
+	TW::real_t *m_d_fV;
+	TW::real_t *m_d_fZNCC;
 	int m_iWidth;
 	int m_iHeight;
 	cuFftcc2DPtr m_Fftcc2DPtr;
