@@ -159,6 +159,7 @@
     <ClCompile Include="TW_Concurrent_Buffer.cpp" />
     <ClCompile Include="TW_ICGN2D.cpp" />
     <ClCompile Include="TW_MatToQImage.cpp" />
+    <ClCompile Include="TW_paDIC.cpp" />
     <ClCompile Include="TW_paDIC_FFTCC2D.cpp" />
     <ClCompile Include="TW_MemManager.cpp" />
     <ClCompile Include="TW_paDIC_ICGN2D.cpp" />
@@ -174,7 +175,9 @@
     <ClInclude Include="TW_cuTempUtils.h" />
     <ClInclude Include="TW_ICGN2D.h" />
     <ClInclude Include="TW_MatToQImage.h" />
+    <ClInclude Include="TW_paDIC.h" />
     <ClInclude Include="TW_paDIC_cuFFTCC2D.h" />
+    <ClInclude Include="TW_paDIC_cuICGN2D.h" />
     <ClInclude Include="TW_paDIC_FFTCC2D.h" />
     <ClInclude Include="TW_MemManager.h" />
     <ClInclude Include="TW_paDIC_ICGN2D.h" />
@@ -186,6 +189,7 @@
     <CudaCompile Include="TW_cuTempUtils.cu" />
     <CudaCompile Include="TW_cuUtils.cu" />
     <CudaCompile Include="TW_paDIC_cuFFTCC2D.cu" />
+    <CudaCompile Include="TW_paDIC_cuICGN2D.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

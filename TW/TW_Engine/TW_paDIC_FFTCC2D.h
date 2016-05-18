@@ -1,8 +1,8 @@
-#ifndef TW_FFT_CC_H
-#define TW_FFT_CC_H
+#ifndef TW_PADIC_FFT_CC_H
+#define TW_PADIC_FFT_CC_H
 
 
-#include "TW.h"
+#include "TW_paDIC.h"
 #include <vector>
 #include <memory>
 
@@ -101,8 +101,8 @@ public:
 	inline int_t GetNumPOIs() const { return (m_iNumPOIX*m_iNumPOIY); }
 	inline int_t GetROISize() const { return (m_iROIWidth* m_iROIHeight); }
 	inline int_t GetImgSize() const { return (m_iImgHeight == -1 || m_iImgWidth ==-1)? GetROISize(): m_iImgHeight*m_iImgWidth; }
-	virtual void Fftcc2D::setROI(const int_t& iStartX,   const int_t& iStartY,
-								 const int_t& iROIWidth, const int_t& iROIHeight);
+	virtual void setROI(const int_t& iStartX,   const int_t& iStartY,
+						const int_t& iROIWidth, const int_t& iROIHeight);
 	/*void Fftcc2D::setSubset(const int_t& iSubsetX, const int_t& iSubsetY);
 	void Fftcc2D::setGridSpace(const int_t& iGridSpaceX, const int_t& iGridSpaceY);
 	void Fftcc2D::setMargin(const int_t& iMarginX, const int_t& iMarginY);*/
@@ -128,4 +128,4 @@ using ptrFFTCC2D = std::unique_ptr<Fftcc2D>;	//!- Smart pointer for FFTCC: only 
 
 
 
-#endif // ! TW_FFT_CC_H
+#endif // ! TW_PADIC_FFT_CC_H

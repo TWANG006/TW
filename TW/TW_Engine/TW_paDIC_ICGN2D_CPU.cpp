@@ -10,17 +10,18 @@ namespace TW{
 namespace paDIC{
 
 ICGN2D_CPU::ICGN2D_CPU(const cv::Mat& refImg,
-					   const cv::Mat& tarImg,
-					   int iStartX, int iStartY,
-					   int iROIWidth, int iROIHeight,
-					   int iSubsetX, int iSubsetY,
-					   int iNumberX, int iNumberY,
-					   int iNumIterations,
+					   /*const cv::Mat& tarImg,*/
+					   int_t iImgWidth, int_t iImgHeight,
+					   int_t iStartX, int_t iStartY,
+					   int_t iROIWidth, int_t iROIHeight,
+					   int_t iSubsetX, int_t iSubsetY,
+					   int_t iNumberX, int_t iNumberY,
+					   int_t iNumIterations,
 					   real_t fDeltaP,
 					   ICGN2DInterpolationFLag Iflag,
 					   ICGN2DThreadFlag Tflag)
-	: ICGN2D(refImg, 
-		 	 tarImg,
+	: ICGN2D(refImg,
+			 iImgWidth, iImgHeight,
 		 	 iStartX, iStartY,
 			 iROIWidth, iROIHeight,
 			 iSubsetX, iSubsetY,
@@ -29,17 +30,30 @@ ICGN2D_CPU::ICGN2D_CPU(const cv::Mat& refImg,
 			 fDeltaP)
 	, m_Iflag(Iflag)
 	, m_Tflag(Tflag)
-{}
+{
+	ICGN2D_Prepare();	
+}
 
 ICGN2D_CPU::~ICGN2D_CPU()
 {
+	ICGN2D_Finalize();
 }
 
-void ICGN2D_CPU:: ICGN2D_Algorithm(real_t *fU,
-							       real_t *fV,
-								   int *iNumIterations,
-								   const int *iPOIpos)
+void ICGN2D_CPU::ResetRefImg(const cv::Mat& refImg)
 {
+	m_refImg = refImg;
+	m_isRefImgUpdated = true;
+}
+
+void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
+							      real_t *fV,
+								  int *iNumIterations,
+								  const int *iPOIpos,
+								  const cv::Mat& tarImg)
+{
+	m_tarImg = tarImg;
+	ICGN2D_Precomputation();
+
 	switch (m_Tflag)
 	{
 	case TW::paDIC::ICGN2DThreadFlag::Single:
@@ -294,13 +308,12 @@ void ICGN2D_CPU::ICGN2D_Precomputation_Finalize()
 
 void ICGN2D_CPU::ICGN2D_Prepare()
 {
+	// Allocate required memory
 	ICGN2D_Precomputation_Prepare();
 
 	hcreateptr(m_fSubsetR, m_iPOINumber, m_iSubsetH, m_iSubsetW);
 	hcreateptr(m_fSubsetT, m_iPOINumber, m_iSubsetH, m_iSubsetW);
 	hcreateptr(m_fRDescent,m_iPOINumber, m_iSubsetH, m_iSubsetW, 6);
-
-	ICGN2D_Precomputation();
 }
 
 ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
@@ -334,17 +347,20 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 	// The Hessian Matrix H = [gradient(R)(\partial(W)/\partial(p)]^T * [gradient(R)(\partial(W)/\partial(p)]
 	std::vector<real_t> m_Hessian(6*6, 0);
 
+	// Only when the reference image is changed does these happen
+	//if(m_isRefImgUpdated)
+	//{	
 	// Precompute all the invariant paramters before the iterations
-	for(int l = 0; l < m_iSubsetH; l++)
+	for (int l = 0; l < m_iSubsetH; l++)
 	{
-		for(int m = 0; m < m_iSubsetW; m++)
+		for (int m = 0; m < m_iSubsetW; m++)
 		{
 			// x and y indices of each pixel in the subset  
 			int idY = iPOIy - m_iSubsetY + l;
 			int idX = iPOIx - m_iSubsetX + m;
 
 			// Construct the Ref subset
-			m_fSubsetR[id][l][m] = 
+			m_fSubsetR[id][l][m] =
 				static_cast<real_t>(m_refImg.at<uchar>(idY, idX));
 
 			// Compute the Sigma_i Sigma_j(R_ij)
@@ -359,10 +375,10 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 			// Calculate gradient(R)(\partial(W)/\partial(p)
 			// | Rx Ry | * | 1 dx dy  0  0  0 |
 			//			   | 0  0  0  1 dx dy |
-			for(int k = 0; k < 6; k++)
+			for (int k = 0; k < 6; k++)
 			{
-				m_fRDescent[id][l][m][k] = 
-					m_fRx[idY - m_iStartY][idX - m_iStartX] * m_Jacobian[0][k] + 
+				m_fRDescent[id][l][m][k] =
+					m_fRx[idY - m_iStartY][idX - m_iStartX] * m_Jacobian[0][k] +
 					m_fRy[idY - m_iStartY][idX - m_iStartX] * m_Jacobian[1][k];
 			}
 
@@ -375,16 +391,16 @@ ICGN2DFlag ICGN2D_CPU::ICGN2D_Compute(real_t &fU,
 			//		| H_30  H_31  H_32  H_33	 0	   0 |
 			//		| H_40  H_41  H_42  H_43  H_44	   0 |
 			//		| H_50  H_51  H_52  H_53  H_54  H_55 |
-			for(int k = 0; k < 6; k++)
+			for (int k = 0; k < 6; k++)
 			{
-				for(int n = 0; n <= k; n++)
+				for (int n = 0; n <= k; n++)
 				{
 					m_Hessian[k * 6 + n] += m_fRDescent[id][l][m][k] * m_fRDescent[id][l][m][n];
 				}
 			}
 		}
 	}
-
+	//}
 	// 
 	
 	//// For debug use

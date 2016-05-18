@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cuda_runtime.h>
+#include "helper_cuda.h"
 
 namespace TW{
 //!= Host memory allo/deallo-cation methods.
@@ -63,6 +64,10 @@ template<typename T>
 void cudestroyptr(T***&ptr);
 template<typename T>
 void cudestroyptr(T****&ptr);
+
+
+template<typename T>
+void cudaSafeFree(T*&ptr);
 
 #include "TW_MemManager.cpp"
 

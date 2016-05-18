@@ -192,4 +192,15 @@ void cudestroyptr(T****&ptr)
 	free(ptr);
 	ptr = nullptr;
 }
+
+template<typename T>
+void cudaSafeFree(T*&ptr)
+{
+	if(ptr!=NULL && ptr!=0 && ptr!=nullptr)
+	{
+		checkCudaErrors(cudaFree(ptr));
+		ptr = nullptr;
+	}
+}
+
 #endif

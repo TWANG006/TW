@@ -98,7 +98,7 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 		checkCudaErrors(cudaMemcpyToArray(m_sharedResources->cudaImgArray,
 			0,
 			0,
-			m_Fftcc2DPtr->m_cuHandle.m_d_fTarImg,
+			/*m_Fftcc2DPtr->*/TW::paDIC::g_cuHandle.m_d_fTarImg,
 			640 * 480,
 			cudaMemcpyDeviceToDevice));
 

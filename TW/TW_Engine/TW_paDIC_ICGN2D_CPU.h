@@ -2,7 +2,6 @@
 #define TW_paDIC_ICGN2D_CPU_H
 
 #include "opencv2\opencv.hpp"
-#include "TW.h"
 #include "TW_paDIC_ICGN2D.h"
 
 
@@ -21,31 +20,29 @@ namespace paDIC{
 class TW_LIB_DLL_EXPORTS ICGN2D_CPU : public ICGN2D
 {
 public:
-	ICGN2D_CPU(const cv::Mat& refImg,
-			   const cv::Mat& tarImg,
-			   int iStartX, int iStartY,
-			   int iROIWidth, int iROIHeight,
-			   int iSubsetX, int iSubsetY,
-			   int iNumberX, int iNumberY,
-		       int iNumIterations,
+	ICGN2D_CPU(/*(const cv::Mat& refImg,
+			   const cv::Mat& tarImg,*/
+			   const cv::Mat& refImg,
+			   int_t iImgWidth, int_t iImgHeight,
+			   int_t iStartX, int_t iStartY,
+			   int_t iROIWidth, int_t iROIHeight,
+			   int_t iSubsetX, int_t iSubsetY,
+			   int_t iNumberX, int_t iNumberY,
+		       int_t iNumIterations,
 		       real_t fDeltaP,
 			   ICGN2DInterpolationFLag Iflag,
 			   ICGN2DThreadFlag Tflag);
 	~ICGN2D_CPU();
 
+	virtual void ResetRefImg(const cv::Mat& refImg) override;
+
 
 	void ICGN2D_Algorithm(real_t *fU,
 						  real_t *fV,
 						  int *iNumIterations,
-						  const int *iPOIpos);
+						  const int *iPOIpos,
+						  const cv::Mat& tarImg);
 
-
-	void ICGN2D_Precomputation_Prepare();
-	void ICGN2D_Precomputation();
-	void ICGN2D_Precomputation_Finalize();
-
-	///\brief Allocate required memory for the ICNG2D application
-	void ICGN2D_Prepare();
 
 	///\brief Core ICGN2D algorithm. The calculation unit is subset.
 	///
@@ -60,7 +57,17 @@ public:
 							  const int iPOIx,
 							  const int iPOIy,
 							  const int id);
+
+	
+
+private:
+	void ICGN2D_Precomputation_Prepare();
+	void ICGN2D_Precomputation();
+	void ICGN2D_Precomputation_Finalize();
+	///\brief Allocate required memory for the ICNG2D application
+	void ICGN2D_Prepare();
 	void ICGN2D_Finalize();
+	
 
 private:
 	ICGN2DInterpolationFLag m_Iflag;

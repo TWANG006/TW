@@ -497,17 +497,17 @@ TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
 		m_iNumPOIX, m_iNumPOIY,m_iMarginX, m_iMarginY, m_iSubsetX, m_iSubsetY, m_iGridSpaceX, m_iGridSpaceY);
 	
 
-	TW::paDIC::ICGN2D_CPU icgn(matR,matT,
+	TW::paDIC::ICGN2D_CPU icgn( matR,
+								imgWidth,imgHeight,
 								2,2,
 								m_iROIWidth, m_iROIHeight,
 								m_iSubsetX, m_iSubsetY,
 								m_iNumPOIX, m_iNumPOIY,
 								20,
 								0.001f,
-								TW::paDIC::ICGN2DInterpolationFLag::Bicubic,
+								TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline,
 								TW::paDIC::ICGN2DThreadFlag::Multicore);
 
-	icgn.ICGN2D_Prepare();
 
 	/*#pragma	omp parallel for	
 		for (int i = 0; i < m_iNumPOIX * m_iNumPOIY; i++)
@@ -519,7 +519,8 @@ TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
 						   hPOI[2 * i + 0],
 						   i);
 		}*/
-	icgn.ICGN2D_Algorithm(fU, fV, iters, hPOI);
+
+	icgn.ICGN2D_Algorithm(fU, fV, iters, hPOI,matT);
 
 	std::cout<<"POI number is: "<<m_iNumPOIX * m_iNumPOIY<<"\n";
 	
@@ -536,6 +537,4 @@ TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
 	hdestroyptr(fU);
 	hdestroyptr(fV);
 	hdestroyptr(iters);
-
-	icgn.ICGN2D_Finalize();
 }
