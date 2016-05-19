@@ -18,7 +18,7 @@ namespace paDIC{
 class TW_LIB_DLL_EXPORTS cuFFTCC2D : public Fftcc2D
 {
 public:
-	//GPUHandle_FFTCC g_cuHandle;
+	GPUHandle_FFTCC g_cuHandle;
 
 	/// \brief cuFFTCC2D Constructor that takes configuration parameters of the ROI
 	///

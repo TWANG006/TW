@@ -21,6 +21,17 @@ public:
 
 	ICGN2D(/*const cv::Mat& refImg, 
 		   const cv::Mat& tarImg,*/
+		   //const cv::Mat& refImg,
+		   int_t iImgWidth, int_t iImgHeight,
+		   int_t iStartX, int_t iStartY,
+		   int_t iROIWidth, int_t iROIHeight,
+		   int_t iSubsetX, int_t iSubsetY,
+		   int_t iNumberX, int_t iNumberY,
+		   int_t iNumIterations,
+		   real_t fDeltaP);
+
+	ICGN2D(/*const cv::Mat& refImg, 
+		   const cv::Mat& tarImg,*/
 		   const cv::Mat& refImg,
 		   int_t iImgWidth, int_t iImgHeight,
 		   int_t iStartX, int_t iStartY,

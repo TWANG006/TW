@@ -9,6 +9,31 @@
 namespace TW{
 namespace paDIC{
 
+ICGN2D_CPU::ICGN2D_CPU(//const cv::Mat& refImg,
+					   /*const cv::Mat& tarImg,*/
+					   int_t iImgWidth, int_t iImgHeight,
+					   int_t iStartX, int_t iStartY,
+					   int_t iROIWidth, int_t iROIHeight,
+					   int_t iSubsetX, int_t iSubsetY,
+					   int_t iNumberX, int_t iNumberY,
+					   int_t iNumIterations,
+					   real_t fDeltaP,
+					   ICGN2DInterpolationFLag Iflag,
+					   ICGN2DThreadFlag Tflag)
+	: ICGN2D(//refImg,
+			 iImgWidth, iImgHeight,
+		 	 iStartX, iStartY,
+			 iROIWidth, iROIHeight,
+			 iSubsetX, iSubsetY,
+			 iNumberX, iNumberY,
+			 iNumIterations,
+			 fDeltaP)
+	, m_Iflag(Iflag)
+	, m_Tflag(Tflag)
+{
+	ICGN2D_Prepare();	
+}
+
 ICGN2D_CPU::ICGN2D_CPU(const cv::Mat& refImg,
 					   /*const cv::Mat& tarImg,*/
 					   int_t iImgWidth, int_t iImgHeight,

@@ -497,7 +497,8 @@ TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
 		m_iNumPOIX, m_iNumPOIY,m_iMarginX, m_iMarginY, m_iSubsetX, m_iSubsetY, m_iGridSpaceX, m_iGridSpaceY);
 	
 
-	TW::paDIC::ICGN2D_CPU icgn( matR,
+
+	TW::paDIC::ICGN2D_CPU icgn(// matR,
 								imgWidth,imgHeight,
 								2,2,
 								m_iROIWidth, m_iROIHeight,
@@ -519,7 +520,7 @@ TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
 						   hPOI[2 * i + 0],
 						   i);
 		}*/
-
+	icgn.ResetRefImg(matR);
 	icgn.ICGN2D_Algorithm(fU, fV, iters, hPOI,matT);
 
 	std::cout<<"POI number is: "<<m_iNumPOIX * m_iNumPOIY<<"\n";

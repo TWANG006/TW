@@ -30,6 +30,20 @@ __constant__ real_t c_dBicubicMatrix[16][16]={
 		{  -6,	6,	6, -6, -4, -2,	4,	2, -3,	3, -3,	3, -2, -1, -2, -1 },
 		{	4, -4, -4,	4,	2,	2, -2, -2,	2, -2,	2, -2,	1,	1,	1,	1 }};
 
+
+__constant__ real_t BSplineCP[4][4] = {
+		 {  71 / 56.0, -19 / 56.0,   5 / 56.0,  -1 / 56.0 }, 
+		 { -19 / 56.0,  95 / 56.0, -25 / 56.0,   5 / 56.0 }, 
+		 {   5 / 56.0, -25 / 56.0,  95 / 56.0, -19 / 56.0 },
+		 {  -1 / 56.0,   5 / 56.0, -19 / 56.0,  71 / 56.0 } 
+	};
+__constant__ real_t BSplineBase[4][4] = {
+		{ -1 / 6.0,  3 / 6.0,  -3 / 6.0, 1 / 6.0 }, 
+		{  3 / 6.0, -6 / 6.0,   3 / 6.0,       0 }, 
+		{ -3 / 6.0,        0,   3 / 6.0,       0 }, 
+		{  1 / 6.0,  4 / 6.0,   1 / 6.0,       0 } 
+	};
+
 // !------------------------CUDA Kernel Functions-------------------------------
 
 /// \brief compute z = ax + y in parallel.
@@ -284,14 +298,27 @@ __global__ void GradientXY_2ImagesO2_Kernel(// Inputs
 }
 
 
+/// \brief Kernel to compute Bicubic Interpolation LUT of fImgF & fImgG on GPU, the results are stored in device
+/// arrays. NOTE: The memory must be pre-allocated before calling this function. This kernel is 
+/// especially useful for ICGN + Bicubic interpolation
+///
+/// \param dIn_fImgT Image
+/// \param dIn_fTx, dIn_fTy & dIn_fTxy Gradients of the image
+/// \param iStartX x coordinate of the top-left point of ROI
+/// \param iStartY y coordinate of the top-left point of ROI
+/// \param iROIWidth Width of ROI
+/// \param iROIHeight Height of ROI
+/// \param iImgWidth Width of the image
+/// \param iImgHeight Height of the image
+/// \param dOut_fBicubicInterpolants LUT iROIHeight * iROIWidth * 4 * float4
 __global__ void Bicubic_Kernel(// Inputs
 				  			    const uchar1* dIn_fImgT, 
 								const real_t* dIn_fTx, 
 								const real_t* dIn_fTy, 
 								const real_t* dIn_fTxy, 
-								const int iStartX, const int iStartY,
-								const int iROIWidth, const int iROIHeight, 
-								const int iImgWidth, const int iImgHeight, 
+								const int_t iStartX, const int_t iStartY,
+								const int_t iROIWidth, const int_t iROIHeight, 
+								const int_t iImgWidth, const int_t iImgHeight, 
 								// Outputs
 							    float4* dOut_fBicubicInterpolants)
 {	
@@ -406,6 +433,31 @@ __global__ void Bicubic_Kernel(// Inputs
 		dOut_fBicubicInterpolants[3 * iROIWidth*iROIHeight + (y*iROIWidth + x)].z = fAlphaT[15];
 	}
 }
+
+__global__ void BicubicSplineLUT_Kernel(const uchar1* d_Img,
+										const int_t iImgWidth, const int_t iImgHeight,
+										const int_t iStartX, const int_t iStartY,
+										const int_t iROIWidth, const int_t iROIHeight,
+										float4 *d_OutBicubicSplineLUT)
+{
+	const int y = threadIdx.y + blockDim.y * blockIdx.y;
+	const int x = threadIdx.x + blockDim.x * blockIdx.x;
+
+	real_t fOmega[4][4];
+	real_t fBeta[4][4];
+
+	if (y < iROIHeight  && x < iROIWidth)
+	{
+		for (int k = 0; k < 4; k++)
+		{
+			for (int l = 0; l < 4; l++)
+			{
+				fOmega[k][l] = (real_t)d_Img[(y + iStartY - 1 + k)*iImgWidth + (x + iStartX - 1 + l)].x;
+			}
+		}
+	}
+}
+
 // ------------------------CUDA Kernel Functions End-----------------------------!
 
 

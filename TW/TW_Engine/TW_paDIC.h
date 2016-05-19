@@ -7,7 +7,7 @@
 namespace TW{
 namespace paDIC{
 
-/// \struct GPUHandle
+/// \struct GPUHandle_FFTCC
 /// \brief This handle is for the computation of FFTCC of paDIC on GPU using CUDA
 /// This struct holds all the needed parameters of the parallel FFTCC algorithm.
 struct GPUHandle_FFTCC
@@ -32,16 +32,43 @@ struct GPUHandle_FFTCC
 	cudafftComplex *m_dev_FreqDom2;
 	cudafftComplex *m_dev_FreqDomfg;
 
-	GPUHandle_FFTCC()
-		:m_d_fRefImg(nullptr), m_d_fTarImg(nullptr), m_d_iPOIXY(nullptr),
-		 m_d_fV(nullptr), m_d_fU(nullptr), m_d_fZNCC(nullptr),
-		 m_d_fSubset1(nullptr), m_d_fSubset2(nullptr), m_d_fSubsetC(nullptr),
-		 m_d_fMod1(nullptr), m_d_fMod2(nullptr),
-		 m_dev_FreqDom1(nullptr), m_dev_FreqDom2(nullptr), m_dev_FreqDomfg(nullptr)
-	{}
+	GPUHandle_FFTCC();
 };
 
-extern TW_LIB_DLL_EXPORTS GPUHandle_FFTCC g_cuHandle;
+/// \struct GPUHandle
+/// \brief This handle is for the computation of FFTCC of paDIC on GPU using CUDA
+/// This struct holds all the needed parameters of the parallel FFTCC algorithm.
+struct GPUHandle_ICGN
+{
+	uchar1 *m_d_fRefImg;			// Reference image
+	uchar1 *m_d_fTarImg;			// Target image
+
+	int_t  *m_d_iPOIXY;				// POI positions on device
+	real_t *m_d_fU;					// Displacement in x-direction
+	real_t *m_d_fV;					// Displacement in y-direction
+	/*-----The above paramters may be aquired from FFT-CC algorithm-----*/
+	
+	// ICGN calculation parameters
+	real_t *m_d_fRx;
+	real_t *m_d_fRy;
+	real_t *m_d_fTx;
+	real_t *m_d_fTy;
+	real_t *m_d_fTxy;
+	float4* m_d_f4InterpolationLUT;
+
+	int *m_d_iIterationNums;
+
+	real_t *m_d_fSubsetR;
+	real_t *m_d_fSubsetT;
+	real_t *m_d_fSubsetAveR;
+	real_t *m_d_fSubsetAveT;
+	real_t *m_d_Hessian;
+	real_t *m_d_RDescent;
+	
+	GPUHandle_ICGN();
+};
+
+//extern TW_LIB_DLL_EXPORTS GPUHandle_FFTCC g_cuHandle;
 
 enum class ICGN2DFlag
 {
