@@ -5,7 +5,7 @@
 
 namespace TW{
 namespace paDIC{
-
+	
 class TW_LIB_DLL_EXPORTS cuICGN2D : public ICGN2D
 {
 public:
@@ -23,17 +23,21 @@ public:
 
 	~cuICGN2D();
 
-	void cuICGN2D_Initialize(uchar1 *m_d_fRefImg,
-							 uchar1 *m_d_fTarImg,
-							 int_t  *m_d_iPOIXY,
-							 real_t *m_d_fU,
-							 real_t *m_d_fV);
+	void cuCompute(uchar1 *d_fTarImg,
+				   int_t  *d_iPOIXY,
+				   real_t *d_fU,
+				   real_t *d_fV);
+
+	void cuInitialize(uchar1 *d_fRefImg);
+	void Initialize(cv::Mat& refImg);
 	
 private:
-	void cuICGN2D_prepare();
+	/// \brief Allocate memory on GPU for the computation
+	void prepare();
 
 private:
 	ICGN2DInterpolationFLag m_Iflag;
+	bool m_isRefImgUpdated;
 
 };
 

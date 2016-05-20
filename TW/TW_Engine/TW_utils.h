@@ -553,7 +553,7 @@ TW_LIB_DLL_EXPORTS void cuBicubicCoefficients(// Inputs
 											  const int iROIWidth, const int iROIHeight, 
 											  const int iImgWidth, const int iImgHeight, 
 											  // Outputs
-											  float4* dOut_fBicubicInterpolants);
+											  real_t4* dOut_fBicubicInterpolants);
 
 /// \brief GPU function to compute z = ax + y in parallel.
 /// \ strided for loop is used for the optimized performance and kernel size 

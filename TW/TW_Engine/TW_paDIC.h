@@ -54,7 +54,7 @@ struct GPUHandle_ICGN
 	real_t *m_d_fTx;
 	real_t *m_d_fTy;
 	real_t *m_d_fTxy;
-	float4* m_d_f4InterpolationLUT;
+	real_t4* m_d_f4InterpolationLUT;
 
 	int *m_d_iIterationNums;
 
@@ -63,7 +63,7 @@ struct GPUHandle_ICGN
 	real_t *m_d_fSubsetAveR;
 	real_t *m_d_fSubsetAveT;
 	real_t *m_d_Hessian;
-	real_t *m_d_RDescent;
+	real_t2 *m_d_RDescent;
 	
 	GPUHandle_ICGN();
 };

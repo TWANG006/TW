@@ -320,7 +320,7 @@ __global__ void Bicubic_Kernel(// Inputs
 								const int_t iROIWidth, const int_t iROIHeight, 
 								const int_t iImgWidth, const int_t iImgHeight, 
 								// Outputs
-							    float4* dOut_fBicubicInterpolants)
+							    real_t4* dOut_fBicubicInterpolants)
 {	
 	const int y = threadIdx.y + blockDim.y * blockIdx.y;
 	const int x = threadIdx.x + blockDim.x * blockIdx.x;
@@ -438,7 +438,7 @@ __global__ void BicubicSplineLUT_Kernel(const uchar1* d_Img,
 										const int_t iImgWidth, const int_t iImgHeight,
 										const int_t iStartX, const int_t iStartY,
 										const int_t iROIWidth, const int_t iROIHeight,
-										float4 *d_OutBicubicSplineLUT)
+										real_t4 *d_OutBicubicSplineLUT)
 {
 	const int y = threadIdx.y + blockDim.y * blockIdx.y;
 	const int x = threadIdx.x + blockDim.x * blockIdx.x;
@@ -728,7 +728,7 @@ void cuBicubicCoefficients(// Inputs
 						   const int iROIWidth, const int iROIHeight, 
 						   const int iImgWidth, const int iImgHeight, 
 						   // Outputs
-						   float4* dOut_fBicubicInterpolants)
+						   real_t4* dOut_fBicubicInterpolants)
 {
 	dim3 threads(BLOCK_SIZE_X, BLOCK_SIZE_Y);
 	dim3 blocks((iROIWidth - 1) / BLOCK_SIZE_X + 1, (iROIHeight - 1) / BLOCK_SIZE_Y + 1);

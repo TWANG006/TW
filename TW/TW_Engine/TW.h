@@ -42,10 +42,14 @@ namespace TW
 #ifdef TW_USE_DOUBLE
 using intentisy_t = double;
 using real_t = double;
+using real_t2 = double2;
+using real_t4 = double4;
 using cudafftComplex = cufftDoubleComplex;
 #else
 using intensity_t = float;
 using real_t = float;
+using real_t2 = float2;
+using real_t4 = float4;
 using cudafftComplex = cufftComplex;
 #endif // TW_USE_DOUBLE
 using int_t = int;
