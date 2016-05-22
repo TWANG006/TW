@@ -113,53 +113,56 @@ __global__ void InverseHessian_Kernel(real_t* d_Rx,
 	real_t2 *RDescent = whole_d_RDescent + bid * iSubsetSize * 3;
 	real_t *r_InvHessian = whole_d_InvHessian + bid * 36;
 
+	// Initialize the Hessian Matrix to 0;
 	for (int id = tid; id < 96; id += dim)
 	{
 		Hessian[id] = 0;
 	}
 
+	// Construct the Hessian Matrix 
+	// H = Sigma_i [ \partial(W) / \partial(p) Gradient R]^T [ \partial(W) / \partial(p) Gradient R]
 	for (int id = tid; id < iSubsetSize; id += dim)
 	{
-		int l = id / iSubsetW;
-		int m = id % iSubsetW;
+		int l = id / iSubsetW;	// y
+		int m = id % iSubsetW;	// x
 		
-		real_t tx = d_Rx[(d_iPOIXY[bid * 2 + 0] - iSubsetY + l)*iROIWidth + d_iPOIXY[bid * 2 + 1] - iSubsetX + m];
+		real_t tx = d_Rx[(d_iPOIXY[bid * 2 + 0] - iSubsetY + l - iStartY)*iROIWidth + d_iPOIXY[bid * 2 + 1] - iSubsetX + m - iStartX];
 		RDescent[l*iSubsetW + m].x = t_dD0 = tx;
 		RDescent[l*iSubsetW + m].y = t_dD1 = tx * (m - iSubsetX);
 		RDescent[iSubsetSize + l * iSubsetW + m].x = t_dD2 = tx * (l - iSubsetY);
 
-		real_t ty = d_Ry[(d_iPOIXY[bid * 2 + 0] - iSubsetY + l)*iROIWidth + d_iPOIXY[bid * 2 + 1] - iSubsetX + m];
+		real_t ty = d_Ry[(d_iPOIXY[bid * 2 + 0] - iSubsetY + l - iStartY)*iROIWidth + d_iPOIXY[bid * 2 + 1] - iSubsetX + m - iStartX];
 		RDescent[iSubsetSize + l * iSubsetW + m].y = t_dD3 = ty;
 		RDescent[iSubsetSize * 2 + l * iSubsetW + m].x = t_dD4 = ty * (m - iSubsetX);
 		RDescent[iSubsetSize * 2 + l * iSubsetW + m].y = t_dD5 = ty * (l - iSubsetY);
 
 		//00		
-		tempt=t_dD0 * t_dD0; 
+		tempt = t_dD0 * t_dD0;
 		reduceBlock<BLOCK_SIZE_64, real_t>(sm, tempt, tid);
-		if(tid==0)
+		if (tid == 0)
 		{
-			Hessian[0*16+0]+=sm[0];
+			Hessian[0 * 16 + 0] += sm[0];
 		}
 //11
-		tempt=t_dD1 * t_dD1; 
+		tempt = t_dD1 * t_dD1;
 		reduceBlock<BLOCK_SIZE_64, real_t>(sm, tempt, tid);
-		if(tid==0)
+		if (tid == 0)
 		{
-			Hessian[1*16+1]+=sm[0];
+			Hessian[1 * 16 + 1] += sm[0];
 		}
 //22		
-		tempt=t_dD2 * t_dD2; 
+		tempt = t_dD2 * t_dD2;
 		reduceBlock<BLOCK_SIZE_64, real_t>(sm, tempt, tid);
-		if(tid==0)
+		if (tid == 0)
 		{
-			Hessian[2*16+2]+=sm[0];
+			Hessian[2 * 16 + 2] += sm[0];
 		}
 //33
-		tempt=t_dD3 * t_dD3; 
+		tempt = t_dD3 * t_dD3;
 		reduceBlock<BLOCK_SIZE_64, real_t>(sm, tempt, tid);
-		if(tid==0)
+		if (tid == 0)
 		{
-			Hessian[3*16+3]+=sm[0];
+			Hessian[3 * 16 + 3] += sm[0];
 		}
 //44		
 		tempt=t_dD4 * t_dD4; 
