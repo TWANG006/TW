@@ -39,7 +39,7 @@ GPUHandle_ICGN::GPUHandle_ICGN()
 	, m_d_fSubsetAveR(nullptr)
 	, m_d_fSubsetT(nullptr)
 	, m_d_fSubsetAveT(nullptr)
-	, m_d_Hessian(nullptr)
+	, m_d_invHessian(nullptr)
 	, m_d_RDescent(nullptr)
 {}
 

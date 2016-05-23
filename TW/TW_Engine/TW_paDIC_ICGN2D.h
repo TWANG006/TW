@@ -63,6 +63,8 @@ protected:
 	cv::Mat m_tarImg;		// Deformed image
 
 	bool m_isRefImgUpdated;	// Flag to monitor whether the reference image is chanaged
+	int_t m_iImgWidth;
+	int_t m_iImgHeight;
 	int_t m_iStartX;
 	int_t m_iStartY;
 	int_t m_iROIWidth;

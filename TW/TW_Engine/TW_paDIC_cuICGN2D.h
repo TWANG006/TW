@@ -22,14 +22,27 @@ public:
 			 ICGN2DInterpolationFLag Iflag);
 
 	~cuICGN2D();
+	
+	/// \brief Initialize ICGN with d_fRefImg.
+	/// Note: The d_fRefImg is on GPU and it has already been filled with data. 
+	/// The d_fRefImg's pointer is passed to g_cuHandleICGN. 
+	/// 
+	/// \param d_fRefImg The refImg on GPU side.
+	void cuInitialize(uchar1 *d_fRefImg);
 
-	void cuCompute(uchar1 *d_fTarImg,
+	/// \brief 
+	void cuCompute(// Inputs
+				   uchar1 *d_fTarImg,
 				   int_t  *d_iPOIXY,
+				   // Inputs & Outputs
 				   real_t *d_fU,
 				   real_t *d_fV);
 
-	void cuInitialize(uchar1 *d_fRefImg);
+	/// \brief Free memory allocated on GPU
+	void cuFinalize();
+
 	void Initialize(cv::Mat& refImg);
+	void ResetRefImg(const cv::Mat& refImg) override;
 	
 private:
 	/// \brief Allocate memory on GPU for the computation

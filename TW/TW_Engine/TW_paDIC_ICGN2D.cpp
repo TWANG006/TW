@@ -13,9 +13,9 @@ ICGN2D::ICGN2D(/*const cv::Mat& refImg,
 			   int_t iNumberX, int_t iNumberY,
 		       int_t iNumIterations,
 		       real_t fDeltaP)
-			   : /*m_refImg(cv::Size(iImgWidth, iImgHeight), CV_8UC1)
-			   , m_tarImg(cv::Size(iImgWidth, iImgHeight), CV_8UC1)
-			   ,*/ m_iStartX(iStartX)
+			   : m_iImgWidth(iImgWidth)
+			   , m_iImgHeight(iImgHeight)
+			   , m_iStartX(iStartX)
 			   , m_iStartY(iStartY)
 			   , m_iROIWidth(iROIWidth)
 			   , m_iROIHeight(iROIHeight)
@@ -43,7 +43,9 @@ ICGN2D::ICGN2D(const cv::Mat& refImg,
 			   int_t iNumberX, int_t iNumberY,
 		       int_t iNumIterations,
 		       real_t fDeltaP)
-			   : m_iStartX(iStartX)
+			   : m_iImgWidth(iImgWidth)
+			   , m_iImgHeight(iImgHeight)
+			   , m_iStartX(iStartX)
 			   , m_iStartY(iStartY)
 			   , m_iROIWidth(iROIWidth)
 			   , m_iROIHeight(iROIHeight)

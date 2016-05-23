@@ -62,8 +62,9 @@ struct GPUHandle_ICGN
 	real_t *m_d_fSubsetT;
 	real_t *m_d_fSubsetAveR;
 	real_t *m_d_fSubsetAveT;
-	real_t *m_d_Hessian;
+	real_t *m_d_invHessian;
 	real_t2 *m_d_RDescent;
+	real_t *m_d_dP;
 	
 	GPUHandle_ICGN();
 };
