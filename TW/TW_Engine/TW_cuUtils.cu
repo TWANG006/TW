@@ -446,14 +446,44 @@ __global__ void BicubicSplineLUT_Kernel(const uchar1* d_Img,
 	real_t fOmega[4][4];
 	real_t fBeta[4][4];
 
+	int k, l, m, n;
+
 	if (y < iROIHeight  && x < iROIWidth)
 	{
-		for (int k = 0; k < 4; k++)
+		for (k = 0; k < 4; k++)
 		{
-			for (int l = 0; l < 4; l++)
+			for (l = 0; l < 4; l++)
 			{
 				fOmega[k][l] = (real_t)d_Img[(y + iStartY - 1 + k)*iImgWidth + (x + iStartX - 1 + l)].x;
 			}
+		}
+		for (k = 0; k < 4; k++)
+		{
+			for (l = 0; l < 4; l++)
+			{
+				fBeta[k][l] = 0;
+				for (m = 0; m < 4; m++)
+				{
+					for (n = 0; n < 4; n++)
+					{
+						fBeta[k][l] += BSplineCP[k][m] * BSplineCP[l][n] * fOmega[n][m];
+					}
+				}
+			}
+		}
+		for (k = 0; k < 4; k++)
+		{
+			d_OutBicubicSplineLUT[k*iROIWidth*iROIHeight + y*iROIWidth + x].w = 0;
+			d_OutBicubicSplineLUT[k*iROIWidth*iROIHeight + y*iROIWidth + x].x = 0;
+			d_OutBicubicSplineLUT[k*iROIWidth*iROIHeight + y*iROIWidth + x].y = 0;
+			d_OutBicubicSplineLUT[k*iROIWidth*iROIHeight + y*iROIWidth + x].z = 0;
+			/*for (m = 0; m < 4; m++)
+			{
+				for (n = 0; n < 4; n++)
+				{
+					d_OutBicubicSplineLUT[k*iROIWidth*iROIHeight + y*iROIWidth + x].w +=
+				}
+			}*/
 		}
 	}
 }

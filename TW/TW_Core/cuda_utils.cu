@@ -45,9 +45,13 @@
 		0xFF00009B, 0xFF000097, 0xFF000093, 0xFF00008F, 0xFF00008B, 0xFF000087, 0xFF000083, 0xFF000080
     };
 
+
+/*Problems to think about: 
+  1. Use the whole subset or only the POI?
+*/
 __global__ void constructTextImage_Kernel(// Outputs
-										  uint1* texImgU,
-										  uint1* texImgV,
+										  unsigned int* texImgU,
+										  unsigned int* texImgV,
 										  // Inputs
 										  int* iU,
 										  int* iV,

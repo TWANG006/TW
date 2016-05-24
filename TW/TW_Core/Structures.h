@@ -2,7 +2,9 @@
 #define STRUCTURES_H
 
 #include <TW_Concurrent_Buffer.h>
+#include <TW_paDIC_ICGN2D_CPU.h>
 #include <TW_paDIC_cuFFTCC2D.h>
+#include <TW_paDIC_cuICGN2D.h>
 #include <opencv2\opencv.hpp>
 
 #include <QRect>
@@ -51,6 +53,13 @@ struct SharedResources{
 
 using cuFftcc2D = TW::paDIC::cuFFTCC2D;
 using cuFftcc2DPtr = std::unique_ptr<cuFftcc2D>;
+
+using cuICGN2D = TW::paDIC::cuICGN2D;
+using cuICGN2DPtr = std::unique_ptr<cuICGN2D>;
+
+using ICGN2D_CPU = TW::paDIC::ICGN2D_CPU;
+using ICGN2DPtr = std::unique_ptr<ICGN2D_CPU>;
+
 using ImageBuffer = TW::Concurrent_Buffer<cv::Mat>;
 using ImageBufferPtr = std::shared_ptr<ImageBuffer>;
 
