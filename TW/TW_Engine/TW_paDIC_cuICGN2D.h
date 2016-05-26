@@ -24,7 +24,8 @@ public:
 	~cuICGN2D();
 	
 	/// \brief Initialize ICGN with d_fRefImg.
-	/// Note: The d_fRefImg is on GPU and it has already been filled with data. 
+	/// Note: The d_fRefImg is on GPU and it has already been filled with data.
+	/// This method can also be called when there's need to update refImg
 	/// The d_fRefImg's pointer is passed to g_cuHandleICGN. 
 	/// 
 	/// \param d_fRefImg The refImg on GPU side.
@@ -42,7 +43,8 @@ public:
 	void cuFinalize();
 
 	void Initialize(cv::Mat& refImg);
-	void ResetRefImg(const cv::Mat& refImg) override;
+	virtual void ResetRefImg(const cv::Mat& refImg) override;
+	virtual void SetTarImg(const cv::Mat& tarImg) override;
 	
 private:
 	/// \brief Allocate memory on GPU for the computation

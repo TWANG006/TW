@@ -34,6 +34,8 @@ signals:
 private:
 	TW::real_t *m_d_fU;
 	TW::real_t *m_d_fV;
+	TW::real_t *m_d_fCurrentU;
+	TW::real_t *m_d_fCurrentV;
 	TW::real_t *m_d_fZNCC;
 	int m_iWidth;
 	int m_iHeight;

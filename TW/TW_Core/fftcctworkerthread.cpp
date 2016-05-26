@@ -2,6 +2,7 @@
 #include <QDebug>
 
 #include "cuda_utils.cuh"
+#include "TW_MemManager.h"
 
 FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 									   ImageBufferPtr tarImgBuffer,
@@ -19,6 +20,11 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 	, m_ROI(roi)
 	, m_Fftcc2DPtr(nullptr)
 	, m_sharedResources(s)
+	, m_d_fU(nullptr)
+	, m_d_fV(nullptr)
+	, m_d_fCurrentU(nullptr)
+	, m_d_fCurrentV(nullptr)
+	, m_d_fZNCC(nullptr)
 {
 	// Do the initialization for the paDIC's cuFFTCC here in the constructor
 	// 1. Construct the cuFFTCC2D object using the whole image
@@ -29,6 +35,14 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 												iGridSpaceX, iGridSpaceY,
 												iMarginX, iMarginY));
 	
+	// Allocate memory for the current U & V
+	int iNumPOIs = m_Fftcc2DPtr->GetNumPOIs();
+	cudaMalloc((void**)&m_d_fCurrentU, sizeof(TW::real_t)*iNumPOIs);
+	cudaMalloc((void**)&m_d_fCurrentV, sizeof(TW::real_t)*iNumPOIs);
+	
+	// Initialize the current U & V to 0
+
+
 	//2. Do the initialization for cuFFTCC2D object
 	m_Fftcc2DPtr->cuInitializeFFTCC(m_d_fU, m_d_fV, m_d_fZNCC, firstFrame);
 }

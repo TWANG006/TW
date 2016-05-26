@@ -47,6 +47,7 @@ public:
 						const int_t& iROIWidth, const int_t& iROIHeight);
 
 	virtual void ResetRefImg(const cv::Mat& refImg) = 0;
+	virtual void SetTarImg(const cv::Mat& tarImg) = 0;
 
 
 	/*virtual void ICGN2D_Compute(real_t *fU,

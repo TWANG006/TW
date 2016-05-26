@@ -31,7 +31,7 @@ public:
 		       int_t iNumIterations,
 		       real_t fDeltaP,
 			   ICGN2DInterpolationFLag Iflag,
-			   ICGN2DThreadFlag Tflag);
+			   paDICThreadFlag Tflag);
 
 	ICGN2D_CPU(/*(const cv::Mat& refImg,
 			   const cv::Mat& tarImg,*/
@@ -44,11 +44,11 @@ public:
 		       int_t iNumIterations,
 		       real_t fDeltaP,
 			   ICGN2DInterpolationFLag Iflag,
-			   ICGN2DThreadFlag Tflag);
+			   paDICThreadFlag Tflag);
 	~ICGN2D_CPU();
 
 	virtual void ResetRefImg(const cv::Mat& refImg) override;
-
+	virtual void SetTarImg(const cv::Mat& tarImg) override;
 
 	void ICGN2D_Algorithm(real_t *fU,
 						  real_t *fV,
@@ -84,7 +84,7 @@ private:
 
 private:
 	ICGN2DInterpolationFLag m_Iflag;
-	ICGN2DThreadFlag m_Tflag;
+	paDICThreadFlag m_Tflag;
 	real_t **m_fRx;						// x-derivative of reference image ROI_H * ROI_W
 	real_t **m_fRy;						// y-derivative of reference image ROI_H * ROI_W
 	real_t **m_fTx;						// Only for Bicubic Inerpolation 

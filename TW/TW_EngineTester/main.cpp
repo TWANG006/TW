@@ -1,4 +1,12 @@
 #include <gtest\gtest.h>
+#include "TW_paDIC_cuFFTCC2D.h"
+#include "TW_paDIC_FFTCC2D_CPU.h"
+#include "TW_utils.h"
+#include "TW_MemManager.h"
+#include <opencv2\opencv.hpp>
+#include <opencv2\highgui.hpp>
+
+using namespace TW;
 
 void main(int argc, char *argv[])
 {

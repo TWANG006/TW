@@ -10,7 +10,15 @@
 namespace TW
 {
 //!--------------------Inline and template functions----------------------------------------
-
+template<typename T>
+void deleteObject(T*& param)
+{
+	if (param != nullptr && param != 0 && param != NULL)
+	{
+		delete param;
+		param = nullptr;
+	}
+}
 /// \brief Return the 1D index of a 2D matrix.
 ///
 /// \param x position in x direction in a 2D matrix
@@ -168,8 +176,30 @@ inline cudafftComplex ComplexMul(cudafftComplex a, cudafftComplex b)
 /// \param iGridSpaceX number of pixels between two POIs in x direction
 /// \param iGirdSpaceY number of pixels between two POIs in y direction
 TW_LIB_DLL_EXPORTS void ComputePOIPositions_s(// Output
-											  int_t *&Out_h_iPXY,			// Return the host handle
+											  int_t ***&Out_h_iPXY,			// Return the host handle
 											  // Inputs
+											  int_t iNumberX, int_t iNumberY,
+											  int_t iMarginX, int_t iMarginY,
+											  int_t iSubsetX, int_t iSubsetY,
+											  int_t iGridSpaceX, int_t iGridSpaceY);
+
+/// \brief Function to compute positions of POIs on single-core CPU.
+/// No need to pre-allocate memory for the pointer.
+///
+/// \param Out_h_iPXY position array in device memory
+/// \param iStartX, iStartY The start position of the ROI
+/// \param iNumberX number of POIs in x direction
+/// \param iNumberY number of POIs in y direction
+/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
+/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
+/// \param iSubsetX half size of the square subset in x direction
+/// \param iSubsetY half size of the square subset in y direction
+/// \param iGridSpaceX number of pixels between two POIs in x direction
+/// \param iGirdSpaceY number of pixels between two POIs in y direction
+TW_LIB_DLL_EXPORTS void ComputePOIPositions_s(// Output
+											  int_t ***&Out_h_iPXY,			// Return the host handle
+											  // Inputs
+											  int_t iStartX, int_t iStartY,
 											  int_t iNumberX, int_t iNumberY,
 											  int_t iMarginX, int_t iMarginY,
 											  int_t iSubsetX, int_t iSubsetY,
@@ -188,8 +218,31 @@ TW_LIB_DLL_EXPORTS void ComputePOIPositions_s(// Output
 /// \param iGridSpaceX number of pixels between two POIs in x direction
 /// \param iGirdSpaceY number of pixels between two POIs in y direction
 TW_LIB_DLL_EXPORTS void ComputePOIPositions_m(// Output
-											  int_t *&Out_h_iPXY,			// Return the host handle
+											  int_t ***&Out_h_iPXY,			// Return the host handle
 											  // Inputs
+											  int_t iNumberX, int_t iNumberY,
+											  int_t iMarginX, int_t iMarginY,
+											  int_t iSubsetX, int_t iSubsetY,
+											  int_t iGridSpaceX, int_t iGridSpaceY);
+
+
+/// \brief Function to compute positions of POIs on Multi-core CPU.
+/// No need to pre-allocate memory for the pointer.
+///
+/// \param Out_h_iPXY position array in device memory
+/// \param iStartX, iStartY The start position of the ROI
+/// \param iNumberX number of POIs in x direction
+/// \param iNumberY number of POIs in y direction
+/// \param iMarginX number of extra safe pixels at ROI boundary in x direction
+/// \param iMarginY number of extra safe pixels at ROI boundary in y direction
+/// \param iSubsetX half size of the square subset in x direction
+/// \param iSubsetY half size of the square subset in y direction
+/// \param iGridSpaceX number of pixels between two POIs in x direction
+/// \param iGirdSpaceY number of pixels between two POIs in y direction
+TW_LIB_DLL_EXPORTS void ComputePOIPositions_m(// Output
+											  int_t ***&Out_h_iPXY,			// Return the host handle
+											  // Inputs
+											  int_t iStartX, int_t iStartY,
 											  int_t iNumberX, int_t iNumberY,
 											  int_t iMarginX, int_t iMarginY,
 											  int_t iSubsetX, int_t iSubsetY,
@@ -427,7 +480,7 @@ TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Output
 /// \param iGirdSpaceY number of pixels between two POIs in y direction
 TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Outputs
 											 int_t *&Out_d_iPXY,			// Return the device handle
-											 int_t *&Out_h_iPXY,			// Retrun the host handle
+											 int_t ***&Out_h_iPXY,			// Retrun the host handle
 											 // Inputs
 											 int_t iNumberX, int_t iNumberY,
 											 int_t iMarginX, int_t iMarginY,
@@ -451,7 +504,7 @@ TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Outputs
 /// \param iGirdSpaceY number of pixels between two POIs in y direction
 TW_LIB_DLL_EXPORTS void cuComputePOIPositions(// Outputs
 											  int_t *&Out_d_iPXY,			// Return the device handle
-											  int_t *&Out_h_iPXY,			// Retrun the host handle
+											  int_t ***&Out_h_iPXY,			// Retrun the host handle
 											  // Inputs
 											  int_t iStartX, int_t iStartY, // Start top-left point of the ROI
 											  int_t iNumberX, int_t iNumberY,

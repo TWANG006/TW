@@ -112,6 +112,7 @@ public:
 	/// 
 	/// \param refImg the new cv::Mat reference image
 	virtual void ResetRefImg(const cv::Mat& refImg) override;
+	virtual void SetTarImg(const cv::Mat& tarImg) override;
 
 	// ---------------------------------High level method end-----------------------------------!
 

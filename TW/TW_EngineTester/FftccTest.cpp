@@ -1,9 +1,59 @@
-//////#include "TW_paDIC_FFTCC2D.h"
-//////
-//////#include <gtest\gtest.h>
-//////
-//////using namespace TW::paDIC;
-//////
+#include "TW_paDIC_cuFFTCC2D.h"
+#include "TW_paDIC_FFTCC2D_CPU.h"
+#include "TW_utils.h"
+#include "TW_MemManager.h"
+#include <opencv2\opencv.hpp>
+#include <opencv2\highgui.hpp>
+#include <gtest\gtest.h>
+
+using namespace TW;
+
+TEST(Fftcc2D, Fftcc2D_CPU_part)
+{
+	cv::Mat Rmat = cv::imread("Example2\\crop_oht_cfrp_00.bmp");
+	cv::Mat Tmat = cv::imread("Example2\\crop_oht_cfrp_04.bmp");
+
+	auto wm_iWidth = Rmat.cols;
+	auto wm_iHeight = Rmat.rows;
+
+	cv::Mat Rmatnew(cv::Size(wm_iWidth, wm_iHeight), CV_8UC1);
+	cv::Mat Tmatnew(cv::Size(wm_iWidth, wm_iHeight), CV_8UC1);
+
+	cv::cvtColor(Rmat, Rmatnew, CV_BGR2GRAY);
+	cv::cvtColor(Tmat, Tmatnew, CV_BGR2GRAY);
+
+	int*** iPOIXY;
+	float **fU, **fV, **fZNCC;
+
+	paDIC::Fftcc2D_CPU *wfcc = new paDIC::Fftcc2D_CPU(
+		Rmatnew.cols, Rmatnew.rows,
+		1,1,
+		Rmatnew.cols-2, Rmatnew.rows-2,
+		16, 16,
+		3, 3,
+		5, 5,
+		TW::paDIC::paDICThreadFlag::Multicore);
+
+	wfcc->InitializeFFTCC(
+		Rmatnew,
+		iPOIXY,
+		fU,
+		fV,
+		fZNCC);
+
+	wfcc->Algorithm_FFTCC(
+		Tmatnew,
+		iPOIXY,
+		fU,
+		fV,
+		fZNCC);
+
+	std::cout << iPOIXY[0][0][1] << ", " << iPOIXY[0][0][0] << ": " << fU[0][0] << ", " << fV[0][0] << ", " << fZNCC[0][0] << std::endl;
+
+	wfcc->FinalizeFFTCC(iPOIXY,fU,fV,fZNCC);
+}
+
+//
 //////TEST(Fftcc2D, Constructor)
 //////{
 //////	Fftcc2D * fftcc = new Fftcc2D(
@@ -18,14 +68,7 @@
 //////	fftcc = nullptr;
 //////
 //////}
-//#include "TW_paDIC_cuFFTCC2D.h"
-//#include "TW_utils.h"
-//#include "TW_MemManager.h"
-//#include <opencv2\opencv.hpp>
-//#include <opencv2\highgui.hpp>
-//#include <gtest\gtest.h>
-//
-//using namespace TW;
+
 //
 //TEST(cuFFTCC2D_CPU, cuFFTCC2D_Copy_To_CPU)
 //{
@@ -116,7 +159,8 @@
 //	wfcc = nullptr;
 //
 //}
-//
+
+
 //TEST(cuFFTCC2D_GPU, cuFFTCC2D_StayOn_GPU)
 //{
 //	//!--------------ROI based

@@ -779,7 +779,7 @@ void cuICGN2D::cuInitialize(uchar1 *d_fRefImg)
 
 void cuICGN2D::Initialize(cv::Mat& refImg)
 {
-	// TODO
+	ResetRefImg(refImg);
 }
 
 void cuICGN2D::ResetRefImg(const cv::Mat& refImg) 
@@ -791,11 +791,25 @@ void cuICGN2D::ResetRefImg(const cv::Mat& refImg)
 	}
 
 	cudaMemcpy(g_cuHandleICGN.m_d_fRefImg, 
-			   refImg.data,
+			   (void*)refImg.data,
 			   refImg.cols * refImg.rows,
 			   cudaMemcpyHostToDevice);
 
 	m_isRefImgUpdated = true;
+}
+
+void cuICGN2D::SetTarImg(const cv::Mat& tarImg)
+{
+	if (tarImg.cols != m_iImgWidth || tarImg.rows != m_iImgHeight)
+	{
+		qDebug()<<"Image Dimension Noat Match";
+		return;
+	}
+
+	cudaMemcpy(g_cuHandleICGN.m_d_fRefImg, 
+			   (void*)tarImg.data,
+			   tarImg.cols * tarImg.rows,
+			   cudaMemcpyHostToDevice);
 }
 
 void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
@@ -836,10 +850,10 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 								  g_cuHandleICGN.m_d_f4InterpolationLUT);
 
 			 //For debug
-			std::cout<<"Bicubic First: "<<std::endl;
+		/*	std::cout << "Bicubic First: " << std::endl;
 			std::cout.precision(10);
 			float4 *interpolation;
-			hcreateptr(interpolation,  4 * m_iROIWidth*m_iROIHeight);
+			hcreateptr(interpolation, 4 * m_iROIWidth*m_iROIHeight);
 			cudaMemcpy(interpolation, g_cuHandleICGN.m_d_f4InterpolationLUT, sizeof(real_t4) * 4 * m_iROIWidth*m_iROIHeight,
 				cudaMemcpyDeviceToHost);
 			for (int i = 0; i < 4; i++)
@@ -851,7 +865,7 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 				std::cout << std::endl;
 			}
 
-			hdestroyptr(interpolation);
+			hdestroyptr(interpolation);*/
 
 			break;
 		}
@@ -865,12 +879,12 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 		}
 
 		RefAllSubetsNorm_Kernel<<<m_iPOINumber, BLOCK_SIZE_64>>>(g_cuHandleICGN.m_d_fRefImg,
-															   g_cuHandleICGN.m_d_iPOIXY,
-															   m_iSubsetW, m_iSubsetH,
-															   m_iSubsetX, m_iSubsetY,
-															   m_iImgWidth, m_iImgHeight,
-															   g_cuHandleICGN.m_d_fSubsetR,
-															   g_cuHandleICGN.m_d_fSubsetAveR);
+															     g_cuHandleICGN.m_d_iPOIXY,
+															     m_iSubsetW, m_iSubsetH,
+															     m_iSubsetX, m_iSubsetY,
+															     m_iImgWidth, m_iImgHeight,
+															     g_cuHandleICGN.m_d_fSubsetR,
+															     g_cuHandleICGN.m_d_fSubsetAveR);
 
 		InverseHessian_Kernel<<<m_iPOINumber, BLOCK_SIZE_64>>>(g_cuHandleICGN.m_d_fRx,
 															   g_cuHandleICGN.m_d_fRy,
@@ -886,27 +900,27 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 
 
 	// For debug
-	std::cout<<"Hessian"<<std::endl;
-		float *dHessian;
-		hcreateptr(dHessian, m_iPOINumber * 6 * 6);
-		cudaMemcpy(dHessian, g_cuHandleICGN.m_d_invHessian, sizeof(float)* m_iPOINumber * 6 * 6, cudaMemcpyDeviceToHost);
+	//std::cout << "Hessian" << std::endl;
+	//float *dHessian;
+	//hcreateptr(dHessian, m_iPOINumber * 6 * 6);
+	//cudaMemcpy(dHessian, g_cuHandleICGN.m_d_invHessian, sizeof(float)* m_iPOINumber * 6 * 6, cudaMemcpyDeviceToHost);
 
-		for (int i = 0; i < 6; i++)
-		{
-			for (int j = 0; j < 6; j++)
-			{
-				std::cout << dHessian[i * 6 + j] << ", ";
-			}
-			std::cout << "\n";
-		}
-		hdestroyptr(dHessian);
+	//for (int i = 0; i < 6; i++)
+	//{
+	//	for (int j = 0; j < 6; j++)
+	//	{
+	//		std::cout << dHessian[i * 6 + j] << ", ";
+	//	}
+	//	std::cout << "\n";
+	//}
+	//hdestroyptr(dHessian);
 
 	// For Debug
-	real_t *test;
+	/*real_t *test;
 	hcreateptr(test, m_iPOINumber*(m_iSubsetSize + 1));
 	cudaMemcpy(test, g_cuHandleICGN.m_d_fSubsetAveR,  sizeof(real_t)*m_iPOINumber*(m_iSubsetSize + 1), cudaMemcpyDeviceToHost);
 	std::cout<<test[0]<<", "<<std::endl;
-	hdestroyptr(test);
+	hdestroyptr(test);*/
 
 	ICGN_Computation_Kernel<<<m_iPOINumber, BLOCK_SIZE_64>>>(g_cuHandleICGN.m_d_fU,
 															 g_cuHandleICGN.m_d_fV,
@@ -928,18 +942,18 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 															 g_cuHandleICGN.m_d_iIterationNums,
 															 g_cuHandleICGN.m_d_dP);
 	// For Debug
-	real_t *test1;
+	/*real_t *test1;
 	hcreateptr(test1, m_iPOINumber*(m_iSubsetSize + 1));
-	cudaMemcpy(test1, g_cuHandleICGN.m_d_fSubsetAveT,  sizeof(real_t)*m_iPOINumber*(m_iSubsetSize + 1), cudaMemcpyDeviceToHost);
-	std::cout<<test1[0]<<", "<<std::endl;
-	hdestroyptr(test);
+	cudaMemcpy(test1, g_cuHandleICGN.m_d_fSubsetAveT, sizeof(real_t)*m_iPOINumber*(m_iSubsetSize + 1), cudaMemcpyDeviceToHost);
+	std::cout << test1[0] << ", " << std::endl;
+	hdestroyptr(test);*/
 
 	// For debug
-	real_t *dp;
+	/*real_t *dp;
 	hcreateptr(dp, m_iPOINumber * 6);
 	cudaMemcpy(dp, g_cuHandleICGN.m_d_dP, sizeof(real_t)*m_iPOINumber * 6, cudaMemcpyDeviceToHost);
-	std::cout<<dp[0] <<", "<<dp[3]<<std::endl;
-	hdestroyptr(dp);
+	std::cout << dp[0] << ", " << dp[3] << std::endl;
+	hdestroyptr(dp);*/
 
 }
 
@@ -966,14 +980,6 @@ void cuICGN2D::cuFinalize()
 
 }// namespace paDIC
 }// namespace TW
-
-
-
-
-
-
-
-
 
 //__global__ void ICGN_Computation_Kernel(real_t* d_fU, real_t *d_fV,
 //										// Inputs
@@ -1240,9 +1246,6 @@ void cuICGN2D::cuFinalize()
 //	}
 //}
 
-
-
-
 //__global__ void RefAllSubetsNorm_Kernel(// Inputs
 //									    const uchar1 *d_refImg,
 //									    const int *d_iPOIXY,
@@ -1299,7 +1302,6 @@ void cuICGN2D::cuFinalize()
 //		dSubsetAve[0] = sqrt(sm[tid]);
 //	}
 //}
-
 
 //__global__ void InverseHessian_Kernel(// Inputs
 //									  const real_t* d_Rx, 

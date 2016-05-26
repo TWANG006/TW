@@ -1,6 +1,7 @@
 #include "TW_paDIC_ICGN2D_CPU.h"
 #include "TW_MemManager.h"
 #include "TW_utils.h"
+#include "TW_StopWatch.h"
 
 #include <QDebug>
 #include <mkl.h>
@@ -19,7 +20,7 @@ ICGN2D_CPU::ICGN2D_CPU(//const cv::Mat& refImg,
 					   int_t iNumIterations,
 					   real_t fDeltaP,
 					   ICGN2DInterpolationFLag Iflag,
-					   ICGN2DThreadFlag Tflag)
+					   paDICThreadFlag Tflag)
 	: ICGN2D(//refImg,
 			 iImgWidth, iImgHeight,
 		 	 iStartX, iStartY,
@@ -44,7 +45,7 @@ ICGN2D_CPU::ICGN2D_CPU(const cv::Mat& refImg,
 					   int_t iNumIterations,
 					   real_t fDeltaP,
 					   ICGN2DInterpolationFLag Iflag,
-					   ICGN2DThreadFlag Tflag)
+					   paDICThreadFlag Tflag)
 	: ICGN2D(refImg,
 			 iImgWidth, iImgHeight,
 		 	 iStartX, iStartY,
@@ -70,6 +71,11 @@ void ICGN2D_CPU::ResetRefImg(const cv::Mat& refImg)
 	m_isRefImgUpdated = true;
 }
 
+void ICGN2D_CPU::SetTarImg(const cv::Mat& tarImg)
+{
+	m_tarImg = tarImg;
+}
+
 void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 							      real_t *fV,
 								  int *iNumIterations,
@@ -79,9 +85,12 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 	m_tarImg = tarImg;
 	ICGN2D_Precomputation();
 
+	StopWatch t;
+
+	t.start();
 	switch (m_Tflag)
 	{
-	case TW::paDIC::ICGN2DThreadFlag::Single:
+	case TW::paDIC::paDICThreadFlag::Single:
 	{
 		for (int i = 0; i < m_iPOINumber; i++)
 		{
@@ -95,7 +104,7 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 		break;
 	}
 
-	case TW::paDIC::ICGN2DThreadFlag::Multicore:
+	case TW::paDIC::paDICThreadFlag::Multicore:
 	{
 #pragma	omp parallel for	
 		for (int i = 0; i < m_iPOINumber; i++)
@@ -115,6 +124,8 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 		break;
 	}
 	}
+	t.stop();
+	std::cout<<"ICGN time is: "<<t.getElapsedTime()<<std::endl;
 }
 
 
@@ -153,7 +164,7 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 {
 	switch (m_Tflag)
 	{
-	case TW::paDIC::ICGN2DThreadFlag::Single:
+	case TW::paDIC::paDICThreadFlag::Single:
 	{
 		switch (m_Iflag)
 		{
@@ -214,7 +225,7 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 		break;
 	}
 
-	case TW::paDIC::ICGN2DThreadFlag::Multicore:
+	case TW::paDIC::paDICThreadFlag::Multicore:
 	{
 		switch (m_Iflag)
 		{

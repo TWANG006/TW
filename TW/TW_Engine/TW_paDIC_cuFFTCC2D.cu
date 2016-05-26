@@ -124,7 +124,7 @@ __global__ void cufft_prepare_kernel(// Inputs
 	for (auto id = tid; id<size; id += dim)
 	{
 		int_t l = id / m_iFFTSubW;
-		int_t m = id%m_iFFTSubW;
+		int_t m = id % m_iFFTSubW;
 		d_tempt = (real_t)m_dR[(int_t(m_dPXY[bid * 2] - m_iSubsetY + l))*m_iWidth + int_t(m_dPXY[bid * 2 + 1] - m_iSubsetX + m)].x;
 		m_Subset1[id] = d_tempt;
 		d_sumR += d_tempt / size;
@@ -438,6 +438,7 @@ void cuFFTCC2D::DestroyFFTCC(real_t**& fU,
 	cudaSafeFree(g_cuHandle.m_d_fTarImg);
 	cudaSafeFree(g_cuHandle.m_d_fMod1);
 	cudaSafeFree(g_cuHandle.m_d_fMod2);
+	cudaSafeFree(g_cuHandle.m_d_iPOIXY);
 
 	cudaSafeFree(g_cuHandle.m_dev_FreqDom1);
 	cudaSafeFree(g_cuHandle.m_dev_FreqDom2);
@@ -638,6 +639,7 @@ void  cuFFTCC2D::cuDestroyFFTCC(real_t*& f_d_U,
 	cudaSafeFree(g_cuHandle.m_d_fTarImg);
 	cudaSafeFree(g_cuHandle.m_d_fMod1);
 	cudaSafeFree(g_cuHandle.m_d_fMod2);
+	cudaSafeFree(g_cuHandle.m_d_iPOIXY);
 
 	cudaSafeFree(g_cuHandle.m_dev_FreqDom1);
 	cudaSafeFree(g_cuHandle.m_dev_FreqDom2);
@@ -664,6 +666,14 @@ void cuFFTCC2D::ResetRefImg(const cv::Mat& refImg)
 	checkCudaErrors(cudaMemcpy(g_cuHandle.m_d_fRefImg,
 							   (void*)refImg.data,
 							   /*sizeof(uchar)**/refImg.rows*refImg.cols,
+							   cudaMemcpyHostToDevice));
+}
+
+void cuFFTCC2D::SetTarImg(const cv::Mat& tarImg)
+{
+	checkCudaErrors(cudaMemcpy(g_cuHandle.m_d_fTarImg,
+							   (void*)tarImg.data,
+							   /*sizeof(uchar)**/tarImg.rows*tarImg.cols,
 							   cudaMemcpyHostToDevice));
 }
 

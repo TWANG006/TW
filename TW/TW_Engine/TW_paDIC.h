@@ -80,7 +80,7 @@ enum class ICGN2DFlag
 	OutofROI
 };
 
-enum class ICGN2DThreadFlag
+enum class paDICThreadFlag
 {
 	Single,
 	Multicore

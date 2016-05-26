@@ -93,7 +93,7 @@ public:
 	///
 	/// \param refImg reference image to be used
 	virtual void ResetRefImg(const cv::Mat& refImg) = 0;
-
+	virtual void SetTarImg(const cv::Mat& refImg) = 0;
 
 	//!- Inlined getters & setters
 	inline int_t GetNumPOIsX() const { return m_iNumPOIX; }

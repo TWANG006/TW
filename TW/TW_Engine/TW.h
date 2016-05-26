@@ -29,11 +29,10 @@
 #endif // TW_DEBUG_MSG
 
 
-
 #include <string>
 #include <cufft.h>
 #include <cfloat>
-
+#include <fftw3.h>
 
 //#define TW_USE_DOUBLE
 namespace TW
@@ -45,12 +44,16 @@ using real_t = double;
 using real_t2 = double2;
 using real_t4 = double4;
 using cudafftComplex = cufftDoubleComplex;
+using fftw3Plan = fftw_plan;
+using fftw3Complex = fftw_complex;
 #else
 using intensity_t = float;
 using real_t = float;
 using real_t2 = float2;
 using real_t4 = float4;
 using cudafftComplex = cufftComplex;
+using fftw3Plan = fftwf_plan;
+using fftw3Complex = fftwf_complex;
 #endif // TW_USE_DOUBLE
 using int_t = int;
 using uint_t = unsigned int;

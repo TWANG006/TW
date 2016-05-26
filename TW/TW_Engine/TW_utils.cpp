@@ -1,29 +1,96 @@
 #include "TW_utils.h"
 #include <iostream>
 #include <omp.h>
+#include "TW_MemManager.h"
 
 namespace TW
 {
 void ComputePOIPositions_s(// Output
-					   	   int_t *&Out_h_iPXY,			// Return the host handle
+					   	   int_t ***&Out_h_iPXY,			// Return the host handle
 						   // Inputs
 						   int_t iNumberX, int_t iNumberY,
 						   int_t iMarginX, int_t iMarginY,
 						   int_t iSubsetX, int_t iSubsetY,
 						   int_t iGridSpaceX, int_t iGridSpaceY)
 {
-	// TODO
+	// Allocate memory
+	hcreateptr<int_t>(Out_h_iPXY, iNumberY, iNumberX, 2);
+
+	for (int i = 0; i < iNumberY; i++)
+	{
+		for (int j = 0; j < iNumberX; j++)
+		{
+			Out_h_iPXY[i][j][0] = iMarginY + iSubsetY + i * iGridSpaceY;
+			Out_h_iPXY[i][j][1] = iMarginX + iSubsetX + j * iGridSpaceX;
+		}
+	}
+}
+
+void ComputePOIPositions_s(// Output
+					   	   int_t ***&Out_h_iPXY,			// Return the host handle
+						   // Inputs
+						   int_t iStartX, int_t iStartY,
+						   int_t iNumberX, int_t iNumberY,
+						   int_t iMarginX, int_t iMarginY,
+						   int_t iSubsetX, int_t iSubsetY,
+						   int_t iGridSpaceX, int_t iGridSpaceY)
+{
+	// Allocate memory
+	hcreateptr<int_t>(Out_h_iPXY, iNumberY, iNumberX, 2);
+
+	for (int i = 0; i < iNumberY; i++)
+	{
+		for (int j = 0; j < iNumberX; j++)
+		{
+			Out_h_iPXY[i][j][0] = iStartY + iMarginY + iSubsetY + i * iGridSpaceY;
+			Out_h_iPXY[i][j][1] = iStartX + iMarginX + iSubsetX + j * iGridSpaceX;
+		}
+	}
 }
 
 void ComputePOIPositions_m(// Output
-						   int_t *&Out_h_iPXY,			// Return the host handle
+						   int_t ***&Out_h_iPXY,			// Return the host handle
 						   // Inputs
 						   int_t iNumberX, int_t iNumberY,
 						   int_t iMarginX, int_t iMarginY,
 						   int_t iSubsetX, int_t iSubsetY,
 						   int_t iGridSpaceX, int_t iGridSpaceY)
 {
-	// TODO
+	// Allocate memory
+	hcreateptr<int_t>(Out_h_iPXY, iNumberY, iNumberX, 2);
+
+#pragma omp parallel for
+	for (int i = 0; i < iNumberY; i++)
+	{
+		for (int j = 0; j < iNumberX; j++)
+		{
+			Out_h_iPXY[i][j][0] = iMarginY + iSubsetY + i * iGridSpaceY;
+			Out_h_iPXY[i][j][1] = iMarginX + iSubsetX + j * iGridSpaceX;
+		}
+	}
+}
+
+void ComputePOIPositions_m(// Output
+						   int_t ***&Out_h_iPXY,			// Return the host handle
+						   // Inputs
+						   int_t iStartX, int_t iStartY,
+						   int_t iNumberX, int_t iNumberY,
+						   int_t iMarginX, int_t iMarginY,
+						   int_t iSubsetX, int_t iSubsetY,
+						   int_t iGridSpaceX, int_t iGridSpaceY)
+{
+	// Allocate memory
+	hcreateptr<int_t>(Out_h_iPXY, iNumberY, iNumberX, 2);
+
+#pragma omp parallel for
+	for (int i = 0; i < iNumberY; i++)
+	{
+		for (int j = 0; j < iNumberX; j++)
+		{
+			Out_h_iPXY[i][j][0] = iStartY + iMarginY + iSubsetY + i * iGridSpaceY;
+			Out_h_iPXY[i][j][1] = iStartX + iMarginX + iSubsetX + j * iGridSpaceX;
+		}
+	}
 }
 
 void Gradient_s(//Inputs

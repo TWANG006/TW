@@ -94,7 +94,7 @@ __global__  void Precompute_POIPosition_kernel(// Input
 
 	if (tid < iNumberX*iNumberY)
 	{
-		d_iPXY[2 * tid] = iMarginY + iSubsetY + i * iGridSpaceY;
+		d_iPXY[2 * tid + 0] = iMarginY + iSubsetY + i * iGridSpaceY;
 		d_iPXY[2 * tid + 1] = iMarginX + iSubsetX + j * iGridSpaceX;
 	}
 }
@@ -128,8 +128,8 @@ __global__  void Precompute_POIPosition_WholeImg_kernel(// Input
 
 	if (tid < iNumberX*iNumberY)
 	{
-		d_iPXY[2 * tid] = iStartX + iMarginY + iSubsetY + i * iGridSpaceY;
-		d_iPXY[2 * tid + 1] = iStartY + iMarginX + iSubsetX + j * iGridSpaceX;
+		d_iPXY[2 * tid + 0] = iStartY + iMarginY + iSubsetY + i * iGridSpaceY;
+		d_iPXY[2 * tid + 1] = iStartX + iMarginX + iSubsetX + j * iGridSpaceX;
 	}
 }
 
@@ -518,7 +518,7 @@ void cuComputePOIPositions(// Output
 
 void cuComputePOIPositions(// Outputs
 						   int_t *&Out_d_iPXY,						// Return the device handle
-						   int_t *&Out_h_iPXY,						// Retrun the host handle
+						   int_t ***&Out_h_iPXY,						// Retrun the host handle
 						   // Inputs
 						   int_t iNumberX, int_t iNumberY,
 						   int_t iMarginX, int_t iMarginY,
@@ -526,7 +526,7 @@ void cuComputePOIPositions(// Outputs
 						   int_t iGridSpaceX, int_t iGridSpaceY)
 {
 	//!- Allocate Memory for host & device
-	hcreateptr<int_t>(Out_h_iPXY, sizeof(int)*iNumberX*iNumberY * 2);
+	hcreateptr<int_t>(Out_h_iPXY, iNumberY, iNumberX, 2);
 	checkCudaErrors(cudaMalloc((void**)&Out_d_iPXY, sizeof(int)*iNumberX*iNumberY * 2));
 
 	dim3 gridDim((iNumberX*iNumberY + BLOCK_SIZE_256 - 1) / (BLOCK_SIZE_256)); 
@@ -540,7 +540,7 @@ void cuComputePOIPositions(// Outputs
 	getLastCudaError("Error in calling Precompute_POIPosition_kernel");
 
 	//!- Copy back the generated POI positions
-	checkCudaErrors(cudaMemcpy(Out_h_iPXY, 
+	checkCudaErrors(cudaMemcpy(Out_h_iPXY[0][0], 
 							   Out_d_iPXY, 
 							   sizeof(int)*iNumberX*iNumberY * 2, 
 							   cudaMemcpyDeviceToHost));
@@ -548,7 +548,7 @@ void cuComputePOIPositions(// Outputs
 
 void cuComputePOIPositions(// Outputs
 						   int_t *&Out_d_iPXY,			// Return the device handle
-						   int_t *&Out_h_iPXY,			// Retrun the host handle
+						   int_t ***&Out_h_iPXY,			// Retrun the host handle
 						   // Inputs
 						   int_t iStartX, int_t iStartY, // Start top-left point of the ROI
 						   int_t iNumberX, int_t iNumberY,
@@ -557,7 +557,7 @@ void cuComputePOIPositions(// Outputs
 						   int_t iGridSpaceX, int_t iGridSpaceY)
 {
 	//!- Allocate Memory for host & device
-	hcreateptr<int_t>(Out_h_iPXY, sizeof(int)*iNumberX*iNumberY * 2);
+	hcreateptr<int_t>(Out_h_iPXY, iNumberY, iNumberX, 2);
 	checkCudaErrors(cudaMalloc((void**)&Out_d_iPXY, 
 							   sizeof(int)*iNumberX*iNumberY * 2));
 
@@ -573,7 +573,7 @@ void cuComputePOIPositions(// Outputs
 	getLastCudaError("Error in calling Precompute_POIPosition_WholeImg_kernel");
 
 	//!- Copy back the generated POI positions
-	checkCudaErrors(cudaMemcpy(Out_h_iPXY, 
+	checkCudaErrors(cudaMemcpy(Out_h_iPXY[0][0], 
 							   Out_d_iPXY, 
 							   sizeof(int)*iNumberX*iNumberY * 2, 
 							   cudaMemcpyDeviceToHost));
