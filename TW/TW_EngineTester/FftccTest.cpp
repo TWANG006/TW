@@ -2,8 +2,10 @@
 #include "TW_paDIC_FFTCC2D_CPU.h"
 #include "TW_utils.h"
 #include "TW_MemManager.h"
+#include "TW_StopWatch.h"
 #include <opencv2\opencv.hpp>
 #include <opencv2\highgui.hpp>
+#include <omp.h>
 #include <gtest\gtest.h>
 
 using namespace TW;
@@ -41,12 +43,19 @@ TEST(Fftcc2D, Fftcc2D_CPU_part)
 		fV,
 		fZNCC);
 
+	omp_set_num_threads(12);
+
+	StopWatch w;
+	w.start();
 	wfcc->Algorithm_FFTCC(
 		Tmatnew,
 		iPOIXY,
 		fU,
 		fV,
 		fZNCC);
+	w.stop();
+
+	std::cout<<"Time: "<<w.getElapsedTime()<<std::endl;
 
 	std::cout << iPOIXY[0][0][1] << ", " << iPOIXY[0][0][0] << ": " << fU[0][0] << ", " << fV[0][0] << ", " << fZNCC[0][0] << std::endl;
 
