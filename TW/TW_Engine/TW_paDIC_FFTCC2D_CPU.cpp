@@ -172,12 +172,12 @@ void Fftcc2D_CPU::InitializeFFTCC(// Inputs
 }
 
 void Fftcc2D_CPU::Algorithm_FFTCC(// Inputs
-						 const cv::Mat& tarImg,
-						 int_t*** const& iPOIXY,
-						 // Outputs
-						 real_t**& fU,
-						 real_t**& fV,
-						 real_t**& fZNCC)
+								  const cv::Mat& tarImg,
+								  int_t*** const& iPOIXY,
+								  // Outputs
+								  real_t**& fU,
+								  real_t**& fV,
+								  real_t**& fZNCC)
 {
 	m_tarImg = tarImg;
 

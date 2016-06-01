@@ -6,6 +6,7 @@
 
 #define BLOCK_SIZE_256 256
 #define BLOCK_SIZE_128 128
+#define BLOCK_SIZE_64 64
 
 //!- Macro for library dll export utility
 #if defined (_WIN32)

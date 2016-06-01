@@ -349,7 +349,7 @@ void cuFFTCC2D::ComputeFFTCC(// Output
 	auto iPOINum = GetNumPOIs();
 
 	if(!m_isWholeImgUsed)
-		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (g_cuHandle.m_d_iPOIXY,
+		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_64 >>> (g_cuHandle.m_d_iPOIXY,
 															 g_cuHandle.m_d_fRefImg,
 														 	 g_cuHandle.m_d_fTarImg,
 															 iFFTSubH, iFFTSubW,
@@ -360,7 +360,7 @@ void cuFFTCC2D::ComputeFFTCC(// Output
 															 g_cuHandle.m_d_fMod1,
 															 g_cuHandle.m_d_fMod2);
 	else
-		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (g_cuHandle.m_d_iPOIXY,
+		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_64 >>> (g_cuHandle.m_d_iPOIXY,
 															 g_cuHandle.m_d_fRefImg,
 														 	 g_cuHandle.m_d_fTarImg,
 															 iFFTSubH,     iFFTSubW,
@@ -391,7 +391,7 @@ void cuFFTCC2D::ComputeFFTCC(// Output
 
 	
 
-	complexMulandScale_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (g_cuHandle.m_dev_FreqDom1,
+	complexMulandScale_kernel <<<iPOINum, BLOCK_SIZE_128 >>> (g_cuHandle.m_dev_FreqDom1,
 															  g_cuHandle.m_dev_FreqDom2,
 															  iFFTSubH, iFFTSubW,
 															  g_cuHandle.m_d_fMod1,
@@ -409,7 +409,7 @@ void cuFFTCC2D::ComputeFFTCC(// Output
 
 	
 
-	findMax <<<iPOINum, BLOCK_SIZE_256 >>> (g_cuHandle.m_d_fSubsetC,
+	findMax <<<iPOINum, BLOCK_SIZE_64 >>> (g_cuHandle.m_d_fSubsetC,
 											iFFTSubH, iFFTSubW,
 											m_iSubsetX, m_iSubsetY,
 											g_cuHandle.m_d_fU,
@@ -554,17 +554,25 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 							   // Input
 							   const cv::Mat& tarImg)
 {
+	cudaEvent_t start, end;		
+	cudaEventCreate(&start);
+	cudaEventCreate(&end);
 	checkCudaErrors(cudaMemcpy(g_cuHandle.m_d_fTarImg,
 							   (void*)tarImg.data,
 							   /*sizeof(uchar)**/tarImg.cols*tarImg.rows,
 							   cudaMemcpyHostToDevice));
 
+
+
+	
+
 	auto iFFTSubW = m_iSubsetX * 2;
 	auto iFFTSubH = m_iSubsetY * 2;
 	auto iPOINum = GetNumPOIs();
 
+	cudaEventRecord(start);
 	if(!m_isWholeImgUsed)
-		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (g_cuHandle.m_d_iPOIXY,
+		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_64 >>> (g_cuHandle.m_d_iPOIXY,
 															 g_cuHandle.m_d_fRefImg,
 													 		 g_cuHandle.m_d_fTarImg,
 															 iFFTSubH,     iFFTSubW,
@@ -575,7 +583,7 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 															 g_cuHandle.m_d_fMod1,
 															 g_cuHandle.m_d_fMod2);
 	else
-		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (g_cuHandle.m_d_iPOIXY,
+		cufft_prepare_kernel <<<iPOINum, BLOCK_SIZE_64>>> (g_cuHandle.m_d_iPOIXY,
 															 g_cuHandle.m_d_fRefImg,
 													 		 g_cuHandle.m_d_fTarImg,
 															 iFFTSubH,     iFFTSubW,
@@ -585,7 +593,7 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 															 g_cuHandle.m_d_fSubset2,
 															 g_cuHandle.m_d_fMod1,
 															 g_cuHandle.m_d_fMod2);
-	getLastCudaError("Error in calling cufft_prepare_kernel");
+	//getLastCudaError("Error in calling cufft_prepare_kernel");
 
 #ifdef TW_USE_DOUBLE
 	cufftExecD2Z(g_cuHandle.m_forwardPlanXY, 
@@ -603,13 +611,13 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 				 g_cuHandle.m_dev_FreqDom2);
 #endif // TW_USE_DOUBLE
 
-	complexMulandScale_kernel <<<iPOINum, BLOCK_SIZE_256 >>> (g_cuHandle.m_dev_FreqDom1,
+	complexMulandScale_kernel <<<iPOINum, BLOCK_SIZE_128 >>> (g_cuHandle.m_dev_FreqDom1,
 															  g_cuHandle.m_dev_FreqDom2,
 															  iFFTSubH, iFFTSubW,
 															  g_cuHandle.m_d_fMod1,
 															  g_cuHandle.m_d_fMod2,
 															  g_cuHandle.m_dev_FreqDomfg);
-	getLastCudaError("Error in calling complexMulandScale_kernel");
+	//getLastCudaError("Error in calling complexMulandScale_kernel");
 
 #ifdef TW_USE_DOUBLE
 	cufftExecZ2D(g_cuHandle.m_reversePlanXY, 
@@ -622,13 +630,20 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 #endif // TW_USE_DOUBLE
 
 	//!- Use the three arguments instead of the ones in g_cuHandle member
-	findMax <<<iPOINum, BLOCK_SIZE_256 >>> (g_cuHandle.m_d_fSubsetC,
+	findMax <<<iPOINum, BLOCK_SIZE_64 >>> (g_cuHandle.m_d_fSubsetC,
 											iFFTSubH, iFFTSubW,
 											m_iSubsetX, m_iSubsetY,
 											f_d_U,
 											f_d_V,
 											f_d_ZNCC);
-	getLastCudaError("Error in calling findMax_Kernel");
+	//getLastCudaError("Error in calling findMax_Kernel");
+
+	cudaEventRecord(end);
+	cudaDeviceSynchronize();
+
+	float t_time;
+	cudaEventElapsedTime(&t_time, start, end);
+	std::cout << "GPU FFT-CC Time is: " << t_time << std::endl;
 }
 
 void  cuFFTCC2D::cuDestroyFFTCC(real_t*& f_d_U,

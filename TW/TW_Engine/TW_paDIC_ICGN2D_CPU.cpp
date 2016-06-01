@@ -83,11 +83,14 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 								  const cv::Mat& tarImg)
 {
 	m_tarImg = tarImg;
+	
+	double start = omp_get_wtime();
 	ICGN2D_Precomputation();
+	double end = omp_get_wtime();
 
-	StopWatch t;
+	std::cout << "Time for Precomputation is: " << 1000 * (end - start) << std::endl;
 
-	t.start();
+	start = omp_get_wtime();
 	switch (m_Tflag)
 	{
 	case TW::paDIC::paDICThreadFlag::Single:
@@ -106,7 +109,7 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 
 	case TW::paDIC::paDICThreadFlag::Multicore:
 	{
-#pragma	omp parallel for	
+#pragma	omp parallel for
 		for (int i = 0; i < m_iPOINumber; i++)
 		{
 			ICGN2D_Compute(fU[i],
@@ -124,8 +127,8 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 		break;
 	}
 	}
-	t.stop();
-	std::cout<<"ICGN time is: "<<t.getElapsedTime()<<std::endl;
+	end = omp_get_wtime();
+	std::cout << "ICGN time is: " << 1000 * (end - start) << " [ms]" << std::endl;
 }
 
 
@@ -162,6 +165,7 @@ void ICGN2D_CPU::ICGN2D_Precomputation_Prepare()
 
 void ICGN2D_CPU::ICGN2D_Precomputation() 
 {
+	
 	switch (m_Tflag)
 	{
 	case TW::paDIC::paDICThreadFlag::Single:
@@ -292,6 +296,7 @@ void ICGN2D_CPU::ICGN2D_Precomputation()
 		break;
 	}
 	}
+
 	// For debug
 	/*std::cout<<"Bicubic First: "<<std::endl;
 	std::cout.precision(10);

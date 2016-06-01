@@ -10,10 +10,6 @@
 namespace TW{
 namespace paDIC{
 
-#define BLOCK_SIZE_64  64
-#define BLOCK_SIZE_128 128
-#define BLOCK_SIZE_256 256
-
 // !-------------------------------------------CUDA Kernel Functions ---------------------------------------------!
 
 /// \brief Kernel to compute sqrt[Sigma_i(R_i-R_m)^2] and construct all subsets for the refencence
@@ -817,6 +813,13 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 						 real_t *d_fU,
 						 real_t *d_fV)
 {
+	cudaEvent_t start, pre, end;
+	cudaEventCreate(&start);
+	cudaEventCreate(&pre);
+	cudaEventCreate(&end);
+
+	cudaEventRecord(start);
+
 	g_cuHandleICGN.m_d_fTarImg = d_fTarImg;
 	g_cuHandleICGN.m_d_iPOIXY = d_iPOIXY;
 	g_cuHandleICGN.m_d_fU = d_fU;
@@ -849,23 +852,24 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 								  m_iImgWidth, m_iImgHeight,
 								  g_cuHandleICGN.m_d_f4InterpolationLUT);
 
-			 //For debug
-		/*	std::cout << "Bicubic First: " << std::endl;
-			std::cout.precision(10);
-			float4 *interpolation;
-			hcreateptr(interpolation, 4 * m_iROIWidth*m_iROIHeight);
-			cudaMemcpy(interpolation, g_cuHandleICGN.m_d_f4InterpolationLUT, sizeof(real_t4) * 4 * m_iROIWidth*m_iROIHeight,
+			cudaEventRecord(pre);
+			//For debug
+			/*	std::cout << "Bicubic First: " << std::endl;
+				std::cout.precision(10);
+				float4 *interpolation;
+				hcreateptr(interpolation, 4 * m_iROIWidth*m_iROIHeight);
+				cudaMemcpy(interpolation, g_cuHandleICGN.m_d_f4InterpolationLUT, sizeof(real_t4) * 4 * m_iROIWidth*m_iROIHeight,
 				cudaMemcpyDeviceToHost);
-			for (int i = 0; i < 4; i++)
-			{
+				for (int i = 0; i < 4; i++)
+				{
 				std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].w << ", ";
 				std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].x << ", ";
 				std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].y << ", ";
 				std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].z << ", ";
 				std::cout << std::endl;
-			}
+				}
 
-			hdestroyptr(interpolation);*/
+				hdestroyptr(interpolation);*/
 
 			break;
 		}
@@ -898,7 +902,6 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 		m_isRefImgUpdated = false;
 	}
 
-
 	// For debug
 	//std::cout << "Hessian" << std::endl;
 	//float *dHessian;
@@ -921,7 +924,6 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 	cudaMemcpy(test, g_cuHandleICGN.m_d_fSubsetAveR,  sizeof(real_t)*m_iPOINumber*(m_iSubsetSize + 1), cudaMemcpyDeviceToHost);
 	std::cout<<test[0]<<", "<<std::endl;
 	hdestroyptr(test);*/
-
 	ICGN_Computation_Kernel<<<m_iPOINumber, BLOCK_SIZE_64>>>(g_cuHandleICGN.m_d_fU,
 															 g_cuHandleICGN.m_d_fV,
 															 g_cuHandleICGN.m_d_iPOIXY,
@@ -955,6 +957,14 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 	std::cout << dp[0] << ", " << dp[3] << std::endl;
 	hdestroyptr(dp);*/
 
+	cudaEventRecord(end);
+	cudaDeviceSynchronize();
+
+	float t_pre, t_time;
+	cudaEventElapsedTime(&t_pre, start, pre);
+	cudaEventElapsedTime(&t_time, pre, end);
+	std::cout << "GPU Precomputation Time is: " << t_pre << std::endl;
+	std::cout << "GPU ICGN Time is: " << t_time << std::endl;
 }
 
 void cuICGN2D::cuFinalize()

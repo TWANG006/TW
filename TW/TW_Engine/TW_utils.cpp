@@ -532,18 +532,19 @@ void BicubicSplineCoefficients_s(//Inputs
 		throw("Error! Maximum boundary condition exceeded!");
 	}
 
-	real_t BSplineCP[4][4] = {
+	const real_t BSplineCP[4][4] = {
 		 {  71 / 56.0, -19 / 56.0,   5 / 56.0,  -1 / 56.0 }, 
 		 { -19 / 56.0,  95 / 56.0, -25 / 56.0,   5 / 56.0 }, 
 		 {   5 / 56.0, -25 / 56.0,  95 / 56.0, -19 / 56.0 },
 		 {  -1 / 56.0,   5 / 56.0, -19 / 56.0,  71 / 56.0 } 
 	};
-	real_t BSplineBase[4][4] = {
+	const real_t BSplineBase[4][4] = {
 		{ -1 / 6.0,  3 / 6.0,  -3 / 6.0, 1 / 6.0 }, 
 		{  3 / 6.0, -6 / 6.0,   3 / 6.0,       0 }, 
 		{ -3 / 6.0,        0,   3 / 6.0,       0 }, 
 		{  1 / 6.0,  4 / 6.0,   1 / 6.0,       0 } 
 	};
+
 
 	real_t fOmega[4][4];
 	real_t fBeta[4][4];
@@ -618,7 +619,7 @@ void BicubicCoefficients_s(// Inputs
 	}
 
 	// The coefficient matrix of the Bicubic interpolation
-	real_t fBicubicMatrix[16][16] = { 
+	const real_t fBicubicMatrix[16][16] = { 
 		{  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
 		{  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
 		{ -3,  3,  0,  0, -2, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
@@ -712,25 +713,26 @@ void BicubicSplineCoefficients_m(// Inputs
 		throw("Error! Maximum boundary condition exceeded!");
 	}
 
-	real_t BSplineCP[4][4] = {
+	const real_t BSplineCP[4][4] = {
 		 {  71 / 56.0, -19 / 56.0,   5 / 56.0,  -1 / 56.0 }, 
 		 { -19 / 56.0,  95 / 56.0, -25 / 56.0,   5 / 56.0 }, 
 		 {   5 / 56.0, -25 / 56.0,  95 / 56.0, -19 / 56.0 },
 		 {  -1 / 56.0,   5 / 56.0, -19 / 56.0,  71 / 56.0 } 
 	};
-	real_t BSplineBase[4][4] = {
+	const real_t BSplineBase[4][4] = {
 		{ -1 / 6.0,  3 / 6.0,  -3 / 6.0, 1 / 6.0 }, 
 		{  3 / 6.0, -6 / 6.0,   3 / 6.0,       0 }, 
 		{ -3 / 6.0,        0,   3 / 6.0,       0 }, 
 		{  1 / 6.0,  4 / 6.0,   1 / 6.0,       0 } 
 	};
 
+
 #pragma omp parallel
 	{
 	real_t fOmega[4][4];
 	real_t fBeta[4][4];
 
-#pragma omp parallel for
+#pragma omp for
 	for(int i=0; i<iROIHeight; i++)
 	{
 		for(int j=0; j<iROIWidth; j++)
@@ -800,9 +802,9 @@ void BicubicCoefficients_m(// Inputs
 	{
 		throw("Error! Maximum boundary condition exceeded!");
 	}
-
+	
 	// The coefficient matrix of the Bicubic interpolation
-	real_t fBicubicMatrix[16][16] = { 
+	const real_t fBicubicMatrix[16][16] = { 
 		{  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
 		{  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
 		{ -3,  3,  0,  0, -2, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, 
@@ -825,7 +827,7 @@ void BicubicCoefficients_m(// Inputs
 	real_t fTao[16];
 	real_t fAlpha[16];
 
-#pragma omp parallel for
+#pragma omp for
 	for(int i = 0; i < iROIHeight - 1; i++)
 	{
 		for(int j = 0; j < iROIWidth - 1; j++)

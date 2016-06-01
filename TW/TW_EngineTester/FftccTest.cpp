@@ -12,8 +12,8 @@ using namespace TW;
 
 TEST(Fftcc2D, Fftcc2D_CPU_part)
 {
-	cv::Mat Rmat = cv::imread("Example2\\crop_oht_cfrp_00.bmp");
-	cv::Mat Tmat = cv::imread("Example2\\crop_oht_cfrp_04.bmp");
+	cv::Mat Rmat = cv::imread("Example1\\fu_0.bmp");
+	cv::Mat Tmat = cv::imread("Example1\\fu_1.bmp");
 
 	auto wm_iWidth = Rmat.cols;
 	auto wm_iHeight = Rmat.rows;
@@ -32,9 +32,9 @@ TEST(Fftcc2D, Fftcc2D_CPU_part)
 		1,1,
 		Rmatnew.cols-2, Rmatnew.rows-2,
 		16, 16,
-		3, 3,
 		5, 5,
-		TW::paDIC::paDICThreadFlag::Multicore);
+		10, 10,
+		TW::paDIC::paDICThreadFlag::Single);
 
 	wfcc->InitializeFFTCC(
 		Rmatnew,
@@ -55,7 +55,7 @@ TEST(Fftcc2D, Fftcc2D_CPU_part)
 		fZNCC);
 	w.stop();
 
-	std::cout<<"Time: "<<w.getElapsedTime()<<std::endl;
+	std::cout << "CPU FFT-CC Time is: " << w.getElapsedTime() << std::endl;
 
 	std::cout << iPOIXY[0][0][1] << ", " << iPOIXY[0][0][0] << ": " << fU[0][0] << ", " << fV[0][0] << ", " << fZNCC[0][0] << std::endl;
 
@@ -170,112 +170,113 @@ TEST(Fftcc2D, Fftcc2D_CPU_part)
 //}
 
 
-//TEST(cuFFTCC2D_GPU, cuFFTCC2D_StayOn_GPU)
-//{
-//	//!--------------ROI based
-//	cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_00.bmp ");
-//
-//	auto m_iWidth = mat.cols;
-//	auto m_iHeight = mat.rows;
-//
-//	cv::Mat matnew(cv::Size(m_iWidth-2,m_iHeight-2),CV_8UC1);
-//
-//	cv::cvtColor(mat(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1)), matnew, CV_BGR2GRAY);
-//
-//	paDIC::cuFFTCC2D *fcc = new paDIC::cuFFTCC2D(matnew.cols, matnew.rows,
-//		16, 16,
-//		3, 3,
-//		5, 5);
-//
-//	cv::Mat mat1 = cv::imread("Example2\\crop_oht_cfrp_04.bmp ");
-//	cv::Mat matnew1(cv::Size(m_iWidth-2,m_iHeight-2),CV_8UC1);
-//	cv::cvtColor(mat1(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1)), matnew1, CV_BGR2GRAY);
-//
-//
-//	real_t **iU, **iV;
-//	real_t **fZNCC;
-//
-//	real_t *idU, *idV;
-//	real_t *fdZNCC;
-//
-//	fcc->cuInitializeFFTCC(idU,idV,fdZNCC,matnew);
-//
-//	fcc->ResetRefImg(matnew);
-//
-//	fcc->cuComputeFFTCC(idU,idV,fdZNCC,matnew1);
-//
-//	hcreateptr<real_t>(iU, fcc->GetNumPOIsY(), fcc->GetNumPOIsX());
-//	hcreateptr<real_t>(iV, fcc->GetNumPOIsY(), fcc->GetNumPOIsX());
-//	hcreateptr<real_t>(fZNCC, fcc->GetNumPOIsY(), fcc->GetNumPOIsX());
-//
-//	cudaMemcpy(iU[0], idU, sizeof(int_t)*fcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
-//	cudaMemcpy(iV[0], idV, sizeof(int_t)*fcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
-//	cudaMemcpy(fZNCC[0], fdZNCC, sizeof(int_t)*fcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
-//
-//	std::cout << iU[0][0] << ", " << iV[0][0] << ", " << fZNCC[0][0] << std::endl;
-//
-//	fcc->cuDestroyFFTCC(idU,idV,fdZNCC);
-//
-//
-//	delete fcc;
-//	fcc = nullptr;
-//
-//	
-//	hdestroyptr(iU);
-//	hdestroyptr(iV);
-//	hdestroyptr(fZNCC);
-//
-//	//!--------------Image based
-//	cv::Mat wmat = cv::imread("Example2\\crop_oht_cfrp_00.bmp ");
-//
-//	auto wm_iWidth = wmat.cols;
-//	auto wm_iHeight = wmat.rows;
-//
-//	cv::Mat wmatnew(cv::Size(wm_iWidth,wm_iHeight),CV_8UC1);
-//
-//	cv::cvtColor(wmat, wmatnew, CV_BGR2GRAY);
-//
-//	paDIC::cuFFTCC2D *wfcc = new paDIC::cuFFTCC2D(wmatnew.cols, wmatnew.rows,
-//		wmatnew.cols-2, wmatnew.rows-2,
-//		1,1,
-//		16, 16,
-//		3, 3,
-//		5, 5);
-//
-//	cv::Mat wmat1 = cv::imread("Example2\\crop_oht_cfrp_04.bmp ");
-//	cv::Mat wmatnew1(cv::Size(wm_iWidth,wm_iHeight),CV_8UC1);
-//	cv::cvtColor(wmat1, wmatnew1, CV_BGR2GRAY);
-//
-//
-//	real_t **wiU, **wiV;
-//	real_t **wfZNCC;
-//
-//	real_t *widU, *widV;
-//	real_t *wfdZNCC;
-//
-//	wfcc->cuInitializeFFTCC(widU,widV,wfdZNCC,wmatnew);
-//
-//	wfcc->ResetRefImg(wmatnew);
-//
-//	wfcc->cuComputeFFTCC(widU,widV,wfdZNCC,wmatnew1);
-//
-//	hcreateptr<real_t>(wiU, wfcc->GetNumPOIsY(), wfcc->GetNumPOIsX());
-//	hcreateptr<real_t>(wiV, wfcc->GetNumPOIsY(), wfcc->GetNumPOIsX());
-//	hcreateptr<real_t>(wfZNCC, wfcc->GetNumPOIsY(), wfcc->GetNumPOIsX());
-//
-//	cudaMemcpy(wiU[0], widU, sizeof(int_t)*wfcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
-//	cudaMemcpy(wiV[0], widV, sizeof(int_t)*wfcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
-//	cudaMemcpy(wfZNCC[0], wfdZNCC, sizeof(int_t)*wfcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
-//
-//	std::cout << wiU[0][0] << ", " << wiV[0][0] << ", " << wfZNCC[0][0] << std::endl;
-//
-//	wfcc->cuDestroyFFTCC(widU,widV,wfdZNCC);
-//
-//
-//	delete wfcc;
-//	wfcc = nullptr;
-//	
-//	hdestroyptr(wiU);
-//	hdestroyptr(wiV);
-//	hdestroyptr(wfZNCC);
-//}
+TEST(cuFFTCC2D_GPU, cuFFTCC2D_StayOn_GPU)
+{
+	//!--------------ROI based
+	/*cv::Mat mat = cv::imread("Example2\\crop_oht_cfrp_00.bmp ");
+
+	auto m_iWidth = mat.cols;
+	auto m_iHeight = mat.rows;
+
+	cv::Mat matnew(cv::Size(m_iWidth-2,m_iHeight-2),CV_8UC1);
+
+	cv::cvtColor(mat(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1)), matnew, CV_BGR2GRAY);
+
+	paDIC::cuFFTCC2D *fcc = new paDIC::cuFFTCC2D(matnew.cols, matnew.rows,
+		16, 16,
+		3, 3,
+		5, 5);
+
+	cv::Mat mat1 = cv::imread("Example2\\crop_oht_cfrp_04.bmp ");
+	cv::Mat matnew1(cv::Size(m_iWidth-2,m_iHeight-2),CV_8UC1);
+	cv::cvtColor(mat1(cv::Range(1, m_iHeight - 1), cv::Range(1, m_iWidth - 1)), matnew1, CV_BGR2GRAY);
+
+
+	real_t **iU, **iV;
+	real_t **fZNCC;
+
+	real_t *idU, *idV;
+	real_t *fdZNCC;
+
+	fcc->cuInitializeFFTCC(idU,idV,fdZNCC,matnew);
+
+	fcc->ResetRefImg(matnew);
+
+	fcc->cuComputeFFTCC(idU,idV,fdZNCC,matnew1);
+
+	hcreateptr<real_t>(iU, fcc->GetNumPOIsY(), fcc->GetNumPOIsX());
+	hcreateptr<real_t>(iV, fcc->GetNumPOIsY(), fcc->GetNumPOIsX());
+	hcreateptr<real_t>(fZNCC, fcc->GetNumPOIsY(), fcc->GetNumPOIsX());
+
+	cudaMemcpy(iU[0], idU, sizeof(int_t)*fcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
+	cudaMemcpy(iV[0], idV, sizeof(int_t)*fcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
+	cudaMemcpy(fZNCC[0], fdZNCC, sizeof(int_t)*fcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
+
+	std::cout << iU[0][0] << ", " << iV[0][0] << ", " << fZNCC[0][0] << std::endl;
+
+	fcc->cuDestroyFFTCC(idU,idV,fdZNCC);
+
+
+	delete fcc;
+	fcc = nullptr;
+
+	
+	hdestroyptr(iU);
+	hdestroyptr(iV);
+	hdestroyptr(fZNCC);*/
+
+	//!--------------Image based
+	cv::Mat wmat = cv::imread("Example1\\fu_0.bmp");
+
+	auto wm_iWidth = wmat.cols;
+	auto wm_iHeight = wmat.rows;
+
+	cv::Mat wmatnew(cv::Size(wm_iWidth,wm_iHeight),CV_8UC1);
+
+	cv::cvtColor(wmat, wmatnew, CV_BGR2GRAY);
+
+	paDIC::cuFFTCC2D *wfcc = new paDIC::cuFFTCC2D(wmatnew.cols, wmatnew.rows,
+		wmatnew.cols-2, wmatnew.rows-2,
+		1,1,
+		16, 16,
+		5, 5,
+		10, 10);
+
+	cv::Mat wmat1 = cv::imread("Example1\\fu_1.bmp");
+	cv::Mat wmatnew1(cv::Size(wm_iWidth,wm_iHeight),CV_8UC1);
+	cv::cvtColor(wmat1, wmatnew1, CV_BGR2GRAY);
+
+
+	real_t **wiU, **wiV;
+	real_t **wfZNCC;
+
+	real_t *widU, *widV;
+	real_t *wfdZNCC;
+
+	wfcc->cuInitializeFFTCC(widU,widV,wfdZNCC,wmatnew);
+
+	wfcc->ResetRefImg(wmatnew);
+
+
+	wfcc->cuComputeFFTCC(widU,widV,wfdZNCC,wmatnew1);
+
+	hcreateptr<real_t>(wiU, wfcc->GetNumPOIsY(), wfcc->GetNumPOIsX());
+	hcreateptr<real_t>(wiV, wfcc->GetNumPOIsY(), wfcc->GetNumPOIsX());
+	hcreateptr<real_t>(wfZNCC, wfcc->GetNumPOIsY(), wfcc->GetNumPOIsX());
+
+	cudaMemcpy(wiU[0], widU, sizeof(int_t)*wfcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
+	cudaMemcpy(wiV[0], widV, sizeof(int_t)*wfcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
+	cudaMemcpy(wfZNCC[0], wfdZNCC, sizeof(int_t)*wfcc->GetNumPOIs(),cudaMemcpyDeviceToHost);
+
+	std::cout << wiU[0][0] << ", " << wiV[0][0] << ", " << wfZNCC[0][0] << std::endl;
+
+	wfcc->cuDestroyFFTCC(widU,widV,wfdZNCC);
+
+
+	delete wfcc;
+	wfcc = nullptr;
+	
+	hdestroyptr(wiU);
+	hdestroyptr(wiV);
+	hdestroyptr(wfZNCC);
+}

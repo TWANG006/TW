@@ -509,7 +509,7 @@ TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
 								20,
 								0.001f,
 								TW::paDIC::ICGN2DInterpolationFLag::Bicubic,
-								TW::paDIC::paDICThreadFlag::Multicore);
+								TW::paDIC::paDICThreadFlag::Single);
 
 
 	/*#pragma	omp parallel for	
@@ -524,7 +524,6 @@ TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
 		}*/
 	icgn.ResetRefImg(matR);
 	
-	omp_set_num_threads(12);
 	icgn.ICGN2D_Algorithm(fU, fV, iters, hPOI[0][0],matT);
 
 	std::cout<<"POI number is: "<<m_iNumPOIX * m_iNumPOIY<<"\n";
@@ -547,90 +546,90 @@ TEST(ICGN2D, ICGN2D_CPU_All_Subsets)
 	hdestroyptr(iters);
 }
 
-//TEST(ICGN2D, ICGN2D_GPU_All_Subsets)
-//{
-//	cv::Mat mat = cv::imread("Example1\\fu_0.bmp");
-//	cv::Mat mat1= cv::imread("Example1\\fu_1.bmp");
-//
-//	auto imgWidth = mat.cols;
-//	auto imgHeight= mat.rows;
-//	auto m_iROIWidth = mat.cols - 4;
-//	auto m_iROIHeight = mat.rows - 4;
-//	
-//	int m_iSubsetX = 16;
-//	int m_iSubsetY = 16;
-//	int	m_iMarginX = 10;
-//	int m_iMarginY = 10;
-//	int m_iGridSpaceX = 5;
-//	int m_iGridSpaceY = 5;
-//
-//	cv::Mat matR(cv::Size(imgWidth, imgHeight), CV_8UC1);
-//	cv::Mat matT(cv::Size(imgWidth, imgHeight), CV_8UC1);
-//	cv::cvtColor(mat, matR, CV_BGR2GRAY);
-//	cv::cvtColor(mat1, matT, CV_BGR2GRAY);
-//
-//	int_t m_iNumPOIX = int_t(floor((m_iROIWidth - m_iSubsetX * 2 - m_iMarginX * 2) / real_t(m_iGridSpaceX))) + 1;
-//	int_t m_iNumPOIY = int_t(floor((m_iROIHeight - m_iSubsetY * 2 - m_iMarginY * 2) / real_t(m_iGridSpaceY))) + 1;
-//
-//	uchar1 *refImg, *tarImg;
-//	float *fU, *fV, *d_fU, *d_fV;
-//	int *iters, *dIters;
-//	hcreateptr(fU, m_iNumPOIX * m_iNumPOIY);
-//	hcreateptr(fV, m_iNumPOIX * m_iNumPOIY);
-//	hcreateptr(iters, m_iNumPOIX * m_iNumPOIY);
-//
-//	cudaMalloc((void**)&refImg, imgWidth  * imgHeight);
-//	cudaMalloc((void**)&tarImg, imgWidth  * imgHeight);
-//	cudaMalloc((void**)&d_fU, m_iNumPOIX * m_iNumPOIY * sizeof(float));
-//	cudaMalloc((void**)&d_fV, m_iNumPOIX * m_iNumPOIY * sizeof(float));
-//	cudaMalloc((void**)&dIters, m_iNumPOIX * m_iNumPOIY * sizeof(int));
-//
-//	cudaMemcpy(refImg, (void*)matR.data, matR.rows*matR.cols, cudaMemcpyHostToDevice);
-//	cudaMemcpy(tarImg, (void*)matT.data, matT.rows*matT.cols, cudaMemcpyHostToDevice);
-//	cudaMemcpy(d_fU, fU, sizeof(float)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyHostToDevice);
-//	cudaMemcpy(d_fV, fV, sizeof(float)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyHostToDevice);
-//	cudaMemcpy(dIters, iters, sizeof(int)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyHostToDevice);
-//
-//	int *hPOI, *dPOI;
-//	hcreateptr(hPOI, m_iNumPOIX*m_iNumPOIY);
-//	cudaMalloc((void**)&dPOI, sizeof(int)*m_iNumPOIX*m_iNumPOIY);
-//
-//	cuComputePOIPositions(dPOI, hPOI, 2, 2,
-//		m_iNumPOIX, m_iNumPOIY,m_iMarginX, m_iMarginY, m_iSubsetX, m_iSubsetY, m_iGridSpaceX, m_iGridSpaceY);
-//	
-//
-//
-//	TW::paDIC::cuICGN2D icgn(imgWidth,imgHeight,
-//							  2,2,
-//							  m_iROIWidth, m_iROIHeight,
-//							  m_iSubsetX, m_iSubsetY,
-//							  m_iNumPOIX, m_iNumPOIY,
-//							  20,
-//							  0.001f,
-//							  TW::paDIC::ICGN2DInterpolationFLag::Bicubic);
-//
-//
-//	icgn.cuInitialize(refImg);
-//
-//	icgn.cuCompute(tarImg, dPOI, d_fU, d_fV);
-//
-//	cudaMemcpy(fU, icgn.g_cuHandleICGN.m_d_fU, sizeof(float)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyDeviceToHost);
-//	cudaMemcpy(fV, icgn.g_cuHandleICGN.m_d_fV, sizeof(float)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyDeviceToHost);
-//
-//	std::cout<<"POI number is: "<<m_iNumPOIX * m_iNumPOIY<<"\n";
-//
-//	for(int i=0; i<m_iNumPOIY; i++)
-//	{
-//		for(int j=0; j<m_iNumPOIX; j++)
-//		{
-//			std::cout<<fU[i*m_iNumPOIX+j]<<", "<<fV[i*m_iNumPOIX+j]<<"\n";
-//		}
-//	}
-//	
-//	icgn.cuFinalize();
-//
-//	hdestroyptr(fU);
-//	hdestroyptr(fV);
-//	hdestroyptr(iters);
-//	hdestroyptr(hPOI);	
-//}
+TEST(ICGN2D, ICGN2D_GPU_All_Subsets)
+{
+	cv::Mat mat = cv::imread("Example1\\fu_0.bmp");
+	cv::Mat mat1= cv::imread("Example1\\fu_1.bmp");
+
+	auto imgWidth = mat.cols;
+	auto imgHeight= mat.rows;
+	auto m_iROIWidth = mat.cols - 2;
+	auto m_iROIHeight = mat.rows - 2;
+	
+	int m_iSubsetX = 16;
+	int m_iSubsetY = 16;
+	int	m_iMarginX = 10;
+	int m_iMarginY = 10;
+	int m_iGridSpaceX = 5;
+	int m_iGridSpaceY = 5;
+
+	cv::Mat matR(cv::Size(imgWidth, imgHeight), CV_8UC1);
+	cv::Mat matT(cv::Size(imgWidth, imgHeight), CV_8UC1);
+	cv::cvtColor(mat, matR, CV_BGR2GRAY);
+	cv::cvtColor(mat1, matT, CV_BGR2GRAY);
+
+	int_t m_iNumPOIX = int_t(floor((m_iROIWidth - m_iSubsetX * 2 - m_iMarginX * 2) / real_t(m_iGridSpaceX))) + 1;
+	int_t m_iNumPOIY = int_t(floor((m_iROIHeight - m_iSubsetY * 2 - m_iMarginY * 2) / real_t(m_iGridSpaceY))) + 1;
+
+	uchar1 *refImg, *tarImg;
+	float *fU, *fV, *d_fU, *d_fV;
+	int *iters, *dIters;
+	hcreateptr(fU, m_iNumPOIX * m_iNumPOIY);
+	hcreateptr(fV, m_iNumPOIX * m_iNumPOIY);
+	hcreateptr(iters, m_iNumPOIX * m_iNumPOIY);
+
+	cudaMalloc((void**)&refImg, imgWidth  * imgHeight);
+	cudaMalloc((void**)&tarImg, imgWidth  * imgHeight);
+	cudaMalloc((void**)&d_fU, m_iNumPOIX * m_iNumPOIY * sizeof(float));
+	cudaMalloc((void**)&d_fV, m_iNumPOIX * m_iNumPOIY * sizeof(float));
+	cudaMalloc((void**)&dIters, m_iNumPOIX * m_iNumPOIY * sizeof(int));
+
+	cudaMemcpy(refImg, (void*)matR.data, matR.rows*matR.cols, cudaMemcpyHostToDevice);
+	cudaMemcpy(tarImg, (void*)matT.data, matT.rows*matT.cols, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_fU, fU, sizeof(float)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_fV, fV, sizeof(float)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyHostToDevice);
+	cudaMemcpy(dIters, iters, sizeof(int)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyHostToDevice);
+
+	int ***hPOI, *dPOI;
+	hcreateptr(hPOI, m_iNumPOIY, m_iNumPOIX, 2);
+	cudaMalloc((void**)&dPOI, sizeof(int)*m_iNumPOIX*m_iNumPOIY);
+
+	cuComputePOIPositions(dPOI, hPOI, 1, 1,
+		m_iNumPOIX, m_iNumPOIY,m_iMarginX, m_iMarginY, m_iSubsetX, m_iSubsetY, m_iGridSpaceX, m_iGridSpaceY);
+	
+
+
+	TW::paDIC::cuICGN2D icgn(imgWidth,imgHeight,
+							  1,1,
+							  m_iROIWidth, m_iROIHeight,
+							  m_iSubsetX, m_iSubsetY,
+							  m_iNumPOIX, m_iNumPOIY,
+							  20,
+							  0.001f,
+							  TW::paDIC::ICGN2DInterpolationFLag::Bicubic);
+
+
+	icgn.cuInitialize(refImg);
+
+	icgn.cuCompute(tarImg, dPOI, d_fU, d_fV);
+
+	cudaMemcpy(fU, icgn.g_cuHandleICGN.m_d_fU, sizeof(float)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyDeviceToHost);
+	cudaMemcpy(fV, icgn.g_cuHandleICGN.m_d_fV, sizeof(float)*m_iNumPOIX*m_iNumPOIY, cudaMemcpyDeviceToHost);
+
+	std::cout<<"POI number is: "<<m_iNumPOIX * m_iNumPOIY<<"\n";
+
+	//for(int i=0; i<m_iNumPOIY; i++)
+	//{
+	//	for(int j=0; j<m_iNumPOIX; j++)
+	//	{
+			std::cout<<fU[(m_iNumPOIY-1)*m_iNumPOIX+m_iNumPOIX-1]<<", "<<fV[(m_iNumPOIY-1)*m_iNumPOIX+m_iNumPOIX-1]<<"\n";
+	//	}
+	//}
+	
+	icgn.cuFinalize();
+
+	hdestroyptr(fU);
+	hdestroyptr(fV);
+	hdestroyptr(iters);
+	hdestroyptr(hPOI);	
+}
