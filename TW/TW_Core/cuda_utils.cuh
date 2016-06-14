@@ -26,6 +26,21 @@ void constructTextImage(// Outputs
 						TW::real_t* fMaxU, TW::real_t* fMinU,
 						TW::real_t* fMaxV, TW::real_t* fMinV);
 
+void constructTextImageFixedMinMax(// Outputs
+						unsigned int* texImgU,
+						unsigned int* texImgV,
+						// Inputs
+						int *iPOIpos,
+						TW::real_t* fU,
+						TW::real_t* fV,
+						TW::real_t* fAccumulateU,
+						TW::real_t* fAccumulateV,
+						int iNumPOI,
+						int iStartX, int iStartY,
+						int iROIWidth, int iROIHeight,
+						TW::real_t fMaxU, TW::real_t fMinU,
+						TW::real_t fMaxV, TW::real_t fMinV);
+
 void cuUpdatePOIpos(// Inputs
 					TW::real_t *fU,
 				    TW::real_t *fV,
@@ -36,6 +51,16 @@ void cuUpdatePOIpos(// Inputs
 void cuAccumulatePOI(// Inputs
 						TW::real_t *fCurrentU,
 						TW::real_t *fCurrentV,
+						int *iCurrentPOIXY,
+						int iNumPOI,
+						// Outputs
+						int *iPOIXY);
+
+void cuAccumulatePOI(// Inputs
+						TW::real_t *fU,
+						TW::real_t *fV,
+						TW::real_t *fAccumulateU,
+						TW::real_t *fAccumulateV,
 						int *iCurrentPOIXY,
 						int iNumPOI,
 						// Outputs

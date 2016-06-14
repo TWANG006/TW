@@ -106,6 +106,71 @@ __global__ void constructTextImage_Kernel(// Outputs
 	}
 }
 
+__global__ void constructTextImageFixedMinMax_Kernel(// Outputs
+										  unsigned int* texImgU,
+										  unsigned int* texImgV,
+										  // Inputs
+										  int *iPOIpos,
+										  TW::real_t* fU,
+										  TW::real_t* fV,
+										  TW::real_t* fAccumulateU,
+										  TW::real_t* fAccumulateV,
+										  int iNumPOI,
+										  int iStartX, int iStartY,
+										  int iROIWidth, int iROIHeight,
+										  TW::real_t fMaxU, TW::real_t fMinU,
+										  TW::real_t fMaxV, TW::real_t fMinV)
+{
+	TW::real_t tempU, tempV;
+	int tempIndOthers[9];
+
+	for (auto i = blockIdx.x * blockDim.x + threadIdx.x;
+			  i < iNumPOI;
+			  i += blockDim.x*gridDim.x)
+	{
+		tempU = fU[i] + fAccumulateU[i];
+		tempV = fV[i] + fAccumulateV[i];
+
+		tempU > fMaxU? tempU = fMaxU:tempU;
+		tempV > fMaxV? tempV = fMaxV:tempV;
+
+		tempU < fMinU? tempU = fMinU:tempU;
+		tempV < fMinV? tempV = fMinV:tempV;
+
+		tempU = tempU - fMinU;
+		tempV = tempV - fMinV;
+
+		tempIndOthers[0] = (iPOIpos[i * 2 + 0] - iStartY + 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX - 1;
+		tempIndOthers[1] = (iPOIpos[i * 2 + 0] - iStartY + 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX;
+		tempIndOthers[2] = (iPOIpos[i * 2 + 0] - iStartY + 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
+		tempIndOthers[3] = (iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX - 1;
+		tempIndOthers[4] = (iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX;
+		tempIndOthers[5] = (iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
+		tempIndOthers[6] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX - 1;
+		tempIndOthers[7] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX;
+		tempIndOthers[7] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
+
+		texImgU[tempIndOthers[0]] = texture_data[int(255 * tempU / (fMaxU- fMinU))];
+		texImgV[tempIndOthers[0]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+		texImgU[tempIndOthers[1]] = texture_data[int(255 * tempU / (fMaxU - fMinU))];
+		texImgV[tempIndOthers[1]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+		texImgU[tempIndOthers[2]] = texture_data[int(255 * tempU / (fMaxU - fMinU))];
+		texImgV[tempIndOthers[2]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+		texImgU[tempIndOthers[3]] = texture_data[int(255 * tempU / (fMaxU - fMinU))];
+		texImgV[tempIndOthers[3]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+		texImgU[tempIndOthers[4]] = texture_data[int(255 * tempU / (fMaxU - fMinU))];
+		texImgV[tempIndOthers[4]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+		texImgU[tempIndOthers[5]] = texture_data[int(255 * tempU / (fMaxU - fMinU))];
+		texImgV[tempIndOthers[5]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+		texImgU[tempIndOthers[6]] = texture_data[int(255 * tempU / (fMaxU - fMinU))];
+		texImgV[tempIndOthers[6]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+		texImgU[tempIndOthers[7]] = texture_data[int(255 * tempU / (fMaxU - fMinU))];
+		texImgV[tempIndOthers[7]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+		texImgU[tempIndOthers[8]] = texture_data[int(255 * tempU / (fMaxU - fMinU))];
+		texImgV[tempIndOthers[8]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
+	}
+}
+
 __global__ void updatePOIpos_Kernel(TW::real_t *fU,
 									TW::real_t *fV,
 									int iNumberX, int iNumberY,
@@ -135,6 +200,25 @@ __global__ void accumulatePOI_Kernel(// Inputs
 	{
 		iPOIXY[i * 2 + 0] = iCurrentPOIXY[i * 2 + 0] + int(fV[i]);
 		iPOIXY[i * 2 + 1] = iCurrentPOIXY[i * 2 + 1] + int(fU[i]);
+	}
+}
+
+__global__ void accumulatePOINew_Kernel(// Inputs
+									TW::real_t *fU,
+									TW::real_t *fV,
+									TW::real_t *fAccumulateU,
+									TW::real_t *fAccumulateV,
+									int *iCurrentPOIXY,
+									int iPOINum,
+									// Outputs
+									int *iPOIXY)
+{
+	for (auto i = blockIdx.x * blockDim.x + threadIdx.x;
+			  i < iPOINum;
+			  i += blockDim.x * gridDim.x)
+	{
+		iPOIXY[i * 2 + 0] = iCurrentPOIXY[i * 2 + 0] + int(fV[i]) - int(fAccumulateU[i]);
+		iPOIXY[i * 2 + 1] = iCurrentPOIXY[i * 2 + 1] + int(fU[i]) - int(fAccumulateV[i]);
 	}
 }
 
@@ -218,6 +302,28 @@ void cuAccumulatePOI(// Inputs
 														   iPOIXY);
 }
 
+void cuAccumulatePOI(// Inputs
+						TW::real_t *fU,
+						TW::real_t *fV,
+						TW::real_t *fAccumulateU,
+						TW::real_t *fAccumulateV,
+						int *iCurrentPOIXY,
+						int iNumPOI,
+						// Outputs
+						int *iPOIXY)
+{
+	//int numSMs;
+	//cudaDeviceGetAttribute(&numSMs, cudaDevAttrMultiProcessorCount, 0);
+
+	accumulatePOINew_Kernel<<<256, BLOCK_SIZE_64>>>(fU,
+														   fV,
+														   fAccumulateU,
+														   fAccumulateV,
+														   iCurrentPOIXY,
+														   iNumPOI,
+														   iPOIXY);
+}
+
 void cuAccumulateUV(// Inputs
 									TW::real_t *fCurrentU,
 									TW::real_t *fCurrentV,
@@ -253,6 +359,35 @@ void constructTextImage(// Outputs
 													  iPOIpos,
 													  fU,
 													  fV,
+													  iNumPOI,
+													  iStartX, iStartY,
+													  iROIWidth, iROIHeight,
+													  fMaxU, fMinU,
+													  fMaxV, fMinV);
+}
+
+void constructTextImageFixedMinMax(// Outputs
+						unsigned int* texImgU,
+						unsigned int* texImgV,
+						// Inputs
+						int *iPOIpos,
+						TW::real_t* fU,
+						TW::real_t* fV,
+						TW::real_t* fAccumulateU,
+						TW::real_t* fAccumulateV,
+						int iNumPOI,
+						int iStartX, int iStartY,
+						int iROIWidth, int iROIHeight,
+						TW::real_t fMaxU, TW::real_t fMinU,
+						TW::real_t fMaxV, TW::real_t fMinV)
+{
+	constructTextImageFixedMinMax_Kernel<<<256, BLOCK_SIZE_64>>>(texImgU,
+													  texImgV,
+													  iPOIpos,
+													  fU,
+													  fV,
+													  fAccumulateU,
+													  fAccumulateV,
 													  iNumPOI,
 													  iStartX, iStartY,
 													  iROIWidth, iROIHeight,

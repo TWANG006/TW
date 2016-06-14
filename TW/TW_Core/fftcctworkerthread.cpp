@@ -113,11 +113,12 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 			// Update the accumulative current [U,V]
 			/*cudaMemcpy(m_d_fAccumulateU, m_d_fU, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);
 			cudaMemcpy(m_d_fAccumulateV, m_d_fV, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);*/
+			
 			cuAccumulateUV(m_d_fAccumulateU,m_d_fAccumulateV, m_iNumPOIs, m_d_fU, m_d_fV);
 
 			// Use the current [U, V] to update the POI positions
-			cuUpdatePOIpos(m_d_fAccumulateU,
-						   m_d_fAccumulateV,
+			cuUpdatePOIpos(m_d_fU,
+						   m_d_fV,
 						   m_iNumberX,
 						   m_iNumberY,
 						   m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY);
@@ -138,13 +139,14 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	// 2. Do the FFTCC computation and add [U,V] to the accumulative current [U,V]
 	// and update the POI positions in the target image
 	m_Fftcc2DPtr->cuComputeFFTCC(m_d_fU, m_d_fV, m_d_fZNCC, tarImg);
-	cuAccumulatePOI(m_d_fU,
+	
+
+	// 4. Calculate the color map for the iU and iV images
+	/*cuAccumulatePOI(m_d_fU,
 				    m_d_fV,
 					m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY,
 					m_iNumPOIs,
 					m_d_iCurrentPOIXY);
-
-	// 4. Calculate the color map for the iU and iV images
 	minMaxRWrapper(m_d_fU, m_d_fV, m_iNumPOIs, m_iNumPOIs, m_d_fMinU, m_d_fMaxU, m_d_fMinV, m_d_fMaxV);
 	constructTextImage(m_d_UColorMap,
 					   m_d_VColorMap,
@@ -156,7 +158,26 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 					   m_ROI.y(),
 					   m_ROI.width(),
 					   m_ROI.height(),
-					   m_d_fMaxU, m_d_fMinU, m_d_fMaxV, m_d_fMinV);
+					   m_d_fMaxU, m_d_fMinU, m_d_fMaxV, m_d_fMinV);*/
+	//cuAccumulateUV(m_d_fU, m_d_fV, m_iNumPOIs, m_d_fAccumulateU, m_d_fAccumulateV);
+	cuAccumulatePOI(m_d_fU,
+				    m_d_fV,
+					m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY,
+					m_iNumPOIs,
+					m_d_iCurrentPOIXY);
+	constructTextImageFixedMinMax(m_d_UColorMap,
+					   m_d_VColorMap,
+					   m_d_iCurrentPOIXY,
+					   m_d_fU,
+					   m_d_fV,
+					   m_d_fAccumulateU,
+					   m_d_fAccumulateV,
+					   m_iNumPOIs,
+					   m_ROI.x(),
+					   m_ROI.y(),
+					   m_ROI.width(),
+					   m_ROI.height(),
+					   20, -20, 20, -20);
 	
 
 	float *i = new float;
