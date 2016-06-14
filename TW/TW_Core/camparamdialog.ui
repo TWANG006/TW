@@ -344,7 +344,7 @@
          <item row="0" column="1">
           <widget class="QLineEdit" name="MarginX_lineEdit">
            <property name="text">
-            <string>5</string>
+            <string>10</string>
            </property>
           </widget>
          </item>
@@ -386,7 +386,7 @@
          <item row="1" column="1">
           <widget class="QLineEdit" name="MarginY_lineEdit">
            <property name="text">
-            <string>5</string>
+            <string>10</string>
            </property>
           </widget>
          </item>
@@ -475,6 +475,18 @@
    <header>FrameLabel.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>MarginX_lineEdit</tabstop>
+  <tabstop>MarginY_lineEdit</tabstop>
+  <tabstop>SubsetX_lineEdit</tabstop>
+  <tabstop>SubsetY_lineEdit</tabstop>
+  <tabstop>GridX_lineEdit</tabstop>
+  <tabstop>GridY_lineEdit</tabstop>
+  <tabstop>imgBufferlineEdit</tabstop>
+  <tabstop>dropFrame_checkBox</tabstop>
+  <tabstop>OK_pushButton</tabstop>
+  <tabstop>Cancel_pushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

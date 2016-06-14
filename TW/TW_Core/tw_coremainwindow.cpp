@@ -107,7 +107,7 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	if(m_camParamDialog->exec() == QDialog::Accepted)
 	{
 		m_refBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(100));
-		m_tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(5));
+		m_tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(10));
 
 		m_ROI = m_camParamDialog->GetROI();
 		m_iSubsetX = m_camParamDialog->GetSubetX();

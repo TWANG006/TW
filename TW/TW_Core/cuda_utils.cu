@@ -66,7 +66,8 @@ __global__ void constructTextImage_Kernel(// Outputs
 										  TW::real_t *fMaxV, TW::real_t *fMinV)
 {
 	TW::real_t tempU, tempV;
-	
+	int tempIndOthers[9];
+
 	for (auto i = blockIdx.x * blockDim.x + threadIdx.x;
 			  i < iNumPOI;
 			  i += blockDim.x*gridDim.x)
@@ -74,9 +75,34 @@ __global__ void constructTextImage_Kernel(// Outputs
 		tempU = fU[i] - fMinU[0];
 		tempV = fV[i] - fMinV[0];
 
+		tempIndOthers[0] = (iPOIpos[i * 2 + 0] - iStartY + 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX - 1;
+		tempIndOthers[1] = (iPOIpos[i * 2 + 0] - iStartY + 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX;
+		tempIndOthers[2] = (iPOIpos[i * 2 + 0] - iStartY + 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
+		tempIndOthers[3] = (iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX - 1;
+		tempIndOthers[4] = (iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX;
+		tempIndOthers[5] = (iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
+		tempIndOthers[6] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX - 1;
+		tempIndOthers[7] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX;
+		tempIndOthers[7] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
 
-		texImgU[(iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
-		texImgV[(iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[0]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[0]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[1]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[1]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[2]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[2]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[3]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[3]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[4]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[4]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[5]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[5]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[6]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[6]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[7]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[7]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+		texImgU[tempIndOthers[8]] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[tempIndOthers[8]] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
 	}
 }
 
