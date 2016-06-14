@@ -5,7 +5,7 @@
 namespace TW{
 // ------------------------------------CUDA template utilities------------------------------!
 template<typename T>
-void cuInitialize(T* devPtr, const T val, const size_t nwords, int devID);
+void cuInitialize(T* devPtr, const T val, const size_t nwords);
 }
 
 #endif // !TW_CUTEMPUTILS_H

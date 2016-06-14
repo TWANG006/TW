@@ -1,10 +1,13 @@
 #include "glwidget.h"
 
+#include <vector>
+
 GLWidget::GLWidget(std::shared_ptr<SharedResources> &s, 
 				   QThread *&t, 
 				   QWidget *parent,
 				   int iWidth,
-				   int iHeight)
+				   int iHeight,
+				   const QRect &roi)
 	: QOpenGLWidget(parent)
 	, m_sharedResources(s)
 	, m_renderThread(t)
@@ -12,6 +15,7 @@ GLWidget::GLWidget(std::shared_ptr<SharedResources> &s,
 	, m_viewHeight(0)
 	, m_iImgWidth(iWidth)
 	, m_iImgHeight(iHeight)
+	, m_ROI(roi)
 {
 	setMinimumSize(640, 960);
 }
@@ -50,12 +54,9 @@ void GLWidget::initializeGL()
 
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+	glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
 	glEnable(GL_TEXTURE_2D);
 
-	m_vao.create();
-	if (m_vao.isCreated())
-		m_vao.bind();
 
 	//!- Compile Shaders
 	m_sharedResources->sharedProgram = new QOpenGLShaderProgram();
@@ -91,7 +92,9 @@ void GLWidget::initializeGL()
 	m_sharedResources->sharedVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
 	m_sharedResources->sharedVBO->release();
 
-	
+	m_vao.create();
+	if (m_vao.isCreated())
+		m_vao.bind();
 	m_sharedResources->sharedProgram ->bind();
 	m_sharedResources->sharedVBO->bind();
 	m_sharedResources->sharedProgram->setAttributeBuffer(
@@ -113,6 +116,61 @@ void GLWidget::initializeGL()
 	m_sharedResources->sharedProgram->release();
 	m_vao.release();
 
+	//!- Create & bind ROI VBO
+	m_sharedResources->sharedROIVBO = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+	m_sharedResources->sharedROIVBO->create();
+	m_sharedResources->sharedROIVBO->bind();
+
+	GLfloat tempX = 2.0f / (GLfloat)m_iImgWidth * m_ROI.x() - 1;
+	GLfloat tempY = 2.0f / (GLfloat)m_iImgHeight * m_ROI.y() - 1;
+	GLfloat tempROIX = 2.0f / (GLfloat)m_iImgWidth * (m_ROI.x() + m_ROI.width() - 1) - 1;
+	GLfloat tempROIY = 2.0f / (GLfloat)m_iImgHeight *(m_ROI.y() + m_ROI.height() - 1) - 1;
+
+	tempY = -tempY;
+	tempROIY = -tempROIY;
+
+
+	float ROI_data[] =
+	{
+		tempX, tempROIY,
+		tempROIX, tempROIY,
+		tempROIX, tempY,
+		tempX, tempY,
+
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f
+	};
+
+	m_sharedResources->sharedROIVBO->allocate(ROI_data, sizeof(ROI_data));
+	m_sharedResources->sharedROIVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
+	m_sharedResources->sharedROIVBO->release();
+
+	m_ROIvao.create();
+	if (m_ROIvao.isCreated())
+		m_ROIvao.bind();
+	m_sharedResources->sharedProgram ->bind();
+	m_sharedResources->sharedROIVBO->bind();
+	m_sharedResources->sharedProgram->setAttributeBuffer(
+		0,
+		GL_FLOAT,
+		0,
+		2,
+		0);
+	m_sharedResources->sharedProgram->enableAttributeArray(0);
+
+	m_sharedResources->sharedProgram->setAttributeBuffer(
+		1,
+		GL_FLOAT,
+		8 * sizeof(float),
+		2,
+		0);
+	m_sharedResources->sharedProgram->enableAttributeArray(1);
+	m_sharedResources->sharedROIVBO->release();
+	m_sharedResources->sharedProgram->release();
+	m_ROIvao.release();
+
 	initGLTexture();
 	initCUDAArray();
 }
@@ -131,6 +189,11 @@ void GLWidget::paintGL()
 
 	m_sharedResources->sharedTexture->release();
 	m_vao.release();
+
+	m_ROIvao.bind();
+	m_sharedResources->sharedUTexture->bind();
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	m_sharedResources->sharedUTexture->release();
 	m_sharedResources->sharedProgram->release();
 	
 
@@ -144,6 +207,12 @@ void GLWidget::paintGL()
 
 	m_sharedResources->sharedTexture->release();
 	m_vao.release();
+
+	m_ROIvao.bind();
+	m_sharedResources->sharedVTexture->bind();
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	m_sharedResources->sharedVTexture->release();
+
 	m_sharedResources->sharedProgram->release();
 }
 
@@ -151,7 +220,7 @@ void GLWidget::resizeGL(int w, int h)
 {
 	glShadeModel(GL_SMOOTH);
 	glClearDepth(1.0f);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	
 	m_viewHeight = h;
 	m_viewWidth = w;
@@ -168,6 +237,22 @@ void GLWidget::initCUDAArray()
 											 &m_sharedResources->cuda_ImgTex_Resource,
 											 0));
 
+	checkCudaErrors(cudaGraphicsGLRegisterImage(&m_sharedResources->cuda_U_Resource,
+												m_sharedResources->sharedUTexture->textureId(),
+												GL_TEXTURE_2D,
+												cudaGraphicsMapFlagsWriteDiscard));
+	checkCudaErrors(cudaGraphicsMapResources(1, 
+											 &m_sharedResources->cuda_U_Resource,
+											 0));
+
+	checkCudaErrors(cudaGraphicsGLRegisterImage(&m_sharedResources->cuda_V_Resource,
+												m_sharedResources->sharedVTexture->textureId(),
+												GL_TEXTURE_2D,
+												cudaGraphicsMapFlagsWriteDiscard));
+	checkCudaErrors(cudaGraphicsMapResources(1, 
+											 &m_sharedResources->cuda_V_Resource,
+											 0));
+
 	// Bind texutres to their respective CUDA arrays
 	checkCudaErrors(cudaGraphicsSubResourceGetMappedArray(&m_sharedResources->cudaImgArray,
 														  m_sharedResources->cuda_ImgTex_Resource,
@@ -176,10 +261,27 @@ void GLWidget::initCUDAArray()
 	checkCudaErrors(cudaGraphicsUnmapResources(1,
 											   &m_sharedResources->cuda_ImgTex_Resource,
 											   0));
+
+	checkCudaErrors(cudaGraphicsSubResourceGetMappedArray(&m_sharedResources->cudaUArray,
+														  m_sharedResources->cuda_U_Resource,
+														  0,
+														  0));
+	checkCudaErrors(cudaGraphicsUnmapResources(1,
+											   &m_sharedResources->cuda_U_Resource,
+											   0));
+
+	checkCudaErrors(cudaGraphicsSubResourceGetMappedArray(&m_sharedResources->cudaVArray,
+														  m_sharedResources->cuda_V_Resource,
+														  0,
+														  0));
+	checkCudaErrors(cudaGraphicsUnmapResources(1,
+											   &m_sharedResources->cuda_V_Resource,
+											   0));
 }
 
 void GLWidget::initGLTexture()
 {
+	//1. Create Texture for the target Image
 	m_sharedResources->sharedTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
 	m_sharedResources->sharedTexture->create();
 	m_sharedResources->sharedTexture->bind();
@@ -198,4 +300,44 @@ void GLWidget::initGLTexture()
 	m_sharedResources->sharedTexture->generateMipMaps();
 
 	m_sharedResources->sharedTexture->release();
+
+	//2. Create Textures for U color map
+	m_sharedResources->sharedUTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+	m_sharedResources->sharedUTexture->create();
+	m_sharedResources->sharedUTexture->bind();
+	m_sharedResources->sharedUTexture->setSize(m_ROI.width(), m_ROI.height());
+	m_sharedResources->sharedUTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+	m_sharedResources->sharedUTexture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);	
+
+	m_sharedResources->sharedUTexture->setSwizzleMask(
+		QOpenGLTexture::RedValue,
+		QOpenGLTexture::GreenValue,
+		QOpenGLTexture::BlueValue,
+		QOpenGLTexture::OneValue);
+	m_sharedResources->sharedUTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+	m_sharedResources->sharedUTexture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToEdge);
+	m_sharedResources->sharedUTexture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToEdge);
+	m_sharedResources->sharedUTexture->generateMipMaps();
+
+	m_sharedResources->sharedUTexture->release();
+
+	//3. Create Textures for V color map
+	m_sharedResources->sharedVTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+	m_sharedResources->sharedVTexture->create();
+	m_sharedResources->sharedVTexture->bind();
+	m_sharedResources->sharedVTexture->setSize(m_ROI.width(), m_ROI.height());
+	m_sharedResources->sharedVTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+	m_sharedResources->sharedVTexture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);	
+
+	m_sharedResources->sharedVTexture->setSwizzleMask(
+		QOpenGLTexture::RedValue,
+		QOpenGLTexture::GreenValue,
+		QOpenGLTexture::BlueValue,
+		QOpenGLTexture::OneValue);
+	m_sharedResources->sharedVTexture->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+	m_sharedResources->sharedVTexture->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToEdge);
+	m_sharedResources->sharedVTexture->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToEdge);
+	m_sharedResources->sharedVTexture->generateMipMaps();
+
+	m_sharedResources->sharedVTexture->release();
 }

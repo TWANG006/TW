@@ -56,13 +56,28 @@ __global__ void constructTextImage_Kernel(// Outputs
 										  unsigned int* texImgU,
 										  unsigned int* texImgV,
 										  // Inputs
-										  int* iU,
-										  int* iV,
-										  int iN,
-										  int iMaxU, int iMinU,
-										  int iMaxV, int iMinV)
+										  int *iPOIpos,
+										  TW::real_t* fU,
+										  TW::real_t* fV,
+										  int iNumPOI,
+										  int iStartX, int iStartY,
+										  int iROIWidth, int iROIHeight,
+										  TW::real_t *fMaxU, TW::real_t *fMinU,
+										  TW::real_t *fMaxV, TW::real_t *fMinV)
 {
+	TW::real_t tempU, tempV;
+	
+	for (auto i = blockIdx.x * blockDim.x + threadIdx.x;
+			  i < iNumPOI;
+			  i += blockDim.x*gridDim.x)
+	{
+		tempU = fU[i] - fMinU[0];
+		tempV = fV[i] - fMinV[0];
 
+
+		texImgU[(iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX] = texture_data[int(255 * tempU / (fMaxU[0] - fMinU[0]))];
+		texImgV[(iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX] = texture_data[int(255 * tempV / (fMaxV[0] - fMinV[0]))];
+	}
 }
 
 __global__ void updatePOIpos_Kernel(TW::real_t *fU,
@@ -80,14 +95,12 @@ __global__ void updatePOIpos_Kernel(TW::real_t *fU,
 	}
 }
 
-__global__ void accumulatePOI_UV_Kernel(// Inputs
-									TW::real_t *fCurrentU,
-									TW::real_t *fCurrentV,
+__global__ void accumulatePOI_Kernel(// Inputs
+									TW::real_t *fU,
+									TW::real_t *fV,
 									int *iCurrentPOIXY,
 									int iPOINum,
 									// Outputs
-									TW::real_t *fU,
-									TW::real_t *fV,
 									int *iPOIXY)
 {
 	for (auto i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -96,8 +109,23 @@ __global__ void accumulatePOI_UV_Kernel(// Inputs
 	{
 		iPOIXY[i * 2 + 0] = iCurrentPOIXY[i * 2 + 0] + int(fV[i]);
 		iPOIXY[i * 2 + 1] = iCurrentPOIXY[i * 2 + 1] + int(fU[i]);
-		fU[i] += fCurrentU[i];
-		fV[i] += fCurrentV[i];
+	}
+}
+
+__global__ void accumulateUV_Kernel(// Inputs
+									TW::real_t *fCurrentU,
+									TW::real_t *fCurrentV,
+									int iPOINum,
+									// Outputs
+									TW::real_t *fU,
+									TW::real_t *fV)
+{
+	for (auto i = blockIdx.x * blockDim.x + threadIdx.x;
+			  i < iPOINum;
+			  i += blockDim.x * gridDim.x)
+	{
+		fCurrentU[i] += fU[i];
+		fCurrentV[i] += fV[i];
 	}
 }
 
@@ -117,14 +145,14 @@ void minMaxRWrapper(TW::real_t *&iU, TW::real_t *&iV, int iNU, int iNV,
 
 	// Use thrust to find max and min simultaneously
 	iThDevPtr d_Uptr(iU);
-	thrust::pair<iThDevPtr, iThDevPtr> result_u = thrust::minmax_element(d_Uptr, d_Uptr+iNU);
+	thrust::pair<iThDevPtr, iThDevPtr> result_u = thrust::minmax_element(d_Uptr, d_Uptr + iNU - 1);
 	// Cast the thrust device pointer to raw device pointer
 	iminU = thrust::raw_pointer_cast(result_u.first);
 	imaxU = thrust::raw_pointer_cast(result_u.second);
 
 	// Same for iV
 	iThDevPtr d_Vptr(iV);
-	thrust::pair<iThDevPtr, iThDevPtr> result_v = thrust::minmax_element(d_Vptr, d_Vptr+iNV);
+	thrust::pair<iThDevPtr, iThDevPtr> result_v = thrust::minmax_element(d_Vptr, d_Vptr + iNV - 1);
 	// Cast the thrust device pointer to raw device pointer
 	iminV = thrust::raw_pointer_cast(result_u.first);
 	imaxV = thrust::raw_pointer_cast(result_u.second);
@@ -146,31 +174,64 @@ void cuUpdatePOIpos(// Inputs
 													   iPOIpos);
 }
 
-void cuAccumulatePOI_UV(// Inputs
-						TW::real_t *fCurrentU,
-						TW::real_t *fCurrentV,
+void cuAccumulatePOI(// Inputs
+						TW::real_t *fU,
+						TW::real_t *fV,
 						int *iCurrentPOIXY,
 						int iNumPOI,
 						// Outputs
-						TW::real_t *fU,
-						TW::real_t *fV,
 						int *iPOIXY)
 {
 	//int numSMs;
 	//cudaDeviceGetAttribute(&numSMs, cudaDevAttrMultiProcessorCount, 0);
 
-	accumulatePOI_UV_Kernel<<<256, BLOCK_SIZE_64>>>(fCurrentU,
-														   fCurrentV,
+	accumulatePOI_Kernel<<<256, BLOCK_SIZE_64>>>(fU,
+														   fV,
 														   iCurrentPOIXY,
 														   iNumPOI,
-														   fU,
-														   fV,
 														   iPOIXY);
 }
 
-void constructTextImage()
+void cuAccumulateUV(// Inputs
+									TW::real_t *fCurrentU,
+									TW::real_t *fCurrentV,
+									int iPOINum,
+									// Outputs
+									TW::real_t *fU,
+									TW::real_t *fV)
 {
+	accumulateUV_Kernel<<<256, BLOCK_SIZE_64>>>(// Inputs
+									fCurrentU,
+									fCurrentV,
+									iPOINum,
+									// Outputs
+									fU,
+									fV);
+}
 
+void constructTextImage(// Outputs
+						unsigned int* texImgU,
+						unsigned int* texImgV,
+						// Inputs
+						int *iPOIpos,
+						TW::real_t* fU,
+						TW::real_t* fV,
+						int iNumPOI,
+						int iStartX, int iStartY,
+						int iROIWidth, int iROIHeight,
+						TW::real_t *fMaxU, TW::real_t *fMinU,
+						TW::real_t *fMaxV, TW::real_t *fMinV)
+{
+	constructTextImage_Kernel<<<256, BLOCK_SIZE_64>>>(texImgU,
+													  texImgV,
+													  iPOIpos,
+													  fU,
+													  fV,
+													  iNumPOI,
+													  iStartX, iStartY,
+													  iROIWidth, iROIHeight,
+													  fMaxU, fMinU,
+													  fMaxV, fMinV);
 }
 
 //---------------------------------------------------------------------------------------!

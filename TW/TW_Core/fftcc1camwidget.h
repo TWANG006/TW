@@ -21,6 +21,7 @@ public:
 					ImageBufferPtr tarImgBuffer,
 					int iImgWidth,
 					int iImgHeight,
+					const QRect& roi,
 					QWidget *parent = 0);
 	~FFTCC1CamWidget();
 

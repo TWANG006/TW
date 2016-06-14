@@ -5,6 +5,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLVertexArrayObject>
+#include <QRect>
 #include "Structures.h"
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
@@ -16,7 +17,8 @@ public:
 			 QThread *&, 
 			 QWidget *parent,
 			 int iWidth,
-			 int iHeight);
+			 int iHeight,
+			 const QRect &roi);
 	~GLWidget();
 
 protected:
@@ -31,6 +33,9 @@ private:
 	std::shared_ptr<SharedResources> m_sharedResources;
 	QThread *m_renderThread;
 	QOpenGLVertexArrayObject m_vao;
+	QOpenGLVertexArrayObject m_ROIvao;
+
+	QRect m_ROI;
 
 	int m_iImgWidth;
 	int m_iImgHeight;

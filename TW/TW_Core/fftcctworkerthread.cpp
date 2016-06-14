@@ -3,6 +3,7 @@
 
 #include "cuda_utils.cuh"
 #include "TW_MemManager.h"
+#include "TW_cuTempUtils.h"
 
 FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 									   ImageBufferPtr tarImgBuffer,
@@ -30,6 +31,8 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 	, m_d_fMinV(nullptr)
 	, m_d_iCurrentPOIXY(nullptr)
 	, m_d_fZNCC(nullptr)
+	, m_iSubsetX(iSubsetX)
+	, m_iSubsetY(iSubsetY)
 {
 	// Do the initialization for the paDIC's cuFFTCC here in the constructor
 	// 1. Construct the cuFFTCC2D object using the whole image
@@ -47,6 +50,8 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 	m_iNumPOIs = m_Fftcc2DPtr->GetNumPOIs();
 	cudaMalloc((void**)&m_d_fAccumulateU, sizeof(TW::real_t)*m_iNumPOIs);
 	cudaMalloc((void**)&m_d_fAccumulateV, sizeof(TW::real_t)*m_iNumPOIs);
+	TW::cuInitialize<TW::real_t>(m_d_fAccumulateU, 0, m_iNumPOIs);
+	TW::cuInitialize<TW::real_t>(m_d_fAccumulateV, 0, m_iNumPOIs);
 
 	// Initialize the current U & V to 0
 
@@ -61,6 +66,12 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 	cudaMalloc((void**)&m_d_fMinU, sizeof(TW::real_t));
 	cudaMalloc((void**)&m_d_fMaxV, sizeof(TW::real_t));
 	cudaMalloc((void**)&m_d_fMinV, sizeof(TW::real_t));
+
+	cudaMalloc((void**)&m_d_UColorMap, sizeof(unsigned int)*m_ROI.width()*m_ROI.height());
+	cudaMalloc((void**)&m_d_VColorMap, sizeof(unsigned int)*m_ROI.width()*m_ROI.height());
+
+	TW::cuInitialize<unsigned int>(m_d_UColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
+	TW::cuInitialize<unsigned int>(m_d_VColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
 }
 
 FFTCCTWorkerThread::~FFTCCTWorkerThread()
@@ -74,6 +85,8 @@ FFTCCTWorkerThread::~FFTCCTWorkerThread()
 	TW::cudaSafeFree(m_d_fMaxV);
 	TW::cudaSafeFree(m_d_fMaxV);
 	TW::cudaSafeFree(m_d_iCurrentPOIXY);
+	TW::cudaSafeFree(m_d_UColorMap);
+	TW::cudaSafeFree(m_d_VColorMap);
 
 	cudaDeviceReset();
 
@@ -93,17 +106,18 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	{
 		m_refImgBuffer->DeQueue(tempImg);
 		m_Fftcc2DPtr->ResetRefImg(tempImg);
-
+		
 		// 3.1 Use the results to update the POI positions if iFrameCount is greater than 50
 		if (iFrameCount > 50)
 		{
 			// Update the accumulative current [U,V]
-			cudaMemcpy(m_d_fAccumulateU, m_d_fU, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);
-			cudaMemcpy(m_d_fAccumulateV, m_d_fV, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);
+			/*cudaMemcpy(m_d_fAccumulateU, m_d_fU, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);
+			cudaMemcpy(m_d_fAccumulateV, m_d_fV, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);*/
+			cuAccumulateUV(m_d_fAccumulateU,m_d_fAccumulateV, m_iNumPOIs, m_d_fU, m_d_fV);
 
 			// Use the current [U, V] to update the POI positions
-			cuUpdatePOIpos(m_d_fU,
-						   m_d_fV,
+			cuUpdatePOIpos(m_d_fAccumulateU,
+						   m_d_fAccumulateV,
 						   m_iNumberX,
 						   m_iNumberY,
 						   m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY);
@@ -124,34 +138,34 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	// 2. Do the FFTCC computation and add [U,V] to the accumulative current [U,V]
 	// and update the POI positions in the target image
 	m_Fftcc2DPtr->cuComputeFFTCC(m_d_fU, m_d_fV, m_d_fZNCC, tarImg);
-	cuAccumulatePOI_UV(m_d_fAccumulateU,
-				       m_d_fAccumulateV,
-					   m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY,
-					   m_iNumPOIs,
+	cuAccumulatePOI(m_d_fU,
+				    m_d_fV,
+					m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY,
+					m_iNumPOIs,
+					m_d_iCurrentPOIXY);
+
+	// 4. Calculate the color map for the iU and iV images
+	minMaxRWrapper(m_d_fU, m_d_fV, m_iNumPOIs, m_iNumPOIs, m_d_fMinU, m_d_fMaxU, m_d_fMinV, m_d_fMaxV);
+	constructTextImage(m_d_UColorMap,
+					   m_d_VColorMap,
+					   m_d_iCurrentPOIXY,
 					   m_d_fU,
 					   m_d_fV,
-					   m_d_iCurrentPOIXY);
+					   m_iNumPOIs,
+					   m_ROI.x(),
+					   m_ROI.y(),
+					   m_ROI.width(),
+					   m_ROI.height(),
+					   m_d_fMaxU, m_d_fMinU, m_d_fMaxV, m_d_fMinV);
+	
 
-	int *i = new int;
-	cudaMemcpy(i, &m_d_iCurrentPOIXY[0], sizeof(int), cudaMemcpyDeviceToHost);
+	float *i = new float;
+	cudaMemcpy(i, &m_d_fMinV[0], sizeof(float), cudaMemcpyDeviceToHost);
 	qDebug()<<*i;
 	delete i;
 
-	/*float *i = new float;
-	cudaMemcpy(i, &m_d_fZNCC[0], sizeof(float), cudaMemcpyDeviceToHost);
+	
 
-	qDebug()<<"tar"<<"  "<<*i;*/
-	/*static const unsigned char texture_data[] =
-	{
-	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-	0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-	0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-	0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
-	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
-	0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF
-	};*/
 
 	if (m_sharedResources->sharedTexture != nullptr &&
 		m_sharedResources->sharedContext != nullptr &&
@@ -174,13 +188,40 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 		m_sharedResources->sharedTexture->release();
 		m_sharedResources->sharedProgram->release();
 
+		m_sharedResources->sharedProgram->bind();
+		m_sharedResources->sharedUTexture->bind();
+
+		checkCudaErrors(cudaMemcpyToArray(m_sharedResources->cudaUArray,
+			0,
+			0,
+			m_d_UColorMap,
+			sizeof(unsigned int)*m_ROI.width()*m_ROI.height(),
+			cudaMemcpyDeviceToDevice));
+
+		m_sharedResources->sharedUTexture->release();
+		m_sharedResources->sharedProgram->release();
+
+		m_sharedResources->sharedProgram->bind();
+		m_sharedResources->sharedVTexture->bind();
+
+		checkCudaErrors(cudaMemcpyToArray(m_sharedResources->cudaVArray,
+			0,
+			0,
+			m_d_VColorMap,
+			sizeof(unsigned int)*m_ROI.width()*m_ROI.height(),
+			cudaMemcpyDeviceToDevice));
+
+		m_sharedResources->sharedVTexture->release();
+		m_sharedResources->sharedProgram->release();
+
 		m_sharedResources->sharedContext->doneCurrent();
 
 		emit frameReady();
+		TW::cuInitialize<unsigned int>(m_d_UColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
+		TW::cuInitialize<unsigned int>(m_d_VColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
 	}
-	// 4. Calculate the color map for the iU and iV images
 
-
+	/*Deperacated*/
 	// 5. Invoke the CUDA & OpenGL interoperability
 	// 5.1 Map the target image data
 	// 5.2 Map the colormap data

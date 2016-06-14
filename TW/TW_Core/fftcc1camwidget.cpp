@@ -6,6 +6,7 @@ FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 								 ImageBufferPtr tarImgBuffer,
 								 int iImgWidth,
 								 int iImgHeight,
+								 const QRect& roi,
 								 QWidget *parent)
 	: m_iDeviceNumber(deviceNumber)
 	, m_refImgBuffer(refImgBuffer)
@@ -26,7 +27,8 @@ FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 								m_fftccWorkerThread, 
 								this,
 								m_iImgWidth,
-								m_iImgHeight);
+								m_iImgHeight,
+								roi);
 	ui.gridLayout->addWidget(m_twGLwidget, 0, 1, 1, 1);
 }
 

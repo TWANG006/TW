@@ -37,6 +37,9 @@ private:
 	TW::real_t *m_d_fAccumulateU;
 	TW::real_t *m_d_fAccumulateV;
 
+	unsigned int *m_d_UColorMap;
+	unsigned int *m_d_VColorMap;
+
 	TW::real_t *m_d_fMaxU;
 	TW::real_t *m_d_fMinU;
 	TW::real_t *m_d_fMaxV;
@@ -44,11 +47,16 @@ private:
 
 	int *m_d_iCurrentPOIXY;
 	TW::real_t *m_d_fZNCC;
+
 	int m_iNumberX;
 	int m_iNumberY;
 	int m_iNumPOIs;
 	int m_iWidth;
 	int m_iHeight;
+	int m_iSubsetX;
+	int m_iSubsetY;
+
+
 	cuFftcc2DPtr m_Fftcc2DPtr;
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;

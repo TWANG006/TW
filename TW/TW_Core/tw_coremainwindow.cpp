@@ -127,6 +127,7 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 												m_tarBuffer,
 												m_iImgWidth,
 												m_iImgHeight,
+												m_ROI,
 												this);
 
 		if(m_fftcc1camWidget->connectToCamera(m_isDropFrameChecked,

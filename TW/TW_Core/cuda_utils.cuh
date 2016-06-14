@@ -13,7 +13,18 @@ void minMaxRWrapper(TW::real_t *&iU, TW::real_t *&iV, int iNU, int iNV,
 				    TW::real_t* &iminU, TW::real_t* &imaxU,
 					TW::real_t* &iminV, TW::real_t* &imaxV);
 
-void constructTextImage();
+void constructTextImage(// Outputs
+						unsigned int* texImgU,
+						unsigned int* texImgV,
+						// Inputs
+						int *iPOIpos,
+						TW::real_t* fU,
+						TW::real_t* fV,
+						int iNumPOI,
+						int iStartX, int iStartY,
+						int iROIWidth, int iROIHeight,
+						TW::real_t* fMaxU, TW::real_t* fMinU,
+						TW::real_t* fMaxV, TW::real_t* fMinV);
 
 void cuUpdatePOIpos(// Inputs
 					TW::real_t *fU,
@@ -22,15 +33,20 @@ void cuUpdatePOIpos(// Inputs
 					// Outputs
 					int *iPOIpos);
 
-void cuAccumulatePOI_UV(// Inputs
+void cuAccumulatePOI(// Inputs
 						TW::real_t *fCurrentU,
 						TW::real_t *fCurrentV,
 						int *iCurrentPOIXY,
 						int iNumPOI,
 						// Outputs
-						TW::real_t *fU,
-						TW::real_t *fV,
 						int *iPOIXY);
 
+void cuAccumulateUV(// Inputs
+									TW::real_t *fCurrentU,
+									TW::real_t *fCurrentV,
+									int iPOINum,
+									// Outputs
+									TW::real_t *fU,
+									TW::real_t *fV);
 
 #endif // !CUDA_UTILS_CUH
