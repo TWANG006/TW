@@ -34,9 +34,19 @@ signals:
 private:
 	TW::real_t *m_d_fU;
 	TW::real_t *m_d_fV;
-	TW::real_t *m_d_fCurrentU;
-	TW::real_t *m_d_fCurrentV;
+	TW::real_t *m_d_fAccumulateU;
+	TW::real_t *m_d_fAccumulateV;
+
+	TW::real_t *m_d_fMaxU;
+	TW::real_t *m_d_fMinU;
+	TW::real_t *m_d_fMaxV;
+	TW::real_t *m_d_fMinV;
+
+	int *m_d_iCurrentPOIXY;
 	TW::real_t *m_d_fZNCC;
+	int m_iNumberX;
+	int m_iNumberY;
+	int m_iNumPOIs;
 	int m_iWidth;
 	int m_iHeight;
 	cuFftcc2DPtr m_Fftcc2DPtr;

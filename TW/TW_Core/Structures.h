@@ -33,21 +33,35 @@ void deleteObject(T*& param)
 struct SharedResources{
 	QOpenGLContext *sharedContext;
 	QOpenGLBuffer *sharedVBO;
+	QOpenGLBuffer *sharedROIVBO;
 	QOpenGLTexture *sharedTexture;
+	QOpenGLTexture *sharedUTexture;
+	QOpenGLTexture *sharedVTexture;
 	QOpenGLShaderProgram *sharedProgram;
 	QSurface *sharedSurface;
 
 	cudaArray *cudaImgArray;		// CUDA texture array
+	cudaArray *cudaUArray;
+	cudaArray *cudaVArray;
 	cudaGraphicsResource *cuda_ImgTex_Resource;
+	cudaGraphicsResource *cuda_U_Resource;
+	cudaGraphicsResource *cuda_V_Resource;
 
 	SharedResources()
 		: sharedContext(nullptr)
 		, sharedVBO(nullptr)
+		, sharedROIVBO(nullptr)
 		, sharedTexture(nullptr)
+		, sharedUTexture(nullptr)
+		, sharedVTexture(nullptr)
 		, sharedProgram(nullptr)
 		, sharedSurface(nullptr)
 		, cudaImgArray(nullptr)
+		, cudaUArray(nullptr)
+		, cudaVArray(nullptr)
 		, cuda_ImgTex_Resource(nullptr)
+		, cuda_U_Resource(nullptr)
+		, cuda_V_Resource(nullptr)
 	{}
 };
 

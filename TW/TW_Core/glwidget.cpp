@@ -49,6 +49,8 @@ void GLWidget::initializeGL()
 	glClearDepth(1.0f);
 
 	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 	glEnable(GL_TEXTURE_2D);
 
 	m_vao.create();

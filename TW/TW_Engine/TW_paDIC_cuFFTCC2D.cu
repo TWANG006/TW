@@ -63,8 +63,8 @@ __global__ void findMax(real_t*w_SubsetC,
 	auto tid = threadIdx.x;
 	auto dim = blockDim.x;
 	auto bid = blockIdx.x;
-	__shared__ real_t sdata[BLOCK_SIZE_256];
-	__shared__ int_t sind[BLOCK_SIZE_256];
+	__shared__ real_t sdata[BLOCK_SIZE_64];
+	__shared__ int_t sind[BLOCK_SIZE_64];
 
 	auto size = m_iFFTSubW * m_iFFTSubH;
 	real_t *m_SubsetC = w_SubsetC + bid*(m_iFFTSubW * m_iFFTSubH);
@@ -79,7 +79,7 @@ __global__ void findMax(real_t*w_SubsetC,
 			ind = id;
 		}
 	}
-	reduceToMaxBlock<BLOCK_SIZE_256, real_t>(sdata, sind, data, ind, tid);
+	reduceToMaxBlock<BLOCK_SIZE_64, real_t>(sdata, sind, data, ind, tid);
 
 	ind = sind[0];
 	int_t peakx = ind%m_iFFTSubW;
@@ -108,7 +108,7 @@ __global__ void cufft_prepare_kernel(// Inputs
 									 real_t *w_Subset1, real_t * w_Subset2,
 									 real_t *m_dMod1, real_t *m_dMod2)
 {
-	__shared__ real_t sm[BLOCK_SIZE_256];
+	__shared__ real_t sm[BLOCK_SIZE_64];
 	auto bid = blockIdx.x;
 	auto dim = blockDim.x;
 	auto tid = threadIdx.x;
@@ -137,10 +137,10 @@ __global__ void cufft_prepare_kernel(// Inputs
 	/*d_aveR = blockReduceSum<BLOCK_SIZE_256, float>(d_sumR);
 	d_aveT = blockReduceSum<BLOCK_SIZE_256, float>(d_sumT);*/
 
-	reduceBlock<BLOCK_SIZE_256, real_t>(sm, d_sumR, tid);
+	reduceBlock<BLOCK_SIZE_64, real_t>(sm, d_sumR, tid);
 	d_aveR = sm[0];
 	__syncthreads();
-	reduceBlock<BLOCK_SIZE_256, real_t>(sm, d_sumT, tid);
+	reduceBlock<BLOCK_SIZE_64, real_t>(sm, d_sumT, tid);
 	d_aveT = sm[0];
 	__syncthreads();
 	
@@ -158,10 +158,10 @@ __global__ void cufft_prepare_kernel(// Inputs
 		d_sumT += pow(d_tempt, 2);
 	}
 
-	reduceBlock<BLOCK_SIZE_256, real_t>(sm, d_sumR, tid);
+	reduceBlock<BLOCK_SIZE_64, real_t>(sm, d_sumR, tid);
 	if (tid == 0)
 		d_aveR = sm[0];
-	reduceBlock<BLOCK_SIZE_256, real_t>(sm, d_sumT, tid);
+	reduceBlock<BLOCK_SIZE_64, real_t>(sm, d_sumT, tid);
 	if (tid == 0)
 		d_aveT = sm[0];
 
@@ -593,7 +593,7 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 															 g_cuHandle.m_d_fSubset2,
 															 g_cuHandle.m_d_fMod1,
 															 g_cuHandle.m_d_fMod2);
-	//getLastCudaError("Error in calling cufft_prepare_kernel");
+	getLastCudaError("Error in calling cufft_prepare_kernel");
 
 #ifdef TW_USE_DOUBLE
 	cufftExecD2Z(g_cuHandle.m_forwardPlanXY, 
@@ -617,7 +617,7 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 															  g_cuHandle.m_d_fMod1,
 															  g_cuHandle.m_d_fMod2,
 															  g_cuHandle.m_dev_FreqDomfg);
-	//getLastCudaError("Error in calling complexMulandScale_kernel");
+	getLastCudaError("Error in calling complexMulandScale_kernel");
 
 #ifdef TW_USE_DOUBLE
 	cufftExecZ2D(g_cuHandle.m_reversePlanXY, 
@@ -636,7 +636,7 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 											f_d_U,
 											f_d_V,
 											f_d_ZNCC);
-	//getLastCudaError("Error in calling findMax_Kernel");
+	getLastCudaError("Error in calling findMax_Kernel");
 
 	cudaEventRecord(end);
 	cudaDeviceSynchronize();

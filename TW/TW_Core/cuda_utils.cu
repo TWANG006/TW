@@ -1,8 +1,11 @@
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+#include "cuda_utils.cuh"
 
 #include <thrust\extrema.h>
 #include <thrust\device_ptr.h>
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+
+#include "TW_utils.h"
 
 //---------------------------------------------------------------------------------------!
 //---------------------------------------------------------------------------------------!
@@ -62,6 +65,43 @@ __global__ void constructTextImage_Kernel(// Outputs
 
 }
 
+__global__ void updatePOIpos_Kernel(TW::real_t *fU,
+									TW::real_t *fV,
+									int iNumberX, int iNumberY,
+									int *iPOIpos)
+{
+	int iPOINum = iNumberX * iNumberY;
+	for (auto i = blockIdx.x * blockDim.x + threadIdx.x;
+			  i < iPOINum;
+			  i += blockDim.x * gridDim.x)
+	{
+		iPOIpos[i * 2 + 0] += int(fV[i]);
+		iPOIpos[i * 2 + 1] += int(fU[i]);
+	}
+}
+
+__global__ void accumulatePOI_UV_Kernel(// Inputs
+									TW::real_t *fCurrentU,
+									TW::real_t *fCurrentV,
+									int *iCurrentPOIXY,
+									int iPOINum,
+									// Outputs
+									TW::real_t *fU,
+									TW::real_t *fV,
+									int *iPOIXY)
+{
+	for (auto i = blockIdx.x * blockDim.x + threadIdx.x;
+			  i < iPOINum;
+			  i += blockDim.x * gridDim.x)
+	{
+		iPOIXY[i * 2 + 0] = iCurrentPOIXY[i * 2 + 0] + int(fV[i]);
+		iPOIXY[i * 2 + 1] = iCurrentPOIXY[i * 2 + 1] + int(fU[i]);
+		fU[i] += fCurrentU[i];
+		fV[i] += fCurrentV[i];
+	}
+}
+
+
 //------------------------------------/CUDA Kernels--------------------------------------!
 //---------------------------------------------------------------------------------------!
 //---------------------------------------------------------------------------------------!
@@ -69,11 +109,11 @@ __global__ void constructTextImage_Kernel(// Outputs
 //---------------------------------------------------------------------------------------!
 //---------------------------------------------------------------------------------------!
 //---------------------------------------Wrappers----------------------------------------!
-void minMaxRWrapper(int *&iU, int *&iV, int iNU, int iNV,
-				    int* &iminU, int* &imaxU,
-					int* &iminV, int* &imaxV)
+void minMaxRWrapper(TW::real_t *&iU, TW::real_t *&iV, int iNU, int iNV,
+				    TW::real_t* &iminU, TW::real_t* &imaxU,
+					TW::real_t* &iminV, TW::real_t* &imaxV)
 {
-	using iThDevPtr = thrust::device_ptr<int>;
+	using iThDevPtr = thrust::device_ptr<TW::real_t>;
 
 	// Use thrust to find max and min simultaneously
 	iThDevPtr d_Uptr(iU);
@@ -90,20 +130,42 @@ void minMaxRWrapper(int *&iU, int *&iV, int iNU, int iNV,
 	imaxV = thrust::raw_pointer_cast(result_u.second);
 }
 
-
-void updatePOI_ROI(int *iPOIpos,
-				   int *iU,
-				   int *iV,
-				   int iSubsetX,
-				   int iSubsetY,
-				   int iMarginX,
-				   int iMarginY,
-				   int &iStartX,
-				   int &iStartY,
-				   int &iROIWidth,
-				   int &iROIHeight)
+void cuUpdatePOIpos(// Inputs
+					TW::real_t *fU,
+				    TW::real_t *fV,
+					int iNumberX, int iNumberY,
+					// Outputs
+					int *iPOIpos)
 {
+	//int numSMs;
+	//cudaDeviceGetAttribute(&numSMs, cudaDevAttrMultiProcessorCount, 0);
 
+	updatePOIpos_Kernel<<<256, BLOCK_SIZE_64>>>(fU,
+													   fV,
+													   iNumberX, iNumberY,
+													   iPOIpos);
+}
+
+void cuAccumulatePOI_UV(// Inputs
+						TW::real_t *fCurrentU,
+						TW::real_t *fCurrentV,
+						int *iCurrentPOIXY,
+						int iNumPOI,
+						// Outputs
+						TW::real_t *fU,
+						TW::real_t *fV,
+						int *iPOIXY)
+{
+	//int numSMs;
+	//cudaDeviceGetAttribute(&numSMs, cudaDevAttrMultiProcessorCount, 0);
+
+	accumulatePOI_UV_Kernel<<<256, BLOCK_SIZE_64>>>(fCurrentU,
+														   fCurrentV,
+														   iCurrentPOIXY,
+														   iNumPOI,
+														   fU,
+														   fV,
+														   iPOIXY);
 }
 
 void constructTextImage()

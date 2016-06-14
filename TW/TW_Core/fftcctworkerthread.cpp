@@ -22,8 +22,13 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 	, m_sharedResources(s)
 	, m_d_fU(nullptr)
 	, m_d_fV(nullptr)
-	, m_d_fCurrentU(nullptr)
-	, m_d_fCurrentV(nullptr)
+	, m_d_fAccumulateU(nullptr)
+	, m_d_fAccumulateV(nullptr)
+	, m_d_fMaxU(nullptr)
+	, m_d_fMinU(nullptr)
+	, m_d_fMaxV(nullptr)
+	, m_d_fMinV(nullptr)
+	, m_d_iCurrentPOIXY(nullptr)
 	, m_d_fZNCC(nullptr)
 {
 	// Do the initialization for the paDIC's cuFFTCC here in the constructor
@@ -35,21 +40,40 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 												iGridSpaceX, iGridSpaceY,
 												iMarginX, iMarginY));
 	
+	m_iNumberX = m_Fftcc2DPtr->GetNumPOIsX();
+	m_iNumberY = m_Fftcc2DPtr->GetNumPOIsY();
+
 	// Allocate memory for the current U & V
-	int iNumPOIs = m_Fftcc2DPtr->GetNumPOIs();
-	cudaMalloc((void**)&m_d_fCurrentU, sizeof(TW::real_t)*iNumPOIs);
-	cudaMalloc((void**)&m_d_fCurrentV, sizeof(TW::real_t)*iNumPOIs);
-	
+	m_iNumPOIs = m_Fftcc2DPtr->GetNumPOIs();
+	cudaMalloc((void**)&m_d_fAccumulateU, sizeof(TW::real_t)*m_iNumPOIs);
+	cudaMalloc((void**)&m_d_fAccumulateV, sizeof(TW::real_t)*m_iNumPOIs);
+
 	// Initialize the current U & V to 0
 
 
 	//2. Do the initialization for cuFFTCC2D object
+	cudaMalloc((void**)&m_d_iCurrentPOIXY, sizeof(int)*m_iNumPOIs * 2);
 	m_Fftcc2DPtr->cuInitializeFFTCC(m_d_fU, m_d_fV, m_d_fZNCC, firstFrame);
+	cudaMemcpy(m_d_iCurrentPOIXY, m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY, sizeof(int)*m_iNumPOIs * 2, cudaMemcpyDeviceToDevice);
+
+	//3. Allocate memory for the max and min [U,V]'s
+	cudaMalloc((void**)&m_d_fMaxU, sizeof(TW::real_t));
+	cudaMalloc((void**)&m_d_fMinU, sizeof(TW::real_t));
+	cudaMalloc((void**)&m_d_fMaxV, sizeof(TW::real_t));
+	cudaMalloc((void**)&m_d_fMinV, sizeof(TW::real_t));
 }
 
 FFTCCTWorkerThread::~FFTCCTWorkerThread()
 {
 	m_Fftcc2DPtr->cuDestroyFFTCC(m_d_fU, m_d_fV, m_d_fZNCC);
+
+	TW::cudaSafeFree(m_d_fAccumulateU);
+	TW::cudaSafeFree(m_d_fAccumulateV);
+	TW::cudaSafeFree(m_d_fMaxU);
+	TW::cudaSafeFree(m_d_fMinU);
+	TW::cudaSafeFree(m_d_fMaxV);
+	TW::cudaSafeFree(m_d_fMaxV);
+	TW::cudaSafeFree(m_d_iCurrentPOIXY);
 
 	cudaDeviceReset();
 
@@ -70,7 +94,25 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 		m_refImgBuffer->DeQueue(tempImg);
 		m_Fftcc2DPtr->ResetRefImg(tempImg);
 
-		// 3.1 Use the results to update the POI positions
+		// 3.1 Use the results to update the POI positions if iFrameCount is greater than 50
+		if (iFrameCount > 50)
+		{
+			// Update the accumulative current [U,V]
+			cudaMemcpy(m_d_fAccumulateU, m_d_fU, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);
+			cudaMemcpy(m_d_fAccumulateV, m_d_fV, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);
+
+			// Use the current [U, V] to update the POI positions
+			cuUpdatePOIpos(m_d_fU,
+						   m_d_fV,
+						   m_iNumberX,
+						   m_iNumberY,
+						   m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY);
+
+			int *i = new int;
+			cudaMemcpy(i, &m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY[0], sizeof(int), cudaMemcpyDeviceToHost);
+			qDebug()<<*i;
+			delete i;
+		}
 
 		// 3.2 TODO: Copy the iU, iV to host memory for ICGN
 
@@ -79,8 +121,21 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 
 	m_tarImgBuffer->DeQueue(tarImg);
 
-	// 2. Do the FFTCC computation
+	// 2. Do the FFTCC computation and add [U,V] to the accumulative current [U,V]
+	// and update the POI positions in the target image
 	m_Fftcc2DPtr->cuComputeFFTCC(m_d_fU, m_d_fV, m_d_fZNCC, tarImg);
+	cuAccumulatePOI_UV(m_d_fAccumulateU,
+				       m_d_fAccumulateV,
+					   m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY,
+					   m_iNumPOIs,
+					   m_d_fU,
+					   m_d_fV,
+					   m_d_iCurrentPOIXY);
+
+	int *i = new int;
+	cudaMemcpy(i, &m_d_iCurrentPOIXY[0], sizeof(int), cudaMemcpyDeviceToHost);
+	qDebug()<<*i;
+	delete i;
 
 	/*float *i = new float;
 	cudaMemcpy(i, &m_d_fZNCC[0], sizeof(float), cudaMemcpyDeviceToHost);
@@ -113,7 +168,7 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 			0,
 			0,
 			m_Fftcc2DPtr->g_cuHandle/*TW::paDIC::g_cuHandle*/.m_d_fTarImg,
-			640 * 480,
+			tarImg.cols * tarImg.rows,
 			cudaMemcpyDeviceToDevice));
 
 		m_sharedResources->sharedTexture->release();
