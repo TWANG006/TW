@@ -123,10 +123,10 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 						   m_iNumberY,
 						   m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY);
 
-			int *i = new int;
-			cudaMemcpy(i, &m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY[0], sizeof(int), cudaMemcpyDeviceToHost);
-			qDebug()<<*i;
-			delete i;
+			//int *i = new int;
+			//cudaMemcpy(i, &m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY[0], sizeof(int), cudaMemcpyDeviceToHost);
+			//qDebug()<<*i;
+			//delete i;
 		}
 
 		// 3.2 TODO: Copy the iU, iV to host memory for ICGN
@@ -180,13 +180,11 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 					   20, -20, 20, -20);
 	
 
-	float *i = new float;
-	cudaMemcpy(i, &m_d_fMinV[0], sizeof(float), cudaMemcpyDeviceToHost);
-	qDebug()<<*i;
-	delete i;
-
+	//float *i = new float;
+	//cudaMemcpy(i, &m_d_fMinV[0], sizeof(float), cudaMemcpyDeviceToHost);
+	//qDebug()<<*i;
+	//delete i;
 	
-
 
 	if (m_sharedResources->sharedTexture != nullptr &&
 		m_sharedResources->sharedContext != nullptr &&
