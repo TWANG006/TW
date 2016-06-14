@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>660</width>
+    <width>664</width>
     <height>992</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>FFTCC1CamWidget</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="gridLayout" columnstretch="1">
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
@@ -63,6 +63,10 @@
     </layout>
    </item>
   </layout>
+  <zorder>label</zorder>
+  <zorder>label_2</zorder>
+  <zorder>label</zorder>
+  <zorder>label</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
