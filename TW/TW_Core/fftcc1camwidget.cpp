@@ -105,6 +105,7 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 		// 6. Do the signal/slot connections here
 		connect(m_captureThread, &CaptureThread::newRefQImg, this, &FFTCC1CamWidget::updateRefFrame);
 		connect(m_captureThread, &CaptureThread::newTarQImg, this, &FFTCC1CamWidget::updateTarFrame);
+		connect(m_fftccWorker, &FFTCCTWorkerThread::runningStaticsReady, this, &FFTCC1CamWidget::updateStatics);
 		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorker, &QObject::deleteLater);
 		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorkerThread, &QThread::deleteLater);
 		connect(m_captureThread, &CaptureThread::newTarFrame, m_fftccWorker, &FFTCCTWorkerThread::processFrame);
@@ -113,6 +114,8 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 		// 7. Start the capture & worker threads
 		m_captureThread->start();
 		m_fftccWorkerThread->start();
+
+		
 
 		m_isCameraConnected = true;		
 		return true;
@@ -163,4 +166,11 @@ void FFTCC1CamWidget::updateTarFrame(const QImage& tarImg)
 	ui.tarFramelabel->setPixmap(QPixmap::fromImage(tarImg).scaled(ui.tarFramelabel->width(), 
 															      ui.tarFramelabel->height(), 
 															      Qt::KeepAspectRatio));
+}
+
+void FFTCC1CamWidget::updateStatics(const int& iNumPOI, const int& iFPS)
+{
+	QString qstr = QLatin1String("Number of POIs is: ") + QString::number(iNumPOI)
+		+ QLatin1String("    FPS = ") + QString::number(iFPS);
+	emit titleReady(qstr);
 }

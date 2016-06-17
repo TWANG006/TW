@@ -33,6 +33,10 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(ImageBufferPtr refImgBuffer,
 	, m_d_fZNCC(nullptr)
 	, m_iSubsetX(iSubsetX)
 	, m_iSubsetY(iSubsetY)
+	, m_averageFPS(0)
+	, m_fpsSum(0)
+	, m_processingTime(0)
+	, m_sampleNumber(0)
 {
 	// Do the initialization for the paDIC's cuFFTCC here in the constructor
 	// 1. Construct the cuFFTCC2D object using the whole image
@@ -100,6 +104,9 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 {
 	cv::Mat tempImg;
 	cv::Mat tarImg;
+
+	m_processingTime = m_t.elapsed();
+	m_t.start();
 
 	// 1. Every 50 frames updates the reference image
 	if (iFrameCount % 50 == 1)
@@ -240,6 +247,8 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 		TW::cuInitialize<unsigned int>(m_d_VColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
 	}
 
+	updateFPS(m_processingTime);
+	emit runningStaticsReady(m_iNumPOIs, m_averageFPS);
 	/*Deperacated*/
 	// 5. Invoke the CUDA & OpenGL interoperability
 	// 5.1 Map the target image data
@@ -248,7 +257,35 @@ void FFTCCTWorkerThread::processFrame(const int &iFrameCount)
 	// delete i; i = nullptr;
 }
 
-void FFTCCTWorkerThread::render()
+void FFTCCTWorkerThread::updateFPS(int timeElapsed)
 {
+    // Add instantaneous FPS value to queue
+    if(timeElapsed > 0)
+    {
+        m_fps.enqueue((int)1000 / timeElapsed);
+        // Increment sample number
+        m_sampleNumber++;
+    }
 
+    // Maximum size of queue is DEFAULT_PROCESSING_FPS_STAT_QUEUE_LENGTH
+    if (m_fps.size() > PROCESSING_FPS_STAT_QUEUE_LENGTH)
+    {
+        m_fps.dequeue();
+    }
+
+    // Update FPS value every DEFAULT_PROCESSING_FPS_STAT_QUEUE_LENGTH samples
+    if ((m_fps.size() == PROCESSING_FPS_STAT_QUEUE_LENGTH) && (m_sampleNumber == PROCESSING_FPS_STAT_QUEUE_LENGTH))
+    {
+        // Empty queue and store sum
+        while (!m_fps.empty())
+        {
+            m_fpsSum += m_fps.dequeue();
+        }
+        // Calculate average FPS
+        m_averageFPS = m_fpsSum / PROCESSING_FPS_STAT_QUEUE_LENGTH;
+        // Reset sum
+        m_fpsSum = 0;
+        // Reset sample number
+        m_sampleNumber = 0;
+    }
 }

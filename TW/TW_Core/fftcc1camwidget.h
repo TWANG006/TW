@@ -36,9 +36,13 @@ private:
 	void stopCaptureThread();
 	void stopFFTCCWorkerThread();
 
+signals:
+	void titleReady(const QString&);
+
 public slots:
 	void updateRefFrame(const QImage&);	// signal: &capturethread::newRefFrame
 	void updateTarFrame(const QImage&);	// signal: &capturethread::newTarFrame
+	void updateStatics(const int&, const int&);
 
 private:
 	Ui::FFTCC1CamWidget ui;

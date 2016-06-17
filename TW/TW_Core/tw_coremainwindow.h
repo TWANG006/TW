@@ -24,6 +24,7 @@ protected:
 protected slots:
 	void OnOpenImgFile();
 	void OnCapture_From_Camera();
+	void updateTitle(const QString&);
 	//void OnFrames(int num);
 
 private:

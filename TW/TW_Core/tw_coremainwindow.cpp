@@ -130,6 +130,8 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 												m_ROI,
 												this);
 
+		connect(m_fftcc1camWidget, &FFTCC1CamWidget::titleReady, this, &TW_CoreMainWindow::updateTitle);
+
 		if(m_fftcc1camWidget->connectToCamera(m_isDropFrameChecked,
 										      m_iSubsetX, m_iSubsetY,
 										      m_iGridSpaceX, m_iGridSpaceY,
@@ -143,4 +145,9 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	{
 		deleteObject(m_camParamDialog);
 	}		
+}
+
+void TW_CoreMainWindow::updateTitle(const QString& qstr)
+{
+	setWindowTitle(QLatin1String("TW_Core_Application: ") + qstr);
 }

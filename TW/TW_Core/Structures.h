@@ -20,6 +20,10 @@
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 
+
+// FPS statistics queue lengths
+#define PROCESSING_FPS_STAT_QUEUE_LENGTH    32
+
 template<typename T>
 void deleteObject(T*& param)
 {
