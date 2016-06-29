@@ -84,13 +84,13 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 {
 	m_tarImg = tarImg;
 	
-	double start = omp_get_wtime();
+	//double start = omp_get_wtime();
 	ICGN2D_Precomputation();
-	double end = omp_get_wtime();
+	//double end = omp_get_wtime();
 
-	std::cout << "Time for Precomputation is: " << 1000 * (end - start) << std::endl;
+	//std::cout << "Time for Precomputation is: " << 1000 * (end - start) << std::endl;
 
-	start = omp_get_wtime();
+	//start = omp_get_wtime();
 	switch (m_Tflag)
 	{
 	case TW::paDIC::paDICThreadFlag::Single:
@@ -127,8 +127,8 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 		break;
 	}
 	}
-	end = omp_get_wtime();
-	std::cout << "ICGN time is: " << 1000 * (end - start) << " [ms]" << std::endl;
+	//end = omp_get_wtime();
+	//std::cout << "ICGN time is: " << 1000 * (end - start) << " [ms]" << std::endl;
 }
 
 
