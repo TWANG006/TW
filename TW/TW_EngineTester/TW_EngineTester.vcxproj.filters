@@ -45,9 +45,6 @@
     <ClCompile Include="icgnTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FFTCC+ICGN.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="GPUThrust.cu">

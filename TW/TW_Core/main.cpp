@@ -1,5 +1,6 @@
 #include "tw_coremainwindow.h"
 #include <QtWidgets/QApplication>
+#include <cuda.h>
 
 int main(int argc, char *argv[])
 {
@@ -14,6 +15,10 @@ int main(int argc, char *argv[])
 
 	QApplication a(argc, argv);
 	TW_CoreMainWindow w;
+	
 	w.show();
+
+	cudaSetDevice(0);
+
 	return a.exec();
 }

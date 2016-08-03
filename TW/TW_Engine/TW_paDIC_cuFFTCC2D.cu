@@ -559,7 +559,7 @@ void cuFFTCC2D::cuComputeFFTCC(// Output
 	cudaEventCreate(&end);
 	checkCudaErrors(cudaMemcpy(g_cuHandle.m_d_fTarImg,
 							   (void*)tarImg.data,
-							   /*sizeof(uchar)**/tarImg.cols*tarImg.rows,
+							   /*sizeof(uchar)**/tarImg.rows*tarImg.cols,
 							   cudaMemcpyHostToDevice));
 
 

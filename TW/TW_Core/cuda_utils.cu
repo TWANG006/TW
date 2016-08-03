@@ -148,7 +148,7 @@ __global__ void constructTextImageFixedMinMax_Kernel(// Outputs
 		tempIndOthers[5] = (iPOIpos[i * 2 + 0] - iStartY) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
 		tempIndOthers[6] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX - 1;
 		tempIndOthers[7] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX;
-		tempIndOthers[7] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
+		tempIndOthers[8] = (iPOIpos[i * 2 + 0] - iStartY - 1) * iROIWidth + iPOIpos[i * 2 + 1] - iStartX + 1;
 
 		texImgU[tempIndOthers[0]] = texture_data[int(255 * tempU / (fMaxU- fMinU))];
 		texImgV[tempIndOthers[0]] = texture_data[int(255 * tempV / (fMaxV - fMinV))];
