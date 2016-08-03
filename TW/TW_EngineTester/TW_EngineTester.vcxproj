@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ClockTests.cpp" />
+    <ClCompile Include="FFTCC+ICGN.cpp" />
     <ClCompile Include="FftccTest.cpp" />
     <ClCompile Include="GPUutils_test.cpp" />
     <ClCompile Include="gtest-all.cpp" />
