@@ -7,7 +7,7 @@
 
 #include "TW_Concurrent_Buffer.h"
 #include "camparamdialog.h"
-#include "fftcc1camwidget.h"
+#include "onecamwidget.h"
 #include "capturethread.h"
 
 class TW_CoreMainWindow : public QMainWindow
@@ -34,7 +34,7 @@ private:
 	ImageBufferPtr m_tarBuffer;						// Global tarImg 
 	QString qstrLastSelectedDir;					//!- Hold last opend directory
 	CamParamDialog  *m_camParamDialog;
-	FFTCC1CamWidget *m_fftcc1camWidget;
+	OneCamWidget *m_onecamWidget;
 	//CaptureThread *m_testCap;
 	QRect m_ROI;
 	bool m_isDropFrameChecked;

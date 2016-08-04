@@ -106,10 +106,12 @@ void FrameLabel::paintEvent(QPaintEvent* evt)
 {
 	QLabel::paintEvent(evt);
 	QPainter painter(this);
+	QPen pen(Qt::blue);
+	pen.setWidth(3);
 
 	if(m_isDrawingBox)
 	{
-		painter.setPen(Qt::red);
+		painter.setPen(pen);
 		painter.drawRect(*m_roiBox.data());
 	}
 }

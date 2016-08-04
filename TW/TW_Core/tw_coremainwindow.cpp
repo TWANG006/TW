@@ -7,7 +7,7 @@ TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, qstrLastSelectedDir(tr("/home"))
 	, m_camParamDialog(nullptr)
-	, m_fftcc1camWidget(nullptr)
+	, m_onecamWidget(nullptr)
 	, m_isDropFrameChecked(true)
 	, m_iSubsetX(0), m_iSubsetY(0)
 	, m_iMarginX(0), m_iMarginY(0)
@@ -106,8 +106,8 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	//!- If OK button is clicked, accept all the settings
 	if(m_camParamDialog->exec() == QDialog::Accepted)
 	{
-		m_refBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(100));
-		m_tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(10));
+		m_refBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetRefImgBufferSize()));
+		m_tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetTarImgBufferSize()));
 
 		m_ROI = m_camParamDialog->GetROI();
 		m_iSubsetX = m_camParamDialog->GetSubetX();
@@ -122,7 +122,7 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 
 		deleteObject(m_camParamDialog);
 		
-		m_fftcc1camWidget = new FFTCC1CamWidget(0,
+		m_onecamWidget = new OneCamWidget(0,
 												m_refBuffer,
 												m_tarBuffer,
 												m_iImgWidth,
@@ -130,15 +130,15 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 												m_ROI,
 												this);
 
-		connect(m_fftcc1camWidget, &FFTCC1CamWidget::titleReady, this, &TW_CoreMainWindow::updateTitle);
+		connect(m_onecamWidget, &OneCamWidget::titleReady, this, &TW_CoreMainWindow::updateTitle);
 
-		if(m_fftcc1camWidget->connectToCamera(m_isDropFrameChecked,
+		if(m_onecamWidget->connectToCamera(m_isDropFrameChecked,
 										      m_iSubsetX, m_iSubsetY,
 										      m_iGridSpaceX, m_iGridSpaceY,
 										      m_iMarginX, m_iMarginY,
 										      m_ROI))
 		{
-			ui.gridLayout->addWidget(m_fftcc1camWidget);
+			ui.gridLayout->addWidget(m_onecamWidget);
 		}	
 	}
 	else

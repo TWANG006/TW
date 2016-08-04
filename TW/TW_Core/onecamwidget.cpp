@@ -1,7 +1,7 @@
-#include "fftcc1camwidget.h"
+#include "onecamwidget.h"
 #include <QDebug>
 
-FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
+OneCamWidget::OneCamWidget(int deviceNumber,
 								 ImageBufferPtr refImgBuffer,
 								 ImageBufferPtr tarImgBuffer,
 								 int iImgWidth,
@@ -32,7 +32,7 @@ FFTCC1CamWidget::FFTCC1CamWidget(int deviceNumber,
 	ui.gridLayout->addWidget(m_twGLwidget, 0, 1, 1, 1);
 }
 
-FFTCC1CamWidget::~FFTCC1CamWidget()
+OneCamWidget::~OneCamWidget()
 {
 	if(m_isCameraConnected)
 	{
@@ -59,7 +59,7 @@ FFTCC1CamWidget::~FFTCC1CamWidget()
 	}
 }
 
-bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame, 
+bool OneCamWidget::connectToCamera(bool ifDropFrame, 
 									  int iSubsetX, int iSubsetY,
 									  int iGridSpaceX, int iGridSpaceY,
 									  int iMarginX, int iMarginY,
@@ -103,9 +103,9 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 		m_fftccWorker->moveToThread(m_fftccWorkerThread);
 
 		// 6. Do the signal/slot connections here
-		connect(m_captureThread, &CaptureThread::newRefQImg, this, &FFTCC1CamWidget::updateRefFrame);
-		connect(m_captureThread, &CaptureThread::newTarQImg, this, &FFTCC1CamWidget::updateTarFrame);
-		connect(m_fftccWorker, &FFTCCTWorkerThread::runningStaticsReady, this, &FFTCC1CamWidget::updateStatics);
+		connect(m_captureThread, &CaptureThread::newRefQImg, this, &OneCamWidget::updateRefFrame);
+		connect(m_captureThread, &CaptureThread::newTarQImg, this, &OneCamWidget::updateTarFrame);
+		connect(m_fftccWorker, &FFTCCTWorkerThread::runningStaticsReady, this, &OneCamWidget::updateStatics);
 		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorker, &QObject::deleteLater);
 		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorkerThread, &QThread::deleteLater);
 		connect(m_captureThread, &CaptureThread::newTarFrame, m_fftccWorker, &FFTCCTWorkerThread::processFrame);
@@ -126,7 +126,7 @@ bool FFTCC1CamWidget::connectToCamera(bool ifDropFrame,
 	}
 }
 
-void FFTCC1CamWidget::stopCaptureThread()
+void OneCamWidget::stopCaptureThread()
 {
 	qDebug() << "[Calculation] ["<<m_iDeviceNumber<<"] About to stop capture thread...";
 	m_captureThread->stop();
@@ -142,7 +142,7 @@ void FFTCC1CamWidget::stopCaptureThread()
 	qDebug() <<"[Calculation] ["<<m_iDeviceNumber<<"] Capture thread successfully stopped.";
 }
 
-void FFTCC1CamWidget::stopFFTCCWorkerThread()
+void OneCamWidget::stopFFTCCWorkerThread()
 {
 	qDebug() << "[Calculation] ["<<m_iDeviceNumber<<"] About to stop FFTCCWorker thread...";
 	if(m_fftccWorkerThread->isRunning())
@@ -154,21 +154,21 @@ void FFTCC1CamWidget::stopFFTCCWorkerThread()
 	qDebug() <<"[Calculation] ["<<m_iDeviceNumber<<"] FFTCCWorker thread successfully stopped...";
 }
 
-void FFTCC1CamWidget::updateRefFrame(const QImage& refImg)
+void OneCamWidget::updateRefFrame(const QImage& refImg)
 {
 	ui.refFramelabel->setPixmap(QPixmap::fromImage(refImg).scaled(ui.refFramelabel->width(), 
 															      ui.refFramelabel->height(), 
 															      Qt::KeepAspectRatio));
 }
 
-void FFTCC1CamWidget::updateTarFrame(const QImage& tarImg)
+void OneCamWidget::updateTarFrame(const QImage& tarImg)
 {
 	ui.tarFramelabel->setPixmap(QPixmap::fromImage(tarImg).scaled(ui.tarFramelabel->width(), 
 															      ui.tarFramelabel->height(), 
 															      Qt::KeepAspectRatio));
 }
 
-void FFTCC1CamWidget::updateStatics(const int& iNumPOI, const int& iFPS)
+void OneCamWidget::updateStatics(const int& iNumPOI, const int& iFPS)
 {
 	QString qstr = QLatin1String("Number of POIs is: ") + QString::number(iNumPOI)
 		+ QLatin1String("    FPS = ") + QString::number(iFPS);

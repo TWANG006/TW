@@ -80,15 +80,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_camparamthread.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="fftcc1camwidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_fftcc1camwidget.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_fftcc1camwidget.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="glwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -125,6 +116,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_iccgnworkerthread.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_onecamwidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_onecamwidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="onecamwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="tw_coremainwindow.h">
@@ -148,12 +148,6 @@
     <CustomBuild Include="camparamthread.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="fftcc1camwidget.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="fftcc1camwidget.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="glwidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
@@ -167,6 +161,12 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="iccgnworkerthread.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="onecamwidget.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="onecamwidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -183,13 +183,13 @@
     <ClInclude Include="Structures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_fftcc1camwidget.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="cuda_utils.cuh">
       <Filter>CUDA</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_glwidget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_onecamwidget.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

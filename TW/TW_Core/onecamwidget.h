@@ -1,29 +1,29 @@
-#ifndef FFTCC1CAMWIDGET_H
-#define FFTCC1CAMWIDGET_H
+#ifndef ONECAMWIDGET_H
+#define ONECAMWIDGET_H
 
 #include <QWidget>
 #include <QThread>
 #include <QPointer>
-#include "ui_fftcc1camwidget.h"
+#include "ui_onecamwidget.h"
 
 #include "Structures.h"
 #include "capturethread.h"
 #include "fftcctworkerthread.h"
 #include "glwidget.h"
 
-class FFTCC1CamWidget : public QWidget
+class OneCamWidget : public QWidget
 {
 	Q_OBJECT
 
 public:
-	FFTCC1CamWidget(int deviceNumber,
+	OneCamWidget(int deviceNumber,
 					ImageBufferPtr refImgBuffer,
 					ImageBufferPtr tarImgBuffer,
 					int iImgWidth,
 					int iImgHeight,
 					const QRect& roi,
 					QWidget *parent = 0);
-	~FFTCC1CamWidget();
+	~OneCamWidget();
 
 	bool connectToCamera(bool ifDropFrame, 
 						 int iSubsetX, int iSubsetY,
@@ -45,7 +45,7 @@ public slots:
 	void updateStatics(const int&, const int&);
 
 private:
-	Ui::FFTCC1CamWidget ui;
+	Ui::OneCamWidget ui;
 	GLWidget *m_twGLwidget;
 
 	QThread *m_fftccWorkerThread;	    // FFTCC thread
@@ -61,4 +61,4 @@ private:
 	int m_iImgHeight;
 };
 
-#endif // FFTCC1CAMWIDGET_H
+#endif // ONECAMWIDGET_H

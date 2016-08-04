@@ -24,6 +24,8 @@ public:
 	int GetMarginY() const { return ui.MarginY_lineEdit->text().toInt();}
 	int GetGridX() const { return ui.GridX_lineEdit->text().toInt();}
 	int GetGridY() const { return ui.GridY_lineEdit->text().toInt();}
+	int GetRefImgBufferSize() const { return ui.refImgBufferlineEdit->text().toInt(); }
+	int GetTarImgBufferSize() const{ return ui.tarImgBufferlineEdit->text().toInt(); }
 	int GetInputSourceWidth();
 	int GetInputSourceHeight();
 	bool isDropFrame() const { return ui.dropFrame_checkBox->isChecked(); }

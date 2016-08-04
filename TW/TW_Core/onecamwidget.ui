@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FFTCC1CamWidget</class>
- <widget class="QWidget" name="FFTCC1CamWidget">
+ <class>OneCamWidget</class>
+ <widget class="QWidget" name="OneCamWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>FFTCC1CamWidget</string>
+   <string>One Camera Widget</string>
   </property>
   <layout class="QGridLayout" name="gridLayout" columnstretch="1">
    <item row="0" column="0">
@@ -63,10 +63,6 @@
     </layout>
    </item>
   </layout>
-  <zorder>label</zorder>
-  <zorder>label_2</zorder>
-  <zorder>label</zorder>
-  <zorder>label</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
