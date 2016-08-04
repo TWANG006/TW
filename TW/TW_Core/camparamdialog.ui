@@ -226,7 +226,7 @@
           <number>10</number>
          </property>
          <item>
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QRadioButton" name="GPUFFTCCradioButton">
            <property name="text">
             <string>GPU-FFTCC Only</string>
            </property>
@@ -236,14 +236,14 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_3">
+          <widget class="QRadioButton" name="GPUFFTCC_ICGNradioButton">
            <property name="text">
             <string>GPU-FFTCC+GPU+ICGN</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_2">
+          <widget class="QRadioButton" name="GPUFFTCC_CPUICGNradioButton">
            <property name="text">
             <string>GPU-FFTCC+CPU_ICGN</string>
            </property>
@@ -252,8 +252,8 @@
          <item>
           <widget class="QCheckBox" name="dropFrame_checkBox">
            <property name="text">
-            <string>Drop Frames if 
-Image Buffer is Full</string>
+            <string>Drop Frames if Image 
+Buffer is Full</string>
            </property>
            <property name="checked">
             <bool>true</bool>

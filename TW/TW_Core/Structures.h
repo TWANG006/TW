@@ -94,4 +94,11 @@ typedef struct
     int nFramesProcessed;
 } ThreadStatisticsData;
 
+enum class ComputationMode
+{
+	GPUFFTCC,
+	GPUFFTCC_ICGN,
+	GPUFFTCC_CPUICGN
+};
+
 #endif // STRUCTURES_H

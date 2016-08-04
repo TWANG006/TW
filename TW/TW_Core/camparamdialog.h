@@ -29,6 +29,7 @@ public:
 	int GetInputSourceWidth();
 	int GetInputSourceHeight();
 	bool isDropFrame() const { return ui.dropFrame_checkBox->isChecked(); }
+	ComputationMode GetComputationMode();
 
 private:
 	void stopCaptureThread();

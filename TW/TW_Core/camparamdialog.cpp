@@ -229,3 +229,12 @@ int CamParamDialog::GetInputSourceHeight()
 		return -1;*/
 	return m_captureThread->getInputSourceHeight();
 }
+
+ComputationMode CamParamDialog::GetComputationMode()
+{
+	if(ui.GPUFFTCCradioButton->isChecked()) return ComputationMode::GPUFFTCC;
+	if(ui.GPUFFTCC_ICGNradioButton->isChecked()) return ComputationMode::GPUFFTCC_ICGN;
+	if(ui.GPUFFTCC_CPUICGNradioButton->isChecked()) return ComputationMode::GPUFFTCC_CPUICGN;
+	
+	return ComputationMode::GPUFFTCC; 
+}
