@@ -825,63 +825,63 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 	g_cuHandleICGN.m_d_fU = d_fU;
 	g_cuHandleICGN.m_d_fV = d_fV;
 	
+	switch (m_Iflag)
+	{
+	case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
+	{
+		cuGradientXY_2Images(g_cuHandleICGN.m_d_fRefImg,
+			g_cuHandleICGN.m_d_fTarImg,
+			m_iStartX, m_iStartY,
+			m_iROIWidth, m_iROIHeight,
+			m_iImgWidth, m_iImgHeight,
+			TW::AccuracyOrder::Quadratic,
+			g_cuHandleICGN.m_d_fRx,
+			g_cuHandleICGN.m_d_fRy,
+			g_cuHandleICGN.m_d_fTx,
+			g_cuHandleICGN.m_d_fTy,
+			g_cuHandleICGN.m_d_fTxy);
+
+		cuBicubicCoefficients(g_cuHandleICGN.m_d_fTarImg,
+			g_cuHandleICGN.m_d_fTx,
+			g_cuHandleICGN.m_d_fTy,
+			g_cuHandleICGN.m_d_fTxy,
+			m_iStartX, m_iStartY,
+			m_iROIWidth, m_iROIHeight,
+			m_iImgWidth, m_iImgHeight,
+			g_cuHandleICGN.m_d_f4InterpolationLUT);
+
+
+		//For debug
+		/*	std::cout << "Bicubic First: " << std::endl;
+			std::cout.precision(10);
+			float4 *interpolation;
+			hcreateptr(interpolation, 4 * m_iROIWidth*m_iROIHeight);
+			cudaMemcpy(interpolation, g_cuHandleICGN.m_d_f4InterpolationLUT, sizeof(real_t4) * 4 * m_iROIWidth*m_iROIHeight,
+			cudaMemcpyDeviceToHost);
+			for (int i = 0; i < 4; i++)
+			{
+			std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].w << ", ";
+			std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].x << ", ";
+			std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].y << ", ";
+			std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].z << ", ";
+			std::cout << std::endl;
+			}
+
+			hdestroyptr(interpolation);*/
+
+		break;
+	}
+	case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
+	{
+		// TODO
+		break;
+	}
+	default:
+		break;
+	}
+
 	if(m_isRefImgUpdated)
 	{
-		switch (m_Iflag)
-		{
-		case TW::paDIC::ICGN2DInterpolationFLag::Bicubic:
-		{
-			cuGradientXY_2Images(g_cuHandleICGN.m_d_fRefImg,
-								 g_cuHandleICGN.m_d_fTarImg,
-								 m_iStartX, m_iStartY,
-								 m_iROIWidth, m_iROIHeight,
-								 m_iImgWidth, m_iImgHeight,
-								 TW::AccuracyOrder::Quadratic,
-								 g_cuHandleICGN.m_d_fRx,
-								 g_cuHandleICGN.m_d_fRy,
-								 g_cuHandleICGN.m_d_fTx,
-								 g_cuHandleICGN.m_d_fTy,
-								 g_cuHandleICGN.m_d_fTxy);
-
-			cuBicubicCoefficients(g_cuHandleICGN.m_d_fTarImg, 
-								  g_cuHandleICGN.m_d_fTx,
-								  g_cuHandleICGN.m_d_fTy,
-								  g_cuHandleICGN.m_d_fTxy,
-								  m_iStartX, m_iStartY,
-								  m_iROIWidth, m_iROIHeight,
-								  m_iImgWidth, m_iImgHeight,
-								  g_cuHandleICGN.m_d_f4InterpolationLUT);
-
-			cudaEventRecord(pre);
-			//For debug
-			/*	std::cout << "Bicubic First: " << std::endl;
-				std::cout.precision(10);
-				float4 *interpolation;
-				hcreateptr(interpolation, 4 * m_iROIWidth*m_iROIHeight);
-				cudaMemcpy(interpolation, g_cuHandleICGN.m_d_f4InterpolationLUT, sizeof(real_t4) * 4 * m_iROIWidth*m_iROIHeight,
-				cudaMemcpyDeviceToHost);
-				for (int i = 0; i < 4; i++)
-				{
-				std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].w << ", ";
-				std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].x << ", ";
-				std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].y << ", ";
-				std::cout << interpolation[i*m_iROIWidth*m_iROIHeight].z << ", ";
-				std::cout << std::endl;
-				}
-
-				hdestroyptr(interpolation);*/
-
-			break;
-		}
-		case TW::paDIC::ICGN2DInterpolationFLag::BicubicSpline:
-		{
-			// TODO
-			break;
-		}
-		default:
-			break;
-		}
-
 		RefAllSubetsNorm_Kernel<<<m_iPOINumber, BLOCK_SIZE_64>>>(g_cuHandleICGN.m_d_fRefImg,
 															     g_cuHandleICGN.m_d_iPOIXY,
 															     m_iSubsetW, m_iSubsetH,
@@ -901,7 +901,7 @@ void cuICGN2D::cuCompute(uchar1 *d_fTarImg,
 															   g_cuHandleICGN.m_d_invHessian);	
 		m_isRefImgUpdated = false;
 	}
-
+	cudaEventRecord(pre);
 	// For debug
 	//std::cout << "Hessian" << std::endl;
 	//float *dHessian;

@@ -20,6 +20,13 @@ CamParamDialog::CamParamDialog(QWidget *parent)
 	// Connect signals/slots
 	connect(ui.frameLable, &FrameLabel::sig_mouseMove,
 		    this		 , &CamParamDialog::updateMouseCursorPosLabel);
+	connect(ui.MarginX_lineEdit, &QLineEdit::textChanged, this, &CamParamDialog::updatePOINums);
+	connect(ui.MarginY_lineEdit, &QLineEdit::textChanged, this, &CamParamDialog::updatePOINums);
+	connect(ui.SubsetX_lineEdit, &QLineEdit::textChanged, this, &CamParamDialog::updatePOINums);
+	connect(ui.SubsetY_lineEdit, &QLineEdit::textChanged, this, &CamParamDialog::updatePOINums);
+	connect(ui.GridX_lineEdit, &QLineEdit::textChanged, this, &CamParamDialog::updatePOINums);
+	connect(ui.GridY_lineEdit, &QLineEdit::textChanged, this, &CamParamDialog::updatePOINums);
+	connect(this, &CamParamDialog::setROI, this, &CamParamDialog::updatePOINumsHelper);
 
 	qRegisterMetaType<ThreadStatisticsData>("ThreadStatisticsData");
 }
@@ -237,4 +244,21 @@ ComputationMode CamParamDialog::GetComputationMode()
 	if(ui.GPUFFTCC_CPUICGNradioButton->isChecked()) return ComputationMode::GPUFFTCC_CPUICGN;
 	
 	return ComputationMode::GPUFFTCC; 
+}
+
+int CamParamDialog::ComputeNumberofPOIs()
+{
+	return (
+		(int(floor((m_ROIRect.width() - GetSubetX()* 2 - GetMarginX() * 2) / float(GetGridX()))) + 1) * 
+		(int(floor((m_ROIRect.height() - GetSubetY()* 2 - GetMarginY() * 2) / float(GetGridY()))) + 1));
+}
+
+void CamParamDialog::updatePOINums(const QString& qs)
+{
+	ui.numPOIlabel->setText(QString::number(ComputeNumberofPOIs()));
+}
+
+void CamParamDialog::updatePOINumsHelper()
+{
+	ui.numPOIlabel->setText(QString::number(ComputeNumberofPOIs()));
 }

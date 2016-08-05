@@ -31,13 +31,16 @@ public:
 	bool isDropFrame() const { return ui.dropFrame_checkBox->isChecked(); }
 	ComputationMode GetComputationMode();
 
+	int ComputeNumberofPOIs();
+
 private:
 	void stopCaptureThread();
 
 public slots:
 	void newMouseData(const MouseData& mouseData);
 	void updateMouseCursorPosLabel();
-	
+	void updatePOINums(const QString&);
+	void updatePOINumsHelper();
 
 private slots:
 	void updateFrame(const QImage &frame);

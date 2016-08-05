@@ -622,7 +622,7 @@ TEST(ICGN2D, ICGN2D_GPU_All_Subsets)
 	//{
 	//	for(int j=0; j<m_iNumPOIX; j++)
 	//	{
-			std::cout<<fU[(m_iNumPOIY-1)*m_iNumPOIX+m_iNumPOIX-1]<<", "<<fV[(m_iNumPOIY-1)*m_iNumPOIX+m_iNumPOIX-1]<<"\n";
+			std::cout<<fU[0]<<", "<<fV[0]<<"\n";
 	//	}
 	//}
 	

@@ -107,15 +107,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_fftcctworkerthread.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="iccgnworkerthread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_iccgnworkerthread.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_iccgnworkerthread.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_onecamwidget.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -123,6 +114,15 @@
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="onecamwidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_icgnworkerthread.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_icgnworkerthread.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="icgnworkerthread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -160,13 +160,13 @@
     <CustomBuild Include="glwidget.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="iccgnworkerthread.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="onecamwidget.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="onecamwidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="icgnworkerthread.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

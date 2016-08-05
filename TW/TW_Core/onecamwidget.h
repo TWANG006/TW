@@ -9,6 +9,7 @@
 #include "Structures.h"
 #include "capturethread.h"
 #include "fftcctworkerthread.h"
+#include "icgnworkerthread.h"
 #include "glwidget.h"
 
 class OneCamWidget : public QWidget
@@ -22,6 +23,8 @@ public:
 					int iImgWidth,
 					int iImgHeight,
 					const QRect& roi,
+					// Add computation Mode
+					ComputationMode computationMode = ComputationMode::GPUFFTCC,
 					QWidget *parent = 0);
 	~OneCamWidget();
 
@@ -48,9 +51,13 @@ private:
 	Ui::OneCamWidget ui;
 	GLWidget *m_twGLwidget;
 
-	QThread *m_fftccWorkerThread;	    // FFTCC thread
 	CaptureThread *m_captureThread;		// Capture thread	
+	QThread *m_fftccWorkerThread;	    // FFTCC thread
 	FFTCCTWorkerThread *m_fftccWorker;	// FFTCC worker
+	QThread *m_icgnWorkerThread;		// ICGN thread
+	ICGNWorkerThread *m_icgnWorker;		// ICGN worker
+	
+
 	std::shared_ptr<SharedResources> m_sharedResources;
 
 	bool m_isCameraConnected;
@@ -59,6 +66,8 @@ private:
 	ImageBufferPtr m_tarImgBuffer;
 	int m_iImgWidth;
 	int m_iImgHeight;
+
+	ComputationMode m_computationMode;
 };
 
 #endif // ONECAMWIDGET_H

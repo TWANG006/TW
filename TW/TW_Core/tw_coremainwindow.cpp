@@ -83,28 +83,28 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	while ((child = ui.gridLayout->takeAt(0)) != 0) {
 		delete child->widget();
 		delete child;
-		if(m_camParamDialog != nullptr)
+		if (m_camParamDialog != nullptr)
 		{
 			delete m_camParamDialog;
 			m_camParamDialog = nullptr;
 		}
 
 	}
-	
+
 	m_camParamDialog = new CamParamDialog(this);
 
 	// Set the width & height to -1 to accept the default resolution of the 
 	// camera or set the resolution by hand.
-	if(!m_camParamDialog->connectToCamera(640, 480))
+	if (!m_camParamDialog->connectToCamera(640, 480))
 	{
-		QMessageBox::critical(this, 
-							  tr("Fail!"),
-							  tr("[Param Setting] Cannot connect to camera!"));
+		QMessageBox::critical(this,
+			tr("Fail!"),
+			tr("[Param Setting] Cannot connect to camera!"));
 		return;
 	}
 
 	//!- If OK button is clicked, accept all the settings
-	if(m_camParamDialog->exec() == QDialog::Accepted)
+	if (m_camParamDialog->exec() == QDialog::Accepted)
 	{
 		m_refBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetRefImgBufferSize()));
 		m_tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetTarImgBufferSize()));
@@ -119,32 +119,35 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 		m_isDropFrameChecked = m_camParamDialog->isDropFrame();
 		m_iImgWidth = m_camParamDialog->GetInputSourceWidth();
 		m_iImgHeight = m_camParamDialog->GetInputSourceHeight();
+		m_computationMode = m_camParamDialog->GetComputationMode();
 
 		deleteObject(m_camParamDialog);
-		
-		m_onecamWidget = new OneCamWidget(0,
-												m_refBuffer,
-												m_tarBuffer,
-												m_iImgWidth,
-												m_iImgHeight,
-												m_ROI,
-												this);
+
+		m_onecamWidget = new OneCamWidget(
+			0,
+			m_refBuffer,
+			m_tarBuffer,
+			m_iImgWidth,
+			m_iImgHeight,
+			m_ROI,
+			m_computationMode,
+			this);
 
 		connect(m_onecamWidget, &OneCamWidget::titleReady, this, &TW_CoreMainWindow::updateTitle);
 
-		if(m_onecamWidget->connectToCamera(m_isDropFrameChecked,
-										      m_iSubsetX, m_iSubsetY,
-										      m_iGridSpaceX, m_iGridSpaceY,
-										      m_iMarginX, m_iMarginY,
-										      m_ROI))
+		if (m_onecamWidget->connectToCamera(m_isDropFrameChecked,
+			m_iSubsetX, m_iSubsetY,
+			m_iGridSpaceX, m_iGridSpaceY,
+			m_iMarginX, m_iMarginY,
+			m_ROI))
 		{
 			ui.gridLayout->addWidget(m_onecamWidget);
-		}	
+		}
 	}
 	else
 	{
 		deleteObject(m_camParamDialog);
-	}		
+	}
 }
 
 void TW_CoreMainWindow::updateTitle(const QString& qstr)

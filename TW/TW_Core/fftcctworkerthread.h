@@ -23,11 +23,13 @@ public:
 					   int iMarginX, int iMarginY,
 					   const QRect &roi,
 					   const cv::Mat &firstFrame,
-					   std::shared_ptr<SharedResources>&);
+					   std::shared_ptr<SharedResources>&,
+					   ComputationMode computationMode);
 	~FFTCCTWorkerThread();
 
 public slots:
-	void processFrame(const int &iFrameCount);
+	void processFrameFFTCC(const int &iFrameCount);
+	void processFrameFFTCC_ICGN(const int &iFrameCount);
 	
 
 signals:
@@ -73,6 +75,7 @@ private:
 	int m_iSubsetY;
 
 	cuFftcc2DPtr m_Fftcc2DPtr;
+	cuICGN2DPtr m_Icgn2DPtr;
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
 	QRect m_ROI;
@@ -85,6 +88,7 @@ private:
 	int m_processingTime;
 	int m_fpsSum;
 	int m_sampleNumber;
+	ComputationMode m_computationMode;
 
 };
 

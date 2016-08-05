@@ -52,6 +52,7 @@ private:
 	int m_d_iV;
 	float m_d_fZNCC;
 
+	ComputationMode m_computationMode;
 };
 
 #endif // TW_COREMAINWINDOW_H
