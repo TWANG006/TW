@@ -28,7 +28,7 @@ OneCamWidget::OneCamWidget(int deviceNumber,
 	// 1. Create the FFT-CC worker thread
 	m_fftccWorkerThread = new QThread;
 
-	// 1.0 TODO: If needed, create another ICGN thread
+	// 1.0 TODO: If needed, create another ICGN worker object
 	if (m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
 	{
 		;
@@ -83,7 +83,8 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 
 
 	// 1. Create the capture thread & the FFTCC worker and its thread
-	m_captureThread = new CaptureThread(m_refImgBuffer,
+	m_captureThread = new CaptureThread(
+		m_refImgBuffer,
 		m_tarImgBuffer,
 		ifDropFrame,
 		m_iDeviceNumber,

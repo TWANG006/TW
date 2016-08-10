@@ -20,42 +20,60 @@ namespace paDIC{
 class TW_LIB_DLL_EXPORTS ICGN2D_CPU : public ICGN2D
 {
 public:
-	ICGN2D_CPU(/*(const cv::Mat& refImg,
-			   const cv::Mat& tarImg,*/
-			   //const cv::Mat& refImg,
-			   int_t iImgWidth, int_t iImgHeight,
-			   int_t iStartX, int_t iStartY,
-			   int_t iROIWidth, int_t iROIHeight,
-			   int_t iSubsetX, int_t iSubsetY,
-			   int_t iNumberX, int_t iNumberY,
-		       int_t iNumIterations,
-		       real_t fDeltaP,
-			   ICGN2DInterpolationFLag Iflag,
-			   paDICThreadFlag Tflag);
+	ICGN2D_CPU(
+		int_t iImgWidth, int_t iImgHeight,
+		int_t iStartX, int_t iStartY,
+		int_t iROIWidth, int_t iROIHeight,
+		int_t iSubsetX, int_t iSubsetY,
+		int_t iNumberX, int_t iNumberY,
+		int_t iNumIterations,
+		real_t fDeltaP,
+		ICGN2DInterpolationFLag Iflag,
+		paDICThreadFlag Tflag);
 
-	ICGN2D_CPU(/*(const cv::Mat& refImg,
-			   const cv::Mat& tarImg,*/
-			   const cv::Mat& refImg,
-			   int_t iImgWidth, int_t iImgHeight,
-			   int_t iStartX, int_t iStartY,
-			   int_t iROIWidth, int_t iROIHeight,
-			   int_t iSubsetX, int_t iSubsetY,
-			   int_t iNumberX, int_t iNumberY,
-		       int_t iNumIterations,
-		       real_t fDeltaP,
-			   ICGN2DInterpolationFLag Iflag,
-			   paDICThreadFlag Tflag);
+	ICGN2D_CPU(
+		const cv::Mat& refImg,
+		int_t iImgWidth, int_t iImgHeight,
+		int_t iStartX, int_t iStartY,
+		int_t iROIWidth, int_t iROIHeight,
+		int_t iSubsetX, int_t iSubsetY,
+		int_t iNumberX, int_t iNumberY,
+		int_t iNumIterations,
+		real_t fDeltaP,
+		ICGN2DInterpolationFLag Iflag,
+		paDICThreadFlag Tflag);
 	~ICGN2D_CPU();
 
 	virtual void ResetRefImg(const cv::Mat& refImg) override;
 	virtual void SetTarImg(const cv::Mat& tarImg) override;
 
-	void ICGN2D_Algorithm(real_t *fU,
-						  real_t *fV,
-						  int *iNumIterations,
-						  const int *iPOIpos,
-						  const cv::Mat& tarImg);
+	///\brief ICGN algorithm on all POIs
+	///
+	///\param fU array of initial guesses for the displacement in U direction for all POIs
+	///\param fV array of initial guesses for the displacement in V direction for all POIs
+	///\param iNumIterations return the number of iterations at each POI
+	///\param iPOIpos array of POI positions
+	void ICGN2D_Algorithm(
+		real_t *fU,
+		real_t *fV,
+		int *iNumIterations,
+		const int *iPOIpos,
+		const cv::Mat& tarImg);
 
+	///\brief ICGN algorithm on a portion of POIs in the interval [head, tail)
+	///
+	///\param fU array of initial guesses for the displacement in U direction for all POIs
+	///\param fV array of initial guesses for the displacement in V direction for all POIs
+	///\param iNumIterations return the number of iterations at each POI
+	///\param iPOIpos array of POI positions
+	void ICGN2D_Algorithm(
+		real_t *fU,
+		real_t *fV,
+		int *iNumIterations,
+		const int *iPOIpos,
+		const cv::Mat& tarImg,
+		int_t head,
+		int_t tail);
 
 	///\brief Core ICGN2D algorithm. The calculation unit is subset.
 	///
@@ -64,12 +82,13 @@ public:
 	///\param iPOIx POI x-position 
 	///\param iPOIy POI y-position
 	///\param id the id of the current POI being processed (For multi-threaded computation)
-	ICGN2DFlag ICGN2D_Compute(real_t &fU,
-							  real_t &fV,
-							  int &iNumIterations,
-							  const int iPOIx,
-							  const int iPOIy,
-							  const int id);
+	ICGN2DFlag ICGN2D_Compute(
+		real_t &fU,
+		real_t &fV,
+		int &iNumIterations,
+		const int iPOIx,
+		const int iPOIy,
+		const int id);
 
 	
 

@@ -10,19 +10,17 @@
 namespace TW{
 namespace paDIC{
 
-ICGN2D_CPU::ICGN2D_CPU(//const cv::Mat& refImg,
-					   /*const cv::Mat& tarImg,*/
-					   int_t iImgWidth, int_t iImgHeight,
-					   int_t iStartX, int_t iStartY,
-					   int_t iROIWidth, int_t iROIHeight,
-					   int_t iSubsetX, int_t iSubsetY,
-					   int_t iNumberX, int_t iNumberY,
-					   int_t iNumIterations,
-					   real_t fDeltaP,
-					   ICGN2DInterpolationFLag Iflag,
-					   paDICThreadFlag Tflag)
-	: ICGN2D(//refImg,
-			 iImgWidth, iImgHeight,
+ICGN2D_CPU::ICGN2D_CPU(
+	int_t iImgWidth, int_t iImgHeight,
+	int_t iStartX, int_t iStartY,
+	int_t iROIWidth, int_t iROIHeight,
+	int_t iSubsetX, int_t iSubsetY,
+	int_t iNumberX, int_t iNumberY,
+	int_t iNumIterations,
+	real_t fDeltaP,
+	ICGN2DInterpolationFLag Iflag,
+	paDICThreadFlag Tflag)
+	: ICGN2D(iImgWidth, iImgHeight,
 		 	 iStartX, iStartY,
 			 iROIWidth, iROIHeight,
 			 iSubsetX, iSubsetY,
@@ -35,17 +33,17 @@ ICGN2D_CPU::ICGN2D_CPU(//const cv::Mat& refImg,
 	ICGN2D_Prepare();	
 }
 
-ICGN2D_CPU::ICGN2D_CPU(const cv::Mat& refImg,
-					   /*const cv::Mat& tarImg,*/
-					   int_t iImgWidth, int_t iImgHeight,
-					   int_t iStartX, int_t iStartY,
-					   int_t iROIWidth, int_t iROIHeight,
-					   int_t iSubsetX, int_t iSubsetY,
-					   int_t iNumberX, int_t iNumberY,
-					   int_t iNumIterations,
-					   real_t fDeltaP,
-					   ICGN2DInterpolationFLag Iflag,
-					   paDICThreadFlag Tflag)
+ICGN2D_CPU::ICGN2D_CPU(
+	const cv::Mat& refImg,
+	int_t iImgWidth, int_t iImgHeight,
+	int_t iStartX, int_t iStartY,
+	int_t iROIWidth, int_t iROIHeight,
+	int_t iSubsetX, int_t iSubsetY,
+	int_t iNumberX, int_t iNumberY,
+	int_t iNumIterations,
+	real_t fDeltaP,
+	ICGN2DInterpolationFLag Iflag,
+	paDICThreadFlag Tflag)
 	: ICGN2D(refImg,
 			 iImgWidth, iImgHeight,
 		 	 iStartX, iStartY,
@@ -76,11 +74,72 @@ void ICGN2D_CPU::SetTarImg(const cv::Mat& tarImg)
 	m_tarImg = tarImg;
 }
 
-void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
-							      real_t *fV,
-								  int *iNumIterations,
-								  const int *iPOIpos,
-								  const cv::Mat& tarImg)
+void ICGN2D_CPU::ICGN2D_Algorithm(
+	real_t *fU,
+	real_t *fV,
+	int *iNumIterations,
+	const int *iPOIpos,
+	const cv::Mat& tarImg)
+{
+	m_tarImg = tarImg;
+	
+	double start = omp_get_wtime();
+	ICGN2D_Precomputation();
+	double end = omp_get_wtime();
+
+	std::cout << "Time for Precomputation is: " << 1000 * (end - start) << std::endl;
+
+	start = omp_get_wtime();
+	switch (m_Tflag)
+	{
+	case TW::paDIC::paDICThreadFlag::Single:
+	{
+		for (int i = 0; i < m_iPOINumber; i++)
+		{
+			ICGN2D_Compute(fU[i],
+						   fV[i],
+						   iNumIterations[i],
+						   iPOIpos[2 * i + 1],
+						   iPOIpos[2 * i + 0],
+						   i);
+		}
+		break;
+	}
+
+	case TW::paDIC::paDICThreadFlag::Multicore:
+	{
+#pragma	omp parallel for
+		for (int i = 0; i < m_iPOINumber; i++)
+		{
+			ICGN2D_Compute(fU[i],
+						   fV[i],
+						   iNumIterations[i],
+						   iPOIpos[2 * i + 1],
+						   iPOIpos[2 * i + 0],
+						   i);
+		}
+		break;
+	}
+
+	default:
+	{
+		break;
+	}
+	}
+	end = omp_get_wtime();
+	std::cout << "ICGN time is: " << 1000 * (end - start) << " [ms]" << std::endl;
+	std::cout << fU[0] << ", " << fV[0] << ", " << std::endl;
+}
+
+
+void ICGN2D_CPU::ICGN2D_Algorithm(
+	real_t *fU,
+	real_t *fV,
+	int *iNumIterations,
+	const int *iPOIpos,
+	const cv::Mat& tarImg,
+	int_t head, 
+	int_t tail)
 {
 	m_tarImg = tarImg;
 	
@@ -130,7 +189,6 @@ void ICGN2D_CPU::ICGN2D_Algorithm(real_t *fU,
 	end = omp_get_wtime();
 	std::cout << "ICGN time is: " << 1000 * (end - start) << " [ms]" << std::endl;
 }
-
 
 
 void ICGN2D_CPU::ICGN2D_Precomputation_Prepare()
