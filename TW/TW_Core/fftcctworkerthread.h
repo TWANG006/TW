@@ -30,6 +30,23 @@ public:
 					   const cv::Mat &firstFrame,
 					   std::shared_ptr<SharedResources>&,
 					   ComputationMode computationMode);
+
+	FFTCCTWorkerThread(// Inputs
+					   ImageBufferPtr refImgBuffer,
+					   ImageBufferPtr tarImgBuffer,
+					   VecBufferfPtr fUBuffer,
+					   VecBufferfPtr fVBuffer,
+					   VecBufferiPtr iPOIXYBuffer,
+					   int iWidth, int iHeight,
+					   int iSubsetX, int iSubsetY,
+					   int iGridSpaceX, int iGridSpaceY,
+					   int iMarginX, int iMarginY,
+					   const QRect &roi,
+					   const cv::Mat &firstFrame,
+					   std::shared_ptr<SharedResources>&,
+					   ComputationMode computationMode);
+	
+
 	~FFTCCTWorkerThread();
 
 public slots:
@@ -87,6 +104,14 @@ private:
 	ImageBufferPtr m_tarImgBuffer;
 	QRect m_ROI;
 	std::shared_ptr<SharedResources> m_sharedResources;
+
+	// These three parameters will only be used if CPU ICGN is the computation mode
+	std::vector<int> m_h_iPOIXY;
+	std::vector<float> m_h_fU;
+	std::vector<float> m_h_fV;
+	VecBufferfPtr m_fUBuffer;
+	VecBufferfPtr m_fVBuffer;
+	VecBufferiPtr m_iPOIXYBuffer;
 
 	/*Running statics*/
 	QTime m_t;

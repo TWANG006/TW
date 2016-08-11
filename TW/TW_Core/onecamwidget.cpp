@@ -7,12 +7,17 @@ OneCamWidget::OneCamWidget(int deviceNumber,
 	ImageBufferPtr tarImgBuffer,
 	int iImgWidth,
 	int iImgHeight,
+	int iNumberX,
+	int iNumberY,
 	const QRect& roi,
 	ComputationMode computationMode,
 	QWidget *parent)
 	: m_iDeviceNumber(deviceNumber)
 	, m_refImgBuffer(refImgBuffer)
 	, m_tarImgBuffer(tarImgBuffer)
+	, m_fUBuffer(nullptr)
+	, m_fVBuffer(nullptr)
+	, m_iPOIXYBuffer(nullptr)
 	, m_refImgBufferCPU_ICGN(nullptr)
 	, m_tarImgBufferCPU_ICGN(nullptr)
 	, m_isCameraConnected(false)
@@ -23,6 +28,8 @@ OneCamWidget::OneCamWidget(int deviceNumber,
 	, m_icgnWorkerThread(nullptr)
 	, m_iImgWidth(iImgWidth)
 	, m_iImgHeight(iImgHeight)
+	, m_iNumberX(iNumberX)
+	, m_iNumberY(iNumberY)
 	, m_computationMode(computationMode)
 	, QWidget(parent)
 {
@@ -55,6 +62,8 @@ OneCamWidget::OneCamWidget(
 	ImageBufferPtr tarImgBufferCPU_ICGN,
 	int iImgWidth,
 	int iImgHeight,
+	int iNumberX,
+	int iNumberY,
 	const QRect& roi,
 	ComputationMode computationMode,
 	QWidget *parent)
@@ -63,6 +72,9 @@ OneCamWidget::OneCamWidget(
 	, m_tarImgBuffer(tarImgBuffer)
 	, m_refImgBufferCPU_ICGN(refImgBufferCPU_ICGN)
 	, m_tarImgBufferCPU_ICGN(tarImgBufferCPU_ICGN)
+	, m_fUBuffer(new TW::Concurrent_Buffer<std::vector<float>>(2))
+	, m_fVBuffer(new TW::Concurrent_Buffer<std::vector<float>>(2))
+	, m_iPOIXYBuffer(new TW::Concurrent_Buffer<std::vector<int>>(2))
 	, m_isCameraConnected(false)
 	, m_captureThread(nullptr)
 	, m_fftccWorker(nullptr)
@@ -71,6 +83,8 @@ OneCamWidget::OneCamWidget(
 	, m_icgnWorkerThread(nullptr)
 	, m_iImgWidth(iImgWidth)
 	, m_iImgHeight(iImgHeight)
+	, m_iNumberX(iNumberX)
+	, m_iNumberY(iNumberY)
 	, m_computationMode(computationMode)
 	, QWidget(parent)
 {
@@ -165,37 +179,55 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 		cv::Mat firstFrame;
 		m_captureThread->grabTheFirstRefFrame(firstFrame);
 
-		// 4. Construct & initialize the fftccWorker
-		m_fftccWorker = new FFTCCTWorkerThread(m_refImgBuffer,
-			m_tarImgBuffer,
-			m_iImgWidth, m_iImgHeight,
-			iSubsetX, iSubsetY,
-			iGridSpaceX, iGridSpaceY,
-			iMarginX, iMarginY,
-			roi,
-			firstFrame,
-			m_sharedResources,
-			m_computationMode);
-		// Move the fftccworker to its own thread		
-		m_fftccWorker->moveToThread(m_fftccWorkerThread);
-
-		// 5. If needed, create the ICGNWorkerThread()
+		// Construct & initialize the fftccWorker; If needed, create the ICGNWorkerThread()
 		if(ComputationMode::GPUFFTCC_CPUICGN == m_computationMode)
 		{
+			m_fftccWorker = new FFTCCTWorkerThread(
+				m_refImgBuffer,
+				m_tarImgBuffer,
+				m_fUBuffer,
+				m_fVBuffer,
+				m_iPOIXYBuffer,
+				m_iImgWidth, m_iImgHeight,
+				iSubsetX, iSubsetY,
+				iGridSpaceX, iGridSpaceY,
+				iMarginX, iMarginY,
+				roi,
+				firstFrame,
+				m_sharedResources,
+				m_computationMode);
+
 			m_icgnWorker = new ICGNWorkerThread(
 				m_refImgBufferCPU_ICGN,
 				m_tarImgBufferCPU_ICGN,
-				m_iImgWidth,
-				m_iImgHeight,
-				iSubsetX,
-				iSubsetY,
-				iGridSpaceX,
-				iGridSpaceY,
-				iMarginX,
-				iMarginY,
-				roi);
+				m_fUBuffer,
+				m_fVBuffer,
+				m_iPOIXYBuffer,
+				roi,
+				m_iImgWidth, m_iImgHeight,
+				m_iNumberX, m_iNumberY,
+				iSubsetX, iSubsetY,
+				20,
+				0.001);
 			m_icgnWorker->moveToThread(m_icgnWorkerThread);
 		}
+		else
+		{
+			m_fftccWorker = new FFTCCTWorkerThread(
+				m_refImgBuffer,
+				m_tarImgBuffer,
+				m_iImgWidth, m_iImgHeight,
+				iSubsetX, iSubsetY,
+				iGridSpaceX, iGridSpaceY,
+				iMarginX, iMarginY,
+				roi,
+				firstFrame,
+				m_sharedResources,
+				m_computationMode);
+		}
+
+		// Move the fftccworker to its own thread		
+		m_fftccWorker->moveToThread(m_fftccWorkerThread);
 		
 		// 6. Do the signal/slot connections here
 		connect(m_captureThread, &CaptureThread::newRefQImg, this, &OneCamWidget::updateRefFrame);
@@ -297,7 +329,7 @@ void OneCamWidget::updateStatics(const int& iNumPOI, const int& iFPS)
 	emit titleReady(qstr);
 }
 
-void OneCamWidget::testSlot(const int &i)
+void OneCamWidget::testSlot(const float &i)
 {
 	QMessageBox::warning(this, QString::number(i), QString("kanzhe"));
 }

@@ -19,6 +19,9 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(
 	ComputationMode computationMode)
 	: m_refImgBuffer(refImgBuffer)
 	, m_tarImgBuffer(tarImgBuffer)
+	, m_fUBuffer(nullptr)
+	, m_fVBuffer(nullptr)
+	, m_iPOIXYBuffer(nullptr)
 	, m_iWidth(iWidth)
 	, m_iHeight(iHeight)
 	, m_ROI(roi)
@@ -99,6 +102,95 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(
 	TW::cuInitialize<unsigned int>(m_d_VColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
 }
 
+FFTCCTWorkerThread::FFTCCTWorkerThread(
+	ImageBufferPtr refImgBuffer,
+	ImageBufferPtr tarImgBuffer,
+	VecBufferfPtr fUBuffer,
+	VecBufferfPtr fVBuffer,
+	VecBufferiPtr iPOIXYBuffer,
+	int iWidth, int iHeight,
+	int iSubsetX, int iSubsetY,
+	int iGridSpaceX, int iGridSpaceY,
+	int iMarginX, int iMarginY,
+	const QRect &roi,
+	const cv::Mat &firstFrame,
+	std::shared_ptr<SharedResources>& s,
+	ComputationMode computationMode)
+	: m_refImgBuffer(refImgBuffer)
+	, m_tarImgBuffer(tarImgBuffer)
+	, m_fUBuffer(fUBuffer)
+	, m_fVBuffer(fVBuffer)
+	, m_iPOIXYBuffer(iPOIXYBuffer)
+	, m_iWidth(iWidth)
+	, m_iHeight(iHeight)
+	, m_ROI(roi)
+	, m_Fftcc2DPtr(nullptr)
+	, m_Icgn2DPtr(nullptr)
+	, m_sharedResources(s)
+	, m_d_fU(nullptr)
+	, m_d_fV(nullptr)
+	, m_d_fAccumulateU(nullptr)
+	, m_d_fAccumulateV(nullptr)
+	, m_d_fMaxU(nullptr)
+	, m_d_fMinU(nullptr)
+	, m_d_fMaxV(nullptr)
+	, m_d_fMinV(nullptr)
+	, m_d_iCurrentPOIXY(nullptr)
+	, m_d_fZNCC(nullptr)
+	, m_iSubsetX(iSubsetX)
+	, m_iSubsetY(iSubsetY)
+	, m_averageFPS(0)
+	, m_fpsSum(0)
+	, m_processingTime(0)
+	, m_sampleNumber(0)
+	, m_computationMode(computationMode)
+{
+	// Do the initialization for the paDIC's cuFFTCC here in the constructor
+	// 1. Construct the cuFFTCC2D object using the whole image
+	m_Fftcc2DPtr.reset(new TW::paDIC::cuFFTCC2D(
+		iWidth, iHeight,
+		m_ROI.width(), m_ROI.height(),
+		m_ROI.x(), m_ROI.y(),
+		iSubsetX, iSubsetY,
+		iGridSpaceX, iGridSpaceY,
+		iMarginX, iMarginY));
+
+	m_iNumberX = m_Fftcc2DPtr->GetNumPOIsX();
+	m_iNumberY = m_Fftcc2DPtr->GetNumPOIsY();
+
+	// Allocate memory for the current U & V
+	m_iNumPOIs = m_Fftcc2DPtr->GetNumPOIs();
+	cudaMalloc((void**)&m_d_fAccumulateU, sizeof(TW::real_t)*m_iNumPOIs);
+	cudaMalloc((void**)&m_d_fAccumulateV, sizeof(TW::real_t)*m_iNumPOIs);
+	TW::cuInitialize<TW::real_t>(m_d_fAccumulateU, 0, m_iNumPOIs);
+	TW::cuInitialize<TW::real_t>(m_d_fAccumulateV, 0, m_iNumPOIs);
+
+	// Initialize the current U & V to 0
+
+
+	//2. Do the initialization for cuFFTCC2D object
+	cudaMalloc((void**)&m_d_iCurrentPOIXY, sizeof(int)*m_iNumPOIs * 2);
+	m_Fftcc2DPtr->cuInitializeFFTCC(m_d_fU, m_d_fV, m_d_fZNCC, firstFrame);
+	cudaMemcpy(m_d_iCurrentPOIXY, m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY, sizeof(int)*m_iNumPOIs * 2, cudaMemcpyDeviceToDevice);
+
+	//3. Allocate memory for the max and min [U,V]'s
+	cudaMalloc((void**)&m_d_fMaxU, sizeof(TW::real_t));
+	cudaMalloc((void**)&m_d_fMinU, sizeof(TW::real_t));
+	cudaMalloc((void**)&m_d_fMaxV, sizeof(TW::real_t));
+	cudaMalloc((void**)&m_d_fMinV, sizeof(TW::real_t));
+
+	cudaMalloc((void**)&m_d_UColorMap, sizeof(unsigned int)*m_ROI.width()*m_ROI.height());
+	cudaMalloc((void**)&m_d_VColorMap, sizeof(unsigned int)*m_ROI.width()*m_ROI.height());
+
+	TW::cuInitialize<unsigned int>(m_d_UColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
+	TW::cuInitialize<unsigned int>(m_d_VColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
+
+	// Allocate memory for the Vectors
+	m_h_iPOIXY.resize(m_iNumPOIs);
+	m_h_fU.resize(m_iNumPOIs);
+	m_h_fV.resize(m_iNumPOIs);
+}
+
 FFTCCTWorkerThread::~FFTCCTWorkerThread()
 {
 	m_Fftcc2DPtr->cuDestroyFFTCC(m_d_fU, m_d_fV, m_d_fZNCC);
@@ -152,10 +244,25 @@ void FFTCCTWorkerThread::processFrameFFTCC(const int &iFrameCount)
 		// 3.1 Use the results to update the POI positions if iFrameCount is greater than 50
 		if (iFrameCount > 50)
 		{
-			// Update the accumulative current [U,V]
 			/*cudaMemcpy(m_d_fAccumulateU, m_d_fU, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);
 			cudaMemcpy(m_d_fAccumulateV, m_d_fV, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);*/
 
+			// If CPU-ICGN is the computation mode, copy the iU, iV and POIpos from GPU to CPU for
+			// its use. Then, emit the signal ICGNDtaReady to notify ICGN thread to begin processing.
+			if(m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
+			{
+				cudaMemcpy(m_h_fU.data(), m_d_fU, sizeof(float)*m_iNumPOIs, cudaMemcpyDeviceToHost);
+				cudaMemcpy(m_h_fV.data(), m_d_fV, sizeof(float)*m_iNumPOIs, cudaMemcpyDeviceToHost);
+				cudaMemcpy(m_h_iPOIXY.data(), m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY, sizeof(int)*m_iNumPOIs, cudaMemcpyDeviceToHost);
+
+				m_fUBuffer->EnQueue(m_h_fU);
+				m_fVBuffer->EnQueue(m_h_fV);
+				m_iPOIXYBuffer->EnQueue(m_h_iPOIXY);
+
+				emit ICGNDataReady();
+			}
+
+			// Update the accumulative current [U,V]
 			cuAccumulateUV(m_d_fAccumulateU, m_d_fAccumulateV, m_iNumPOIs, m_d_fU, m_d_fV);
 
 			// Use the current [U, V] to update the POI positions
@@ -164,13 +271,6 @@ void FFTCCTWorkerThread::processFrameFFTCC(const int &iFrameCount)
 				m_iNumberX,
 				m_iNumberY,
 				m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY);
-			
-			// If CPU-ICGN is the computation mode, copy the iU, iV and POIpos from GPU to CPU for
-			// its use. Then, emit the signal ICGNDtaReady to notify ICGN thread to begin processing.
-			if(m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
-			{
-				emit ICGNDataReady();
-			}
 		}
 
 		// 3.2 TODO: Copy the iU, iV to host memory for ICGN
@@ -317,6 +417,7 @@ void FFTCCTWorkerThread::processFrameFFTCC_ICGN(const int &iFrameCount)
 			// Update the accumulative current [U,V]
 			/*cudaMemcpy(m_d_fAccumulateU, m_d_fU, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);
 			cudaMemcpy(m_d_fAccumulateV, m_d_fV, sizeof(TW::real_t)*m_iNumPOIs, cudaMemcpyDeviceToDevice);*/
+
 
 			cuAccumulateUV(m_d_fAccumulateU, m_d_fAccumulateV, m_iNumPOIs, m_d_fU, m_d_fV);
 
