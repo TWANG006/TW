@@ -16,6 +16,11 @@ class ICGNWorkerThread : public QObject
 	Q_OBJECT
 
 public:
+	// Disable the default constructors
+	ICGNWorkerThread() = delete;
+	ICGNWorkerThread(const ICGNWorkerThread&) = delete;
+	ICGNWorkerThread& operator=(const ICGNWorkerThread&) = delete;
+
 	ICGNWorkerThread(
 		ImageBufferPtr refImgBuffer,
 		ImageBufferPtr tarImgBuffer,
@@ -30,11 +35,13 @@ public slots:
 	void processFrame();
 
 signals:
+	void testSignal(const int&);
 
 private:
 	ICGN2DPtr m_ICGN2DPtr;
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
+
 };
 
 #endif // ICGNWORKERTHREAD_H

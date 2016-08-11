@@ -13,6 +13,30 @@ CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
 	: m_isDropFrameIfBufferFull(isDropFrameIfBufferFull)
 	, m_refImgBuffer(refImgBuffer)
 	, m_tarImgBuffer(tarImgBuffer)
+	, m_refImgBufferCPU_ICGN(nullptr)
+	, m_tarImgBufferCPU_ICGN(nullptr)
+	, m_iDeviceNumber(iDeviceNumber)
+	, m_iWidth(width)
+	, m_iHeight(height)
+	, m_iFrameCount(0)
+	, m_isAboutToStop(false)
+	, QThread(parent)
+{}
+
+CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
+						     ImageBufferPtr tarImgBuffer,
+							 ImageBufferPtr refImgBufferCPU_ICGN,
+						     ImageBufferPtr tarImgBufferCPU_ICGN,
+							 bool isDropFrameIfBufferFull,
+							 int iDeviceNumber,
+							 int width,
+							 int height,
+							 QObject *parent)
+	: m_isDropFrameIfBufferFull(isDropFrameIfBufferFull)
+	, m_refImgBuffer(refImgBuffer)
+	, m_tarImgBuffer(tarImgBuffer)
+	, m_refImgBufferCPU_ICGN(refImgBufferCPU_ICGN)
+	, m_tarImgBufferCPU_ICGN(tarImgBufferCPU_ICGN)
 	, m_iDeviceNumber(iDeviceNumber)
 	, m_iWidth(width)
 	, m_iHeight(height)

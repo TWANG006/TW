@@ -32,6 +32,9 @@ private:
 
 	ImageBufferPtr m_refBuffer;						// Global refImg buffer
 	ImageBufferPtr m_tarBuffer;						// Global tarImg 
+	ImageBufferPtr m_refBufferCPU_ICGN;
+	ImageBufferPtr m_tarBufferCPU_ICGN;			
+
 	QString qstrLastSelectedDir;					//!- Hold last opend directory
 	CamParamDialog  *m_camParamDialog;
 	OneCamWidget *m_onecamWidget;

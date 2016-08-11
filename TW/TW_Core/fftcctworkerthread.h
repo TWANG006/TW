@@ -14,6 +14,11 @@ class FFTCCTWorkerThread : public QObject, protected QOpenGLFunctions_3_3_Core
 	Q_OBJECT
 
 public:
+	// Disable the default constructors
+	FFTCCTWorkerThread() = delete;
+	FFTCCTWorkerThread(const FFTCCTWorkerThread&) = delete;
+	FFTCCTWorkerThread& operator=(const FFTCCTWorkerThread&) = delete;
+
 	FFTCCTWorkerThread(// Inputs
 					   ImageBufferPtr refImgBuffer,
 					   ImageBufferPtr tarImgBuffer,
@@ -36,6 +41,8 @@ signals:
 	void frameReady();
 	void runningStaticsReady(const int& iNumPOIs,
 							 const int& iFPS);
+	void ICGNDataReady();
+	//void testSignal(const int&);
 
 private:
 	 void updateFPS(int);

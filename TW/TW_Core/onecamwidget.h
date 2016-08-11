@@ -17,27 +17,46 @@ class OneCamWidget : public QWidget
 	Q_OBJECT
 
 public:
-	OneCamWidget(int deviceNumber,
-					ImageBufferPtr refImgBuffer,
-					ImageBufferPtr tarImgBuffer,
-					int iImgWidth,
-					int iImgHeight,
-					const QRect& roi,
-					// Add computation Mode
-					ComputationMode computationMode = ComputationMode::GPUFFTCC,
-					QWidget *parent = 0);
+	///\brief Constructor for the non-CPU_ICGN computation mode
+	OneCamWidget(
+		int deviceNumber,
+		ImageBufferPtr refImgBuffer,
+		ImageBufferPtr tarImgBuffer,
+		int iImgWidth,
+		int iImgHeight,
+		const QRect& roi,
+		// Add computation Mode
+		ComputationMode computationMode = ComputationMode::GPUFFTCC,
+		QWidget *parent = 0);
+
+	///\brief Constructor for the CPU-ICGN computation mode, because the ICGN
+	/// needs another set of ref & targ image buffers for its own use.
+	OneCamWidget(
+		int deviceNumber,
+		ImageBufferPtr refImgBuffer,
+		ImageBufferPtr tarImgBuffer,
+		ImageBufferPtr refImgBufferCPU_ICGN,
+		ImageBufferPtr tarImgBufferCPU_ICGN,
+		int iImgWidth,
+		int iImgHeight,
+		const QRect& roi,
+		ComputationMode computationMode = ComputationMode::GPUFFTCC,
+		QWidget *parent = 0);
+
 	~OneCamWidget();
 
-	bool connectToCamera(bool ifDropFrame, 
-						 int iSubsetX, int iSubsetY,
-						 int iGridSpaceX, int iGridSpaceY,
-						 int iMarginX, int iMarginY,
-						 const QRect& roi);
+	bool connectToCamera(
+		bool ifDropFrame,
+		int iSubsetX, int iSubsetY,
+		int iGridSpaceX, int iGridSpaceY,
+		int iMarginX, int iMarginY,
+		const QRect& roi);
 
 
 private:
 	void stopCaptureThread();
 	void stopFFTCCWorkerThread();
+	void stopICGNWorkerThread();
 
 signals:
 	void titleReady(const QString&);
@@ -46,14 +65,17 @@ public slots:
 	void updateRefFrame(const QImage&);	// signal: &capturethread::newRefFrame
 	void updateTarFrame(const QImage&);	// signal: &capturethread::newTarFrame
 	void updateStatics(const int&, const int&);
+	void testSlot(const int&);
 
 private:
 	Ui::OneCamWidget ui;
 	GLWidget *m_twGLwidget;
 
 	CaptureThread *m_captureThread;		// Capture thread	
+
 	QThread *m_fftccWorkerThread;	    // FFTCC thread
 	FFTCCTWorkerThread *m_fftccWorker;	// FFTCC worker
+
 	QThread *m_icgnWorkerThread;		// ICGN thread
 	ICGNWorkerThread *m_icgnWorker;		// ICGN worker
 	
@@ -64,6 +86,8 @@ private:
 	int m_iDeviceNumber;
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
+	ImageBufferPtr m_refImgBufferCPU_ICGN;	// Ref Image buffer for the CPU ICGN
+	ImageBufferPtr m_tarImgBufferCPU_ICGN;  // Tar Image buffer for the CPU ICGN
 	int m_iImgWidth;
 	int m_iImgHeight;
 

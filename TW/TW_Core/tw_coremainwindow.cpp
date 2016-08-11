@@ -15,6 +15,8 @@ TW_CoreMainWindow::TW_CoreMainWindow(QWidget *parent)
 	, m_iImgWidth(0), m_iImgHeight(0)
 	, m_refBuffer(nullptr)
 	, m_tarBuffer(nullptr)
+	, m_refBufferCPU_ICGN(nullptr)
+	, m_tarBufferCPU_ICGN(nullptr)
 {
 	ui.setupUi(this);
 	/*m_testCap = new CaptureThread(m_refBuffer,m_testCap, false,0,-1,-1,this);*/
@@ -106,9 +108,7 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 	//!- If OK button is clicked, accept all the settings
 	if (m_camParamDialog->exec() == QDialog::Accepted)
 	{
-		m_refBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetRefImgBufferSize()));
-		m_tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetTarImgBufferSize()));
-
+		// Get parameters from the camera parameter setting dialog
 		m_ROI = m_camParamDialog->GetROI();
 		m_iSubsetX = m_camParamDialog->GetSubetX();
 		m_iSubsetY = m_camParamDialog->GetSubetY();
@@ -121,21 +121,51 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 		m_iImgHeight = m_camParamDialog->GetInputSourceHeight();
 		m_computationMode = m_camParamDialog->GetComputationMode();
 
+		m_refBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetRefImgBufferSize()));
+		m_tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetTarImgBufferSize()));
+
+		// Enable the ICGN image buffers if CPU-ICGN computation mode is on
+		if (m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
+		{
+			m_refBufferCPU_ICGN.reset(new TW::Concurrent_Buffer<cv::Mat>(20));
+			m_tarBufferCPU_ICGN.reset(new TW::Concurrent_Buffer<cv::Mat>(20));
+		}
+
+		// Destroy the dialog
 		deleteObject(m_camParamDialog);
 
-		m_onecamWidget = new OneCamWidget(
-			0,
-			m_refBuffer,
-			m_tarBuffer,
-			m_iImgWidth,
-			m_iImgHeight,
-			m_ROI,
-			m_computationMode,
-			this);
-
+		// Create the display widget
+		if(ComputationMode::GPUFFTCC_CPUICGN == m_computationMode)
+		{		
+			m_onecamWidget = new OneCamWidget(
+				0,
+				m_refBuffer,
+				m_tarBuffer,
+				m_refBufferCPU_ICGN,
+				m_tarBufferCPU_ICGN,
+				m_iImgWidth,
+				m_iImgHeight,
+				m_ROI,
+				m_computationMode,
+				this);
+		}
+		else
+		{
+			m_onecamWidget = new OneCamWidget(
+				0,
+				m_refBuffer,
+				m_tarBuffer,
+				m_iImgWidth,
+				m_iImgHeight,
+				m_ROI,
+				m_computationMode,
+				this);
+		}
 		connect(m_onecamWidget, &OneCamWidget::titleReady, this, &TW_CoreMainWindow::updateTitle);
 
-		if (m_onecamWidget->connectToCamera(m_isDropFrameChecked,
+		// Try to connect to the camera
+		if (m_onecamWidget->connectToCamera(
+			m_isDropFrameChecked,
 			m_iSubsetX, m_iSubsetY,
 			m_iGridSpaceX, m_iGridSpaceY,
 			m_iMarginX, m_iMarginY,

@@ -14,6 +14,10 @@ class CaptureThread : public QThread
 	Q_OBJECT
 
 public:
+	CaptureThread() = delete;
+	CaptureThread(const CaptureThread&) = delete;
+	CaptureThread& operator=(const CaptureThread&) = delete;
+
 	CaptureThread(ImageBufferPtr refImgBuffer,
 				  ImageBufferPtr tarImgBuffer,
 				  bool isDropFrameIfBufferFull,
@@ -21,6 +25,17 @@ public:
 				  int width,
 				  int height,
 				  QObject *parent);
+
+	CaptureThread(ImageBufferPtr refImgBuffer,
+				  ImageBufferPtr tarImgBuffer,
+				  ImageBufferPtr refImgBufferCPU_ICGN,
+				  ImageBufferPtr tarImgBufferCPU_ICGN,
+				  bool isDropFrameIfBufferFull,
+  				  int iDeviceNumber,
+				  int width,
+				  int height,
+				  QObject *parent);
+
 	~CaptureThread();
 
 	/// \brief Grab a first frame for the initialziation of the cuFFTCC2D algorithm
@@ -51,6 +66,8 @@ private:
 	cv::Mat m_grayFrame;
 	ImageBufferPtr m_tarImgBuffer;
 	ImageBufferPtr m_refImgBuffer;
+	ImageBufferPtr m_tarImgBufferCPU_ICGN;
+	ImageBufferPtr m_refImgBufferCPU_ICGN;
 	volatile bool m_isAboutToStop;
 	QMutex m_stopMutex;
 	int m_iDeviceNumber;

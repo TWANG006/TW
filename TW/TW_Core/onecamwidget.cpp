@@ -1,5 +1,6 @@
 #include "onecamwidget.h"
 #include <QDebug>
+#include <QMessageBox>
 
 OneCamWidget::OneCamWidget(int deviceNumber,
 	ImageBufferPtr refImgBuffer,
@@ -12,6 +13,8 @@ OneCamWidget::OneCamWidget(int deviceNumber,
 	: m_iDeviceNumber(deviceNumber)
 	, m_refImgBuffer(refImgBuffer)
 	, m_tarImgBuffer(tarImgBuffer)
+	, m_refImgBufferCPU_ICGN(nullptr)
+	, m_tarImgBufferCPU_ICGN(nullptr)
 	, m_isCameraConnected(false)
 	, m_captureThread(nullptr)
 	, m_fftccWorker(nullptr)
@@ -28,11 +31,56 @@ OneCamWidget::OneCamWidget(int deviceNumber,
 	// 1. Create the FFT-CC worker thread
 	m_fftccWorkerThread = new QThread;
 
-	// 1.0 TODO: If needed, create another ICGN worker object
-	if (m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
-	{
-		;
-	}
+	//// 1.0 TODO: If needed, create another ICGN worker object
+	//if (m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
+	//{
+	//	;
+	//}
+
+	m_sharedResources.reset(new SharedResources);
+	m_twGLwidget = new GLWidget(m_sharedResources,
+		m_fftccWorkerThread,
+		this,
+		m_iImgWidth,
+		m_iImgHeight,
+		roi);
+	ui.gridLayout->addWidget(m_twGLwidget, 0, 1, 1, 1);
+}
+
+OneCamWidget::OneCamWidget(
+	int deviceNumber,
+	ImageBufferPtr refImgBuffer,
+	ImageBufferPtr tarImgBuffer,
+	ImageBufferPtr refImgBufferCPU_ICGN,
+	ImageBufferPtr tarImgBufferCPU_ICGN,
+	int iImgWidth,
+	int iImgHeight,
+	const QRect& roi,
+	ComputationMode computationMode,
+	QWidget *parent)
+	: m_iDeviceNumber(deviceNumber)
+	, m_refImgBuffer(refImgBuffer)
+	, m_tarImgBuffer(tarImgBuffer)
+	, m_refImgBufferCPU_ICGN(refImgBufferCPU_ICGN)
+	, m_tarImgBufferCPU_ICGN(tarImgBufferCPU_ICGN)
+	, m_isCameraConnected(false)
+	, m_captureThread(nullptr)
+	, m_fftccWorker(nullptr)
+	, m_fftccWorkerThread(nullptr)
+	, m_icgnWorker(nullptr)
+	, m_icgnWorkerThread(nullptr)
+	, m_iImgWidth(iImgWidth)
+	, m_iImgHeight(iImgHeight)
+	, m_computationMode(computationMode)
+	, QWidget(parent)
+{
+	ui.setupUi(this);
+
+	// 1. Create the FFT-CC worker thread
+	m_fftccWorkerThread = new QThread;
+
+	// 2. Create the ICGN worker thread
+	m_icgnWorkerThread = new QThread;
 
 	m_sharedResources.reset(new SharedResources);
 	m_twGLwidget = new GLWidget(m_sharedResources,
@@ -82,8 +130,23 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 	ui.tarFramelabel->setText(tr("Connecting to camera..."));
 
 
-	// 1. Create the capture thread & the FFTCC worker and its thread
-	m_captureThread = new CaptureThread(
+	// 1. Create the capture thread
+	if(ComputationMode::GPUFFTCC_CPUICGN == m_computationMode)
+	{
+		m_captureThread = new CaptureThread(
+		m_refImgBuffer,
+		m_tarImgBuffer,
+		m_refImgBufferCPU_ICGN,
+		m_tarImgBufferCPU_ICGN,
+		ifDropFrame,
+		m_iDeviceNumber,
+		m_iImgWidth,
+		m_iImgHeight,
+		this);
+	}
+	else
+	{
+		m_captureThread = new CaptureThread(
 		m_refImgBuffer,
 		m_tarImgBuffer,
 		ifDropFrame,
@@ -91,6 +154,7 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 		m_iImgWidth,
 		m_iImgHeight,
 		this);
+	}
 
 	connect(m_captureThread, &CaptureThread::finished, m_captureThread, &CaptureThread::deleteLater);
 
@@ -112,30 +176,55 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 			firstFrame,
 			m_sharedResources,
 			m_computationMode);
-
-		// 4.0 TODO: If needed, create the ICGNWorkerThread()
-
-		// 5. Move the fftccworker to its own thread		
+		// Move the fftccworker to its own thread		
 		m_fftccWorker->moveToThread(m_fftccWorkerThread);
 
+		// 5. If needed, create the ICGNWorkerThread()
+		if(ComputationMode::GPUFFTCC_CPUICGN == m_computationMode)
+		{
+			m_icgnWorker = new ICGNWorkerThread(
+				m_refImgBufferCPU_ICGN,
+				m_tarImgBufferCPU_ICGN,
+				m_iImgWidth,
+				m_iImgHeight,
+				iSubsetX,
+				iSubsetY,
+				iGridSpaceX,
+				iGridSpaceY,
+				iMarginX,
+				iMarginY,
+				roi);
+			m_icgnWorker->moveToThread(m_icgnWorkerThread);
+		}
+		
 		// 6. Do the signal/slot connections here
 		connect(m_captureThread, &CaptureThread::newRefQImg, this, &OneCamWidget::updateRefFrame);
 		connect(m_captureThread, &CaptureThread::newTarQImg, this, &OneCamWidget::updateTarFrame);
 		connect(m_fftccWorker, &FFTCCTWorkerThread::runningStaticsReady, this, &OneCamWidget::updateStatics);
 		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorker, &QObject::deleteLater);
 		connect(m_fftccWorkerThread, &QThread::finished, m_fftccWorkerThread, &QThread::deleteLater);
+		connect(m_fftccWorker, SIGNAL(frameReady()), m_twGLwidget, SLOT(update()));
+		
+
+		// 6.0 Hand-shaking protocol between ICGNThread and QThread
 		if (m_computationMode == ComputationMode::GPUFFTCC || m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
 			connect(m_captureThread, &CaptureThread::newTarFrame, m_fftccWorker, &FFTCCTWorkerThread::processFrameFFTCC);
+		if (m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
+		{
+			// connect the signals for CPU ICGN processes
+			connect(m_fftccWorker, &FFTCCTWorkerThread::ICGNDataReady, m_icgnWorker, &ICGNWorkerThread::processFrame);
+			connect(m_icgnWorkerThread, &QThread::finished, m_icgnWorker, &QObject::deleteLater);
+			connect(m_icgnWorkerThread, &QThread::finished, m_icgnWorkerThread, &QThread::deleteLater);
+			connect(m_icgnWorker, &ICGNWorkerThread::testSignal, this, &OneCamWidget::testSlot);
+		}
 		if (m_computationMode == ComputationMode::GPUFFTCC_ICGN)
 			connect(m_captureThread, &CaptureThread::newTarFrame, m_fftccWorker, &FFTCCTWorkerThread::processFrameFFTCC_ICGN);
-		connect(m_fftccWorker, SIGNAL(frameReady()), m_twGLwidget, SLOT(update()));
-
-		// 6.0 TODO: Hand-shaking protocol between ICGNThread and QThread
 
 		// 7. Start the capture & worker threads
 		m_captureThread->start();
 		m_fftccWorkerThread->start();
-
+		if (m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
+			m_icgnWorkerThread->start();
 
 
 		m_isCameraConnected = true;
@@ -175,6 +264,18 @@ void OneCamWidget::stopFFTCCWorkerThread()
 	qDebug() << "[Calculation] [" << m_iDeviceNumber << "] FFTCCWorker thread successfully stopped...";
 }
 
+void OneCamWidget::stopICGNWorkerThread()
+{
+	qDebug() << "[Calculation] [" << m_iDeviceNumber << "] About to stop ICGNWorker thread...";
+	if (m_icgnWorkerThread->isRunning())
+	{
+		m_icgnWorkerThread->quit();
+		m_icgnWorkerThread->wait();
+	}
+
+	qDebug() << "[Calculation] [" << m_iDeviceNumber << "] ICGNWorker thread successfully stopped...";
+}
+
 void OneCamWidget::updateRefFrame(const QImage& refImg)
 {
 	ui.refFramelabel->setPixmap(QPixmap::fromImage(refImg).scaled(ui.refFramelabel->width(),
@@ -194,4 +295,9 @@ void OneCamWidget::updateStatics(const int& iNumPOI, const int& iFPS)
 	QString qstr = QLatin1String("Number of POIs is: ") + QString::number(iNumPOI)
 		+ QLatin1String("    FPS = ") + QString::number(iFPS);
 	emit titleReady(qstr);
+}
+
+void OneCamWidget::testSlot(const int &i)
+{
+	QMessageBox::warning(this, QString::number(i), QString("kanzhe"));
 }

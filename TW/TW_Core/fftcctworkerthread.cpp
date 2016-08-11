@@ -4,6 +4,7 @@
 #include "cuda_utils.cuh"
 #include "TW_MemManager.h"
 #include "TW_cuTempUtils.h"
+#include <omp.h>
 
 FFTCCTWorkerThread::FFTCCTWorkerThread(
 	ImageBufferPtr refImgBuffer,
@@ -135,6 +136,19 @@ void FFTCCTWorkerThread::processFrameFFTCC(const int &iFrameCount)
 		m_refImgBuffer->DeQueue(tempImg);
 		m_Fftcc2DPtr->ResetRefImg(tempImg);
 
+//		omp_set_num_threads(3);
+//				float j = 0;
+//#pragma omp parallel
+//	{
+//#pragma omp for
+//		{
+//			for (int i = 0; i < 100000000; i++)
+//			{
+//				j += 0.5;
+//			}
+//		}
+//	}
+//	emit testSignal(j);
 		// 3.1 Use the results to update the POI positions if iFrameCount is greater than 50
 		if (iFrameCount > 50)
 		{
@@ -150,11 +164,13 @@ void FFTCCTWorkerThread::processFrameFFTCC(const int &iFrameCount)
 				m_iNumberX,
 				m_iNumberY,
 				m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY);
-
-			//int *i = new int;
-			//cudaMemcpy(i, &m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY[0], sizeof(int), cudaMemcpyDeviceToHost);
-			//qDebug()<<*i;
-			//delete i;
+			
+			// If CPU-ICGN is the computation mode, copy the iU, iV and POIpos from GPU to CPU for
+			// its use. Then, emit the signal ICGNDtaReady to notify ICGN thread to begin processing.
+			if(m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
+			{
+				emit ICGNDataReady();
+			}
 		}
 
 		// 3.2 TODO: Copy the iU, iV to host memory for ICGN

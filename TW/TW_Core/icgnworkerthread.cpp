@@ -1,4 +1,5 @@
 #include "icgnworkerthread.h"
+#include <omp.h>
 
 ICGNWorkerThread::ICGNWorkerThread(
 	ImageBufferPtr refImgBuffer,
@@ -20,5 +21,11 @@ ICGNWorkerThread::~ICGNWorkerThread()
 
 void ICGNWorkerThread::processFrame()
 {
-
+	float j = 0;
+#pragma omp parallel for
+	for(int i=0; i<1000000; i++)
+	{
+		j += 0.5;
+	}
+	emit testSignal(j);
 }
