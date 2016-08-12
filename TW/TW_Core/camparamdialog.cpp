@@ -249,8 +249,19 @@ ComputationMode CamParamDialog::GetComputationMode()
 int CamParamDialog::ComputeNumberofPOIs()
 {
 	return (
-		(int(floor((m_ROIRect.width() - GetSubetX()* 2 - GetMarginX() * 2) / float(GetGridX()))) + 1) * 
-		(int(floor((m_ROIRect.height() - GetSubetY()* 2 - GetMarginY() * 2) / float(GetGridY()))) + 1));
+		ComputeNumberofPOIsX() * 
+		ComputeNumberofPOIsY());
+}
+
+
+int CamParamDialog::ComputeNumberofPOIsX()
+{
+	return	(int(floor((m_ROIRect.width() - GetSubetX() * 2 - GetMarginX() * 2) / float(GetGridX()))) + 1);
+}
+
+int CamParamDialog::ComputeNumberofPOIsY()
+{
+	return (int(floor((m_ROIRect.height() - GetSubetY() * 2 - GetMarginY() * 2) / float(GetGridY()))) + 1);
 }
 
 void CamParamDialog::updatePOINums(const QString& qs)

@@ -24,6 +24,8 @@ public:
 		ImageBufferPtr tarImgBuffer,
 		int iImgWidth,
 		int iImgHeight,
+		int iNumberX,
+		int iNumberY,
 		const QRect& roi,
 		// Add computation Mode
 		ComputationMode computationMode = ComputationMode::GPUFFTCC,
@@ -39,6 +41,8 @@ public:
 		ImageBufferPtr tarImgBufferCPU_ICGN,
 		int iImgWidth,
 		int iImgHeight,
+		int iNumberX,
+		int iNumberY,
 		const QRect& roi,
 		ComputationMode computationMode = ComputationMode::GPUFFTCC,
 		QWidget *parent = 0);
@@ -61,11 +65,11 @@ private:
 signals:
 	void titleReady(const QString&);
 
-public slots:
+	public slots:
 	void updateRefFrame(const QImage&);	// signal: &capturethread::newRefFrame
 	void updateTarFrame(const QImage&);	// signal: &capturethread::newTarFrame
 	void updateStatics(const int&, const int&);
-	void testSlot(const int&);
+	void testSlot(const float&);
 
 private:
 	Ui::OneCamWidget ui;
@@ -78,7 +82,7 @@ private:
 
 	QThread *m_icgnWorkerThread;		// ICGN thread
 	ICGNWorkerThread *m_icgnWorker;		// ICGN worker
-	
+
 
 	std::shared_ptr<SharedResources> m_sharedResources;
 
@@ -86,10 +90,18 @@ private:
 	int m_iDeviceNumber;
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
+	
+	// These three parameters will only be used if CPU ICGN is the computation mode
 	ImageBufferPtr m_refImgBufferCPU_ICGN;	// Ref Image buffer for the CPU ICGN
 	ImageBufferPtr m_tarImgBufferCPU_ICGN;  // Tar Image buffer for the CPU ICGN
+	VecBufferfPtr m_fUBuffer;
+	VecBufferfPtr m_fVBuffer;
+	VecBufferiPtr m_iPOIXYBuffer;
+
 	int m_iImgWidth;
 	int m_iImgHeight;
+	int m_iNumberX;
+	int m_iNumberY;
 
 	ComputationMode m_computationMode;
 };
