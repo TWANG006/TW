@@ -25,7 +25,6 @@ public:
 		int iDeviceNumber,
 		int width,
 		int height,
-		ComputationMode computationMode,
 		QObject *parent);
 
 	CaptureThread(
@@ -37,7 +36,6 @@ public:
 		int iDeviceNumber,
 		int width,
 		int height,
-		ComputationMode computationMode,
 		QObject *parent);
 
 	~CaptureThread();
@@ -79,7 +77,6 @@ private:
 	int m_iHeight;
 	int m_iFrameCount;
 	bool m_isDropFrameIfBufferFull;
-	ComputationMode m_computationMode;
 
 	// For the GUI use to update the ref & tar images
 	QImage m_Qimg;

@@ -58,7 +58,7 @@ public:
 	///
 	/// \ param elem the element to be enqueued
 	/// \ param dropIfFull set to true to drop frames if the buffer is full
-	void EnQueue(const T& elem, bool dropIfFull = false);
+	void EnQueue(const T& elem, bool dropIfFull = true);
 
 	/// \brief thread-safe deQueue method, the dequeued element is passed back by 
 	/// reference
