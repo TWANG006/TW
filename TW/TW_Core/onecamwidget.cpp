@@ -72,9 +72,9 @@ OneCamWidget::OneCamWidget(
 	, m_tarImgBuffer(tarImgBuffer)
 	, m_refImgBufferCPU_ICGN(refImgBufferCPU_ICGN)
 	, m_tarImgBufferCPU_ICGN(tarImgBufferCPU_ICGN)
-	, m_fUBuffer(new TW::Concurrent_Buffer<std::vector<float>>(2))
-	, m_fVBuffer(new TW::Concurrent_Buffer<std::vector<float>>(2))
-	, m_iPOIXYBuffer(new TW::Concurrent_Buffer<std::vector<int>>(2))
+	, m_fUBuffer(new TW::Concurrent_Buffer<std::vector<float>>(20))
+	, m_fVBuffer(new TW::Concurrent_Buffer<std::vector<float>>(20))
+	, m_iPOIXYBuffer(new TW::Concurrent_Buffer<std::vector<int>>(20))
 	, m_isCameraConnected(false)
 	, m_captureThread(nullptr)
 	, m_fftccWorker(nullptr)
@@ -156,6 +156,7 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 		m_iDeviceNumber,
 		m_iImgWidth,
 		m_iImgHeight,
+		m_computationMode,
 		this);
 	}
 	else
@@ -167,6 +168,7 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 		m_iDeviceNumber,
 		m_iImgWidth,
 		m_iImgHeight,
+		m_computationMode,
 		this);
 	}
 
