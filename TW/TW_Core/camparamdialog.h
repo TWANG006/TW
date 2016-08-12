@@ -32,8 +32,6 @@ public:
 	ComputationMode GetComputationMode();
 
 	int ComputeNumberofPOIs();
-	int ComputeNumberofPOIsX();
-	int ComputeNumberofPOIsY();
 
 private:
 	void stopCaptureThread();

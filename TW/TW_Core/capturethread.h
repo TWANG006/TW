@@ -18,25 +18,23 @@ public:
 	CaptureThread(const CaptureThread&) = delete;
 	CaptureThread& operator=(const CaptureThread&) = delete;
 
-	CaptureThread(
-		ImageBufferPtr refImgBuffer,
-		ImageBufferPtr tarImgBuffer,
-		bool isDropFrameIfBufferFull,
-		int iDeviceNumber,
-		int width,
-		int height,
-		QObject *parent);
+	CaptureThread(ImageBufferPtr refImgBuffer,
+				  ImageBufferPtr tarImgBuffer,
+				  bool isDropFrameIfBufferFull,
+  				  int iDeviceNumber,
+				  int width,
+				  int height,
+				  QObject *parent);
 
-	CaptureThread(
-		ImageBufferPtr refImgBuffer,
-		ImageBufferPtr tarImgBuffer,
-		ImageBufferPtr refImgBufferCPU_ICGN,
-		ImageBufferPtr tarImgBufferCPU_ICGN,
-		bool isDropFrameIfBufferFull,
-		int iDeviceNumber,
-		int width,
-		int height,
-		QObject *parent);
+	CaptureThread(ImageBufferPtr refImgBuffer,
+				  ImageBufferPtr tarImgBuffer,
+				  ImageBufferPtr refImgBufferCPU_ICGN,
+				  ImageBufferPtr tarImgBufferCPU_ICGN,
+				  bool isDropFrameIfBufferFull,
+  				  int iDeviceNumber,
+				  int width,
+				  int height,
+				  QObject *parent);
 
 	~CaptureThread();
 

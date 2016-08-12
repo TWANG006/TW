@@ -132,16 +132,10 @@ void CaptureThread::run()
 			{
 				// Add the frame to refImgBuffer
 				m_refImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
-				m_refImgBufferCPU_ICGN->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
 
 				// update the GUI's reference image label
 				emit newRefQImg(m_Qimg);
-			}
-
-			if (m_iFrameCount >= 50 && m_iFrameCount % 50 == 0)
-			{
-				m_tarImgBufferCPU_ICGN->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
-			}
+			}		
 		
 			// Add all the loaded frames to the tarImgbuffer
 			m_tarImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);	

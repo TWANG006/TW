@@ -6,7 +6,6 @@
 #include <TW_paDIC_cuFFTCC2D.h>
 #include <TW_paDIC_cuICGN2D.h>
 #include <opencv2\opencv.hpp>
-#include <vector>
 
 #include <QRect>
 #include <QOpenGLcontext>
@@ -81,12 +80,6 @@ using ICGN2DPtr = std::unique_ptr<ICGN2D_CPU>;
 
 using ImageBuffer = TW::Concurrent_Buffer<cv::Mat>;
 using ImageBufferPtr = std::shared_ptr<ImageBuffer>;
-
-using VecBufferf = TW::Concurrent_Buffer<std::vector<float>>;
-using VecBufferfPtr = std::shared_ptr<VecBufferf>;
-
-using VecBufferi = TW::Concurrent_Buffer<std::vector<int>>;
-using VecBufferiPtr = std::shared_ptr<VecBufferi>;
 
 typedef struct 
 {

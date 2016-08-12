@@ -24,31 +24,24 @@ public:
 	ICGNWorkerThread(
 		ImageBufferPtr refImgBuffer,
 		ImageBufferPtr tarImgBuffer,
-		VecBufferfPtr fUBuffer,
-		VecBufferfPtr fVBuffer,
-		VecBufferiPtr iPOIXYBuffer,
-		const QRect &roi,
 		int iWidth, int iHeight,
-		int iNumberX, int iNumberY,
 		int iSubsetX, int iSubsetY,
-		int iNumbIterations,
-		float fDeltaP);
+		int iGridSpaceX, int iGridSpaceY,
+		int iMarginX, int iMarginY,
+		const QRect &roi);
 	~ICGNWorkerThread();
 
 public slots:
 	void processFrame();
 
 signals:
-	void testSignal(const float&);
+	void testSignal(const int&);
 
 private:
 	ICGN2DPtr m_ICGN2DPtr;
 	ImageBufferPtr m_refImgBuffer;
 	ImageBufferPtr m_tarImgBuffer;
-	VecBufferfPtr m_fUBuffer;
-	VecBufferfPtr m_fVBuffer;
-	VecBufferiPtr m_iPOIXYBuffer;
-	std::vector<int> m_iNumberIterations;
+
 };
 
 #endif // ICGNWORKERTHREAD_H
