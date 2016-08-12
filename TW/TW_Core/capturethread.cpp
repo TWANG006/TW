@@ -9,6 +9,7 @@ CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
 							 int iDeviceNumber,
 							 int width,
 							 int height,
+							 ComputationMode computationMode,
 							 QObject *parent)
 	: m_isDropFrameIfBufferFull(isDropFrameIfBufferFull)
 	, m_refImgBuffer(refImgBuffer)
@@ -18,6 +19,7 @@ CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
 	, m_iDeviceNumber(iDeviceNumber)
 	, m_iWidth(width)
 	, m_iHeight(height)
+	, m_computationMode(computationMode)
 	, m_iFrameCount(0)
 	, m_isAboutToStop(false)
 	, QThread(parent)
@@ -31,6 +33,7 @@ CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
 							 int iDeviceNumber,
 							 int width,
 							 int height,
+							 ComputationMode computationMode,
 							 QObject *parent)
 	: m_isDropFrameIfBufferFull(isDropFrameIfBufferFull)
 	, m_refImgBuffer(refImgBuffer)
@@ -40,6 +43,7 @@ CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
 	, m_iDeviceNumber(iDeviceNumber)
 	, m_iWidth(width)
 	, m_iHeight(height)
+	, m_computationMode(computationMode)
 	, m_iFrameCount(0)
 	, m_isAboutToStop(false)
 	, QThread(parent)
@@ -132,13 +136,15 @@ void CaptureThread::run()
 			{
 				// Add the frame to refImgBuffer
 				m_refImgBuffer->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
-				m_refImgBufferCPU_ICGN->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
+
+				if(ComputationMode::GPUFFTCC_CPUICGN == m_computationMode)
+					m_refImgBufferCPU_ICGN->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
 
 				// update the GUI's reference image label
 				emit newRefQImg(m_Qimg);
 			}
 
-			if (m_iFrameCount >= 50 && m_iFrameCount % 50 == 0)
+			if (m_iFrameCount >= 50 && m_iFrameCount % 50 == 0 && m_computationMode == ComputationMode::GPUFFTCC_CPUICGN)
 			{
 				m_tarImgBufferCPU_ICGN->EnQueue(m_currentFrame, m_isDropFrameIfBufferFull);
 			}

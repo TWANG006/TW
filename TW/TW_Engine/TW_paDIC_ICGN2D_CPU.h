@@ -57,7 +57,7 @@ public:
 		real_t *fU,
 		real_t *fV,
 		int *iNumIterations,
-		const int *iPOIpos,
+		int *iPOIpos,
 		const cv::Mat& tarImg);
 
 	///\brief ICGN algorithm on a portion of POIs in the interval [head, tail)
@@ -70,7 +70,7 @@ public:
 		real_t *fU,
 		real_t *fV,
 		int *iNumIterations,
-		const int *iPOIpos,
+		int *iPOIpos,
 		const cv::Mat& tarImg,
 		int_t head,
 		int_t tail);

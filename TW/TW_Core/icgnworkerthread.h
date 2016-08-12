@@ -49,6 +49,12 @@ private:
 	VecBufferfPtr m_fVBuffer;
 	VecBufferiPtr m_iPOIXYBuffer;
 	std::vector<int> m_iNumberIterations;
+
+	cv::Mat refImg;
+	cv::Mat tarImg;
+	std::vector<float> fU;
+	std::vector<float> fV;
+	std::vector<int> iPOIXY;
 };
 
 #endif // ICGNWORKERTHREAD_H

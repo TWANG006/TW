@@ -78,7 +78,7 @@ void ICGN2D_CPU::ICGN2D_Algorithm(
 	real_t *fU,
 	real_t *fV,
 	int *iNumIterations,
-	const int *iPOIpos,
+	int *iPOIpos,
 	const cv::Mat& tarImg)
 {
 	m_tarImg = tarImg;
@@ -136,7 +136,7 @@ void ICGN2D_CPU::ICGN2D_Algorithm(
 	real_t *fU,
 	real_t *fV,
 	int *iNumIterations,
-	const int *iPOIpos,
+	int *iPOIpos,
 	const cv::Mat& tarImg,
 	int_t head, 
 	int_t tail)

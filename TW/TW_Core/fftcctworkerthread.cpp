@@ -186,7 +186,7 @@ FFTCCTWorkerThread::FFTCCTWorkerThread(
 	TW::cuInitialize<unsigned int>(m_d_VColorMap, 0x00FFFFFF, m_ROI.width()*m_ROI.height());
 
 	// Allocate memory for the Vectors
-	m_h_iPOIXY.resize(m_iNumPOIs);
+	m_h_iPOIXY.resize(m_iNumPOIs * 2);
 	m_h_fU.resize(m_iNumPOIs);
 	m_h_fV.resize(m_iNumPOIs);
 }
@@ -253,7 +253,7 @@ void FFTCCTWorkerThread::processFrameFFTCC(const int &iFrameCount)
 			{
 				cudaMemcpy(m_h_fU.data(), m_d_fU, sizeof(float)*m_iNumPOIs, cudaMemcpyDeviceToHost);
 				cudaMemcpy(m_h_fV.data(), m_d_fV, sizeof(float)*m_iNumPOIs, cudaMemcpyDeviceToHost);
-				cudaMemcpy(m_h_iPOIXY.data(), m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY, sizeof(int)*m_iNumPOIs, cudaMemcpyDeviceToHost);
+				cudaMemcpy(m_h_iPOIXY.data(), m_Fftcc2DPtr->g_cuHandle.m_d_iPOIXY, sizeof(int)*m_iNumPOIs * 2, cudaMemcpyDeviceToHost);
 
 				m_fUBuffer->EnQueue(m_h_fU);
 				m_fVBuffer->EnQueue(m_h_fV);

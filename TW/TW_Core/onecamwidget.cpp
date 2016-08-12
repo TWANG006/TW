@@ -72,9 +72,9 @@ OneCamWidget::OneCamWidget(
 	, m_tarImgBuffer(tarImgBuffer)
 	, m_refImgBufferCPU_ICGN(refImgBufferCPU_ICGN)
 	, m_tarImgBufferCPU_ICGN(tarImgBufferCPU_ICGN)
-	, m_fUBuffer(new TW::Concurrent_Buffer<std::vector<float>>(2))
-	, m_fVBuffer(new TW::Concurrent_Buffer<std::vector<float>>(2))
-	, m_iPOIXYBuffer(new TW::Concurrent_Buffer<std::vector<int>>(2))
+	, m_fUBuffer(nullptr)
+	, m_fVBuffer(nullptr)
+	, m_iPOIXYBuffer(nullptr)
 	, m_isCameraConnected(false)
 	, m_captureThread(nullptr)
 	, m_fftccWorker(nullptr)
@@ -95,6 +95,10 @@ OneCamWidget::OneCamWidget(
 
 	// 2. Create the ICGN worker thread
 	m_icgnWorkerThread = new QThread;
+
+	m_fUBuffer.reset(new TW::Concurrent_Buffer<std::vector<float>>(20));
+	m_fVBuffer.reset(new TW::Concurrent_Buffer<std::vector<float>>(20));
+	m_iPOIXYBuffer.reset(new TW::Concurrent_Buffer<std::vector<int>>(20));
 
 	m_sharedResources.reset(new SharedResources);
 	m_twGLwidget = new GLWidget(m_sharedResources,
@@ -156,6 +160,7 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 		m_iDeviceNumber,
 		m_iImgWidth,
 		m_iImgHeight,
+		m_computationMode,
 		this);
 	}
 	else
@@ -167,6 +172,7 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 		m_iDeviceNumber,
 		m_iImgWidth,
 		m_iImgHeight,
+		m_computationMode,
 		this);
 	}
 
@@ -331,5 +337,5 @@ void OneCamWidget::updateStatics(const int& iNumPOI, const int& iFPS)
 
 void OneCamWidget::testSlot(const float &i)
 {
-	QMessageBox::warning(this, QString::number(i), QString("kanzhe"));
+	QMessageBox::warning(this, QString("x-AXIS displacement"), QString::number(i));
 }
