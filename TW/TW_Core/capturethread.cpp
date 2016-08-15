@@ -51,7 +51,7 @@ CaptureThread::CaptureThread(ImageBufferPtr refImgBuffer,
 
 CaptureThread::~CaptureThread()
 {
-
+	std::cout<<"Capture Thread is stopped and deleted"<<std::endl;
 }
 
 

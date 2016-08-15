@@ -38,7 +38,7 @@ ICGNWorkerThread::ICGNWorkerThread(
 
 ICGNWorkerThread::~ICGNWorkerThread()
 {
-
+	std::cout<<"ICGN Thread is stopped and deleted"<<std::endl;
 }
 
 void ICGNWorkerThread::processFrame()

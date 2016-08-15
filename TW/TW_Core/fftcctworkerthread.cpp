@@ -209,6 +209,8 @@ FFTCCTWorkerThread::~FFTCCTWorkerThread()
 	cudaDeviceReset();
 
 	deleteObject(m_sharedResources->sharedContext);
+
+	std::cout<<"Capture Thread is stopped and deleted"<<std::endl;
 }
 
 
