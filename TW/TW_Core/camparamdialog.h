@@ -30,6 +30,7 @@ public:
 	int GetInputSourceHeight();
 	bool isDropFrame() const { return ui.dropFrame_checkBox->isChecked(); }
 	ComputationMode GetComputationMode();
+	int GetNumICGNThreads() const { return ui.ICGNspinBox->value();}
 
 	int ComputeNumberofPOIs();
 	int ComputeNumberofPOIsX();

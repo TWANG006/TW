@@ -30,6 +30,7 @@ OneCamWidget::OneCamWidget(int deviceNumber,
 	, m_iImgHeight(iImgHeight)
 	, m_iNumberX(iNumberX)
 	, m_iNumberY(iNumberY)
+	, m_iNumICGNThreads(0)
 	, m_computationMode(computationMode)
 	, QWidget(parent)
 {
@@ -60,6 +61,7 @@ OneCamWidget::OneCamWidget(
 	ImageBufferPtr tarImgBuffer,
 	ImageBufferPtr refImgBufferCPU_ICGN,
 	ImageBufferPtr tarImgBufferCPU_ICGN,
+	const int iNumICGNThreads,
 	int iImgWidth,
 	int iImgHeight,
 	int iNumberX,
@@ -85,6 +87,7 @@ OneCamWidget::OneCamWidget(
 	, m_iImgHeight(iImgHeight)
 	, m_iNumberX(iNumberX)
 	, m_iNumberY(iNumberY)
+	, m_iNumICGNThreads(iNumICGNThreads)
 	, m_computationMode(computationMode)
 	, QWidget(parent)
 {
@@ -210,6 +213,7 @@ bool OneCamWidget::connectToCamera(bool ifDropFrame,
 				m_fVBuffer,
 				m_iPOIXYBuffer,
 				roi,
+				m_iNumICGNThreads,
 				m_iImgWidth, m_iImgHeight,
 				m_iNumberX, m_iNumberY,
 				iSubsetX, iSubsetY,

@@ -8,6 +8,7 @@ ICGNWorkerThread::ICGNWorkerThread(
 	VecBufferfPtr fVBuffer,
 	VecBufferiPtr iPOIXYBuffer,
 	const QRect &roi,
+	const int iNumICGNThreads,
 	int iWidth, int iHeight,
 	int iNumberX, int iNumberY,
 	int iSubsetX, int iSubsetY,
@@ -21,7 +22,7 @@ ICGNWorkerThread::ICGNWorkerThread(
 	, m_iPOIXYBuffer(iPOIXYBuffer)
 	, m_iNumberIterations(iNumberX*iNumberY)
 {
-	omp_set_num_threads(2);
+	omp_set_num_threads(iNumICGNThreads);
 
 	m_ICGN2DPtr.reset(new ICGN2D_CPU(
 		iWidth, iHeight,

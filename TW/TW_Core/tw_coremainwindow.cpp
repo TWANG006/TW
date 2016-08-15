@@ -122,6 +122,7 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 		m_computationMode = m_camParamDialog->GetComputationMode();
 		int iNumberX = m_camParamDialog->ComputeNumberofPOIsX();
 		int iNumberY = m_camParamDialog->ComputeNumberofPOIsY();
+		int iNumICGNThreads = m_camParamDialog->GetNumICGNThreads();
 		m_refBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetRefImgBufferSize()));
 		m_tarBuffer.reset(new TW::Concurrent_Buffer<cv::Mat>(m_camParamDialog->GetTarImgBufferSize()));
 
@@ -144,6 +145,7 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 				m_tarBuffer,
 				m_refBufferCPU_ICGN,
 				m_tarBufferCPU_ICGN,
+				iNumICGNThreads,
 				m_iImgWidth,
 				m_iImgHeight,
 				iNumberX,

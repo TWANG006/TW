@@ -39,6 +39,7 @@ public:
 		ImageBufferPtr tarImgBuffer,
 		ImageBufferPtr refImgBufferCPU_ICGN,
 		ImageBufferPtr tarImgBufferCPU_ICGN,
+		const int iNumICGNThreads,
 		int iImgWidth,
 		int iImgHeight,
 		int iNumberX,
@@ -97,6 +98,7 @@ private:
 	VecBufferfPtr m_fUBuffer;
 	VecBufferfPtr m_fVBuffer;
 	VecBufferiPtr m_iPOIXYBuffer;
+	int m_iNumICGNThreads;
 
 	int m_iImgWidth;
 	int m_iImgHeight;

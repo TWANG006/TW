@@ -196,6 +196,9 @@
        </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>5</number>
+         </property>
          <item>
           <widget class="QLabel" name="label_20">
            <property name="text">
@@ -251,7 +254,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <property name="spacing">
-          <number>20</number>
+          <number>5</number>
          </property>
          <property name="topMargin">
           <number>10</number>
@@ -277,6 +280,29 @@
           <widget class="QRadioButton" name="GPUFFTCC_CPUICGNradioButton">
            <property name="text">
             <string>GPU-FFTCC+CPU_ICGN</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_21">
+           <property name="text">
+            <string>Number of ICGN Threads:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="ICGNspinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::NoButtons</enum>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>8</number>
            </property>
           </widget>
          </item>
@@ -571,8 +597,8 @@ Buffer is Full</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>487</x>
-     <y>479</y>
+     <x>832</x>
+     <y>519</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -587,12 +613,28 @@ Buffer is Full</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>467</x>
-     <y>510</y>
+     <x>832</x>
+     <y>548</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
      <y>471</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GPUFFTCC_CPUICGNradioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ICGNspinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>384</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>783</x>
+     <y>418</y>
     </hint>
    </hints>
   </connection>

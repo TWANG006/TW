@@ -28,6 +28,7 @@ public:
 		VecBufferfPtr fVBuffer,
 		VecBufferiPtr iPOIXYBuffer,
 		const QRect &roi,
+		const int iNumICGNThreads,
 		int iWidth, int iHeight,
 		int iNumberX, int iNumberY,
 		int iSubsetX, int iSubsetY,
