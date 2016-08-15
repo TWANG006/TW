@@ -56,8 +56,8 @@ void ICGNWorkerThread::processFrame()
 	}
 
 */
-	std::cout<<refImg.rows<<", "<<refImg.cols<<", "<<(refImg.at<uchar>(iPOIXY[1], iPOIXY[0]))<<std::endl;
-	std::cout<<tarImg.rows<<", "<<tarImg.cols<<", "<<(tarImg.at<uchar>(iPOIXY[1], iPOIXY[0]))<<std::endl;
+	/*std::cout<<refImg.rows<<", "<<refImg.cols<<", "<<(refImg.at<uchar>(iPOIXY[1], iPOIXY[0]))<<std::endl;
+	std::cout<<tarImg.rows<<", "<<tarImg.cols<<", "<<(tarImg.at<uchar>(iPOIXY[1], iPOIXY[0]))<<std::endl;*/
 
 	m_ICGN2DPtr->ICGN2D_Algorithm(
 		fU.data(),
@@ -66,12 +66,12 @@ void ICGNWorkerThread::processFrame()
 		iPOIXY.data(),
 		tarImg);
 
-	std::cout<<iPOIXY[1]<<", "<<iPOIXY[0]<<std::endl;
+	/*std::cout<<iPOIXY[1]<<", "<<iPOIXY[0]<<std::endl;*/
 //	float j = 0;
 //#pragma omp parallel for
 //	for (int i = 0; i < 1000000; i++)
 //	{
 //		j += 0.5;
 //	}
-	emit testSignal(fU[0]);
+	/*emit testSignal(fU[0]);*/
 }
