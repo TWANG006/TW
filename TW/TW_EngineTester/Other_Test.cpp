@@ -12,20 +12,20 @@
 #include "TW_utils.h"
 #include "TW_MemManager.h"
 
-using namespace TW;
-using namespace std;
-
-TEST(QtConcurrentMapFunc, Bound_Function_Arguments)
-{
-	float j = 0;
-
-	for (int i = 0; i < 100000000; i++)
-	{
-		j += 0.5;
-	}
-	qDebug()<<j;
-
-}
+//using namespace TW;
+//using namespace std;
+//
+//TEST(QtConcurrentMapFunc, Bound_Function_Arguments)
+//{
+//	float j = 0;
+//
+//	for (int i = 0; i < 100000000; i++)
+//	{
+//		j += 0.5;
+//	}
+//	qDebug()<<j;
+//
+//}
 
 //void add1(int *a, int start, int end)
 //{

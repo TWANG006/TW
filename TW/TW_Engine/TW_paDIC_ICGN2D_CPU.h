@@ -58,6 +58,15 @@ public:
 		real_t *fV,
 		int *iNumIterations,
 		int *iPOIpos,
+		const cv::Mat& tarImg,
+		float &fPrecomputeTime,
+		float &fICGNTime);
+
+	void ICGN2D_Algorithm(
+		real_t *fU,
+		real_t *fV,
+		int *iNumIterations,
+		int *iPOIpos,
 		const cv::Mat& tarImg);
 
 	///\brief ICGN algorithm on a portion of POIs in the interval [head, tail)

@@ -128,7 +128,70 @@ void ICGN2D_CPU::ICGN2D_Algorithm(
 	}
 	end = omp_get_wtime();
 	std::cout << "ICGN time is: " << 1000 * (end - start) << " [ms]" << std::endl;
-	std::cout << fU[0] << ", " << fV[0] << ", " << std::endl;
+	//std::cout << fU[0] << ", " << fV[0] << ", " << std::endl;
+}
+
+void ICGN2D_CPU::ICGN2D_Algorithm(
+	real_t *fU,
+	real_t *fV,
+	int *iNumIterations,
+	int *iPOIpos,
+	const cv::Mat& tarImg,
+	float &fPrecomputeTime,
+	float &fICGNTime)
+{
+	m_tarImg = tarImg;
+	
+	double start = omp_get_wtime();
+	ICGN2D_Precomputation();
+	double end = omp_get_wtime();
+
+	fPrecomputeTime = 1000 * (end - start);
+
+	//std::cout << "Time for Precomputation is: " << 1000 * (end - start) << std::endl;
+
+	start = omp_get_wtime();
+	switch (m_Tflag)
+	{
+	case TW::paDIC::paDICThreadFlag::Single:
+	{
+		for (int i = 0; i < m_iPOINumber; i++)
+		{
+			ICGN2D_Compute(fU[i],
+						   fV[i],
+						   iNumIterations[i],
+						   iPOIpos[2 * i + 1],
+						   iPOIpos[2 * i + 0],
+						   i);
+		}
+		break;
+	}
+
+	case TW::paDIC::paDICThreadFlag::Multicore:
+	{
+#pragma	omp parallel for
+		for (int i = 0; i < m_iPOINumber; i++)
+		{
+			ICGN2D_Compute(fU[i],
+						   fV[i],
+						   iNumIterations[i],
+						   iPOIpos[2 * i + 1],
+						   iPOIpos[2 * i + 0],
+						   i);
+		}
+		break;
+	}
+
+	default:
+	{
+		break;
+	}
+	}
+	end = omp_get_wtime();
+	
+	fICGNTime = 1000 * (end - start);
+	// std::cout << "ICGN time is: " << 1000 * (end - start) << " [ms]" << std::endl;
+	//std::cout << fU[0] << ", " << fV[0] << ", " << std::endl;
 }
 
 
