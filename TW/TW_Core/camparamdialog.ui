@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>844</width>
-    <height>614</height>
+    <height>620</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -262,7 +262,7 @@
          <item>
           <widget class="QRadioButton" name="GPUFFTCCradioButton">
            <property name="text">
-            <string>GPU-FFTCC Only</string>
+            <string>Int-pixel only</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -270,16 +270,17 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="GPUFFTCC_ICGNradioButton">
+          <widget class="QRadioButton" name="GPUFFTCC_CPUICGNradioButton">
            <property name="text">
-            <string>GPU-FFTCC+GPU+ICGN</string>
+            <string>Int-pixel with sub-pixel
+compensation</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="GPUFFTCC_CPUICGNradioButton">
+          <widget class="QRadioButton" name="GPUFFTCC_ICGNradioButton">
            <property name="text">
-            <string>GPU-FFTCC+CPU_ICGN</string>
+            <string>Int-pixel + sub-pixel</string>
            </property>
           </widget>
          </item>

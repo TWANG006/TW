@@ -15,21 +15,26 @@ using namespace TW;
 
 TEST(FFTCC_ICGN, CPU_Multicore)
 {
-	omp_set_num_threads(6);
+	omp_set_num_threads(2);
 
 	float aveFFTCC = 0;
 	float aveICGN = 0;
+
+	
 
 	ofstream textfile;
 
 	int marginX = 3;
 	int marginY = 3;
 
-	int ROIx = 30;
-	int ROIy = 30;
+	int gridX = 2;
+	int gridY = 2;
 
-	int startX = 242;
-	int startY = 242;
+	int ROIx = 424;
+	int ROIy = 424;
+
+	int startX = 45;
+	int startY = 45;
 
 	textfile.open("result.csv", ios::out | ios::trunc);
 
@@ -60,7 +65,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -149,7 +154,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -238,7 +243,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -327,7 +332,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -416,7 +421,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -504,7 +509,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -596,7 +601,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -686,7 +691,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -774,7 +779,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -862,7 +867,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -950,7 +955,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1038,7 +1043,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1126,7 +1131,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1215,7 +1220,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1304,7 +1309,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1393,7 +1398,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1482,7 +1487,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1571,7 +1576,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1659,7 +1664,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1747,7 +1752,7 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 				startX, startY,
 				ROIx, ROIy,
 				10, 10,
-				3, 3,
+				gridX, gridY,
 				marginX, marginY,
 				TW::paDIC::paDICThreadFlag::Multicore);
 
@@ -1835,8 +1840,8 @@ TEST(FFTCC_ICGN, CPU_Multicore)
 //		98, 98,
 //		324, 324,
 //		10, 10,
-//		3, 3,
-//		3, 3,
+//		gridX, gridY,
+//		gridX, gridY,
 //		TW::paDIC::paDICThreadFlag::Single);
 //
 //	wfcc->InitializeFFTCC(
