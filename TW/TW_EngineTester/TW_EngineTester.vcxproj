@@ -112,7 +112,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(OPENCV_DIR)\lib;$(QTDIR)\lib;$(ProjectDir)..\TW_Engine\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>TW_Engined.lib;cudart.lib;qtmaind.lib;Qt5Cored.lib;Qt5Testd.lib;opencv_core300d.lib;opencv_highgui300d.lib;opencv_imgcodecs300d.lib;opencv_imgproc300d.lib;Qt5Guid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TW_Engined.lib;cudart.lib;qtmaind.lib;Qt5Cored.lib;Qt5Testd.lib;Qt5Guid.lib;opencv_world310d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>copy "$(ProjectDir)..\TW_Engine\$(Platform)\$(Configuration)\TW_Engine.dll" "$(OutDir)"</Command>
@@ -147,7 +147,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(OPENCV_DIR)\lib;$(QTDIR)\lib;$(ProjectDir)..\TW_Engine\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>TW_Engine.lib;cudart.lib;qtmain.lib;Qt5Core.lib;Qt5Test.lib;opencv_core300.lib;opencv_highgui300.lib;opencv_imgcodecs300.lib;opencv_imgproc300.lib;Qt5Gui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>TW_Engine.lib;cudart.lib;qtmain.lib;Qt5Core.lib;Qt5Test.lib;opencv_world310.lib;Qt5Gui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>copy "$(ProjectDir)..\TW_Engine\$(Platform)\$(Configuration)\TW_Engine.dll" "$(OutDir)"</Command>
