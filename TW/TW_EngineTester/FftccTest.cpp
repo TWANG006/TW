@@ -1,66 +1,80 @@
-//#include "TW_paDIC_cuFFTCC2D.h"
-//#include "TW_paDIC_FFTCC2D_CPU.h"
-//#include "TW_utils.h"
-//#include "TW_MemManager.h"
-//#include "TW_StopWatch.h"
-//#include <opencv2\opencv.hpp>
-//#include <opencv2\highgui.hpp>
-//#include <omp.h>
-//#include <gtest\gtest.h>
+#include "TW_paDIC_cuFFTCC2D.h"
+#include "TW_paDIC_FFTCC2D_CPU.h"
+#include "TW_utils.h"
+#include "TW_MemManager.h"
+#include "TW_StopWatch.h"
+#include <opencv2\opencv.hpp>
+#include <opencv2\highgui.hpp>
+#include <omp.h>
+#include <gtest\gtest.h>
+#include <fstream>
 //
-//using namespace TW;
+using namespace TW;
 //
-//TEST(Fftcc2D, Fftcc2D_CPU_part)
-//{
-//	cv::Mat Rmat = cv::imread("Example1\\fu_0.bmp");
-//	cv::Mat Tmat = cv::imread("Example1\\fu_1.bmp");
-//
-//	auto wm_iWidth = Rmat.cols;
-//	auto wm_iHeight = Rmat.rows;
-//
-//	cv::Mat Rmatnew(cv::Size(wm_iWidth, wm_iHeight), CV_8UC1);
-//	cv::Mat Tmatnew(cv::Size(wm_iWidth, wm_iHeight), CV_8UC1);
-//
-//	cv::cvtColor(Rmat, Rmatnew, CV_BGR2GRAY);
-//	cv::cvtColor(Tmat, Tmatnew, CV_BGR2GRAY);
-//
-//	int*** iPOIXY;
-//	float **fU, **fV, **fZNCC;
-//
-//	paDIC::Fftcc2D_CPU *wfcc = new paDIC::Fftcc2D_CPU(
-//		Rmatnew.cols, Rmatnew.rows,
-//		1,1,
-//		Rmatnew.cols-2, Rmatnew.rows-2,
-//		16, 16,
-//		5, 5,
-//		10, 10,
-//		TW::paDIC::paDICThreadFlag::Single);
-//
-//	wfcc->InitializeFFTCC(
-//		Rmatnew,
-//		iPOIXY,
-//		fU,
-//		fV,
-//		fZNCC);
-//
-//	omp_set_num_threads(12);
-//
-//	StopWatch w;
-//	w.start();
-//	wfcc->Algorithm_FFTCC(
-//		Tmatnew,
-//		iPOIXY,
-//		fU,
-//		fV,
-//		fZNCC);
-//	w.stop();
-//
-//	std::cout << "CPU FFT-CC Time is: " << w.getElapsedTime() << std::endl;
-//
-//	std::cout << iPOIXY[0][0][1] << ", " << iPOIXY[0][0][0] << ": " << fU[0][0] << ", " << fV[0][0] << ", " << fZNCC[0][0] << std::endl;
-//
-//	wfcc->FinalizeFFTCC(iPOIXY,fU,fV,fZNCC);
-//}
+TEST(Fftcc2D, Fftcc2D_CPU_part)
+{
+	cv::Mat Rmat = cv::imread("Example1\\crop_oht_cfrp_01.jpg");
+	cv::Mat Tmat = cv::imread("Example1\\crop_oht_cfrp_02.jpg");
+
+	auto wm_iWidth = Rmat.cols;
+	auto wm_iHeight = Rmat.rows;
+
+	cv::Mat Rmatnew(cv::Size(wm_iWidth, wm_iHeight), CV_8UC1);
+	cv::Mat Tmatnew(cv::Size(wm_iWidth, wm_iHeight), CV_8UC1);
+
+	cv::cvtColor(Rmat, Rmatnew, CV_BGR2GRAY);
+	cv::cvtColor(Tmat, Tmatnew, CV_BGR2GRAY);
+
+	int*** iPOIXY;
+	float **fU, **fV, **fZNCC;
+
+	paDIC::Fftcc2D_CPU *wfcc = new paDIC::Fftcc2D_CPU(
+		Rmatnew.cols, Rmatnew.rows,
+		50, 50,
+		Rmatnew.cols-2*50, Rmatnew.rows-2*50,
+		15, 15,
+		40, 40,
+		10, 10,
+		TW::paDIC::paDICThreadFlag::Single);
+
+	wfcc->InitializeFFTCC(
+		Rmatnew,
+		iPOIXY,
+		fU,
+		fV,
+		fZNCC);
+
+	omp_set_num_threads(12);
+
+	StopWatch w;
+	w.start();
+	wfcc->Algorithm_FFTCC(
+		Tmatnew,
+		iPOIXY,
+		fU,
+		fV,
+		fZNCC);
+	w.stop();
+
+
+	std::ofstream file;
+	file.open("result.txt", std::ios::out | std::ios::trunc);
+	for(int i=0; i<wfcc->GetNumPOIsY(); i++)
+	{
+		for(int j=0; j<wfcc->GetNumPOIsX(); j++)
+		{
+			file <<"[ "<< iPOIXY[i][j][0]<<", "<<iPOIXY[i][j][1]<<" ], "<<fU[i][j]<<", "<<fV[i][j]<<", "<<fZNCC[i][j]<<std::endl;
+		}
+	}
+
+	file.close();
+
+	std::cout << "CPU FFT-CC Time is: " << w.getElapsedTime() << std::endl;
+
+	std::cout << iPOIXY[0][0][1] << ", " << iPOIXY[0][0][0] << ": " << fU[0][0] << ", " << fV[0][0] << ", " << fZNCC[0][0] << std::endl;
+
+	wfcc->FinalizeFFTCC(iPOIXY,fU,fV,fZNCC);
+}
 //
 ////
 ////////TEST(Fftcc2D, Constructor)
