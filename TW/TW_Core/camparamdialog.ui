@@ -262,7 +262,7 @@
          <item>
           <widget class="QRadioButton" name="GPUFFTCCradioButton">
            <property name="text">
-            <string>Int-pixel only</string>
+            <string>Small-scale measurement</string>
            </property>
            <property name="checked">
             <bool>true</bool>
