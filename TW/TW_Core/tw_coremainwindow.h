@@ -19,7 +19,7 @@ public:
 	~TW_CoreMainWindow();
 	
 protected:
-	//void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
+	void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
 protected slots:
 	void OnOpenImgFile();

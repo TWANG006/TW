@@ -137,8 +137,8 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 		deleteObject(m_camParamDialog);
 
 		// Create the display widget
-		if(ComputationMode::GPUFFTCC_CPUICGN == m_computationMode)
-		{		
+		if (ComputationMode::GPUFFTCC_CPUICGN == m_computationMode)
+		{
 			m_onecamWidget = new OneCamWidget(
 				0,
 				m_refBuffer,
@@ -190,4 +190,22 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 void TW_CoreMainWindow::updateTitle(const QString& qstr)
 {
 	setWindowTitle(QLatin1String("TW_Core_Application: ") + qstr);
+}
+
+void TW_CoreMainWindow::closeEvent(QCloseEvent *event)
+{
+	int result = QMessageBox::warning(this,
+		"Exit",
+		"Are you sure you want to close this program?",
+		QMessageBox::Yes,
+		QMessageBox::No);
+
+	if (result == QMessageBox::Yes)
+	{
+		event->accept();
+	}
+	else
+	{
+		event->ignore();
+	}
 }
