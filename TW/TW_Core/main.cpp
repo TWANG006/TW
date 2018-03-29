@@ -1,5 +1,6 @@
 #include "tw_coremainwindow.h"
 #include <QtWidgets/QApplication>
+#include <QTranslator>
 #include <cuda.h>
 
 int main(int argc, char *argv[])
@@ -14,8 +15,16 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 
 	QApplication a(argc, argv);
-	TW_CoreMainWindow w;
 	
+	QTranslator translator;
+
+	if(QLocale::system().name().contains("zh"))
+	{
+		translator.load("tw_core_zh.qm");
+		a.installTranslator(&translator);
+	}
+	
+	TW_CoreMainWindow w;
 	w.show();
 
 	cudaSetDevice(0);

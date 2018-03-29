@@ -155,7 +155,7 @@
      <normaloff>:/TW_CoreMainWindow/icons/cam1</normaloff>:/TW_CoreMainWindow/icons/cam1</iconset>
    </property>
    <property name="text">
-    <string>Capture From Camra...</string>
+    <string>Capture From One Camra...</string>
    </property>
    <property name="statusTip">
     <string>Capture from one camra</string>

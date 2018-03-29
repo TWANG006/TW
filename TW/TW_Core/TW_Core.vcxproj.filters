@@ -219,5 +219,8 @@
     <None Include="tw_core_zh.ts">
       <Filter>Translation Files</Filter>
     </None>
+    <None Include="tw_core_zh.qm">
+      <Filter>Translation Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
