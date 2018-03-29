@@ -189,14 +189,14 @@ void TW_CoreMainWindow::OnCapture_From_Camera()
 
 void TW_CoreMainWindow::updateTitle(const QString& qstr)
 {
-	setWindowTitle(QLatin1String("TW_Core_Application: ") + qstr);
+	setWindowTitle((tr("TW_Core_Application: ")) + qstr);
 }
 
 void TW_CoreMainWindow::closeEvent(QCloseEvent *event)
 {
 	int result = QMessageBox::warning(this,
-		"Exit",
-		"Are you sure you want to close this program?",
+		tr("Exit"),
+		tr("Are you sure you want to close this program?"),
 		QMessageBox::Yes,
 		QMessageBox::No);
 
