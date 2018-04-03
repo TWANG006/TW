@@ -1,0 +1,19 @@
+ROI dimension (W x H): 2032 x 572 [pixel]
+Interval (X-axis): 5 [pixel]
+Interval (Y-axis): 5 [pixel]
+Margin (X-axis): 10 [pixel]
+Margin (Y-axis): 10 [pixel]
+Number of POI: 40685 = 395 x 103 [point]
+Subset dimension: 41 x 41 [pixels]
+Time consumed: 22114.4 [millisec]
+Time for integer-pixel registration: 1449.54 [millisec]
+Time for integer-pixel registration per POI: 0.0356284 [millisec]
+Time for sub-pixel registration: 20653.4 [millisec]
+Time for pre-computation: 301.816 [millisec]
+Time for iterative procedure: 14235.1 [millisec]
+Time for iterative procedure per POI: 0.349885 [millisec] for average iteration steps of 3.21111
+Time for sub-pixel iterative procedure: 13122.6 [millisec]
+Time for sub-pixel iterative procedure per POI: 0.322541 [millisec] for average sub-pixel iteration steps of 2.21111
+ROI Width; ROI Height; GridSpaceX; GridSpaceY; MarginX; MarginY; SubsetX; SubsetY; POI number
+2032; 572; 5; 5; 10; 10; 20; 20; 40685
+40685; 22114.4; 1449.54; 20653.4; 14235.1
