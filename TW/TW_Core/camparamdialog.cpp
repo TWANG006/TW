@@ -242,8 +242,9 @@ ComputationMode CamParamDialog::GetComputationMode()
 	if(ui.GPUFFTCCradioButton->isChecked()) return ComputationMode::GPUFFTCC;
 	if(ui.GPUFFTCC_ICGNradioButton->isChecked()) return ComputationMode::GPUFFTCC_ICGN;
 	if(ui.GPUFFTCC_CPUICGNradioButton->isChecked()) return ComputationMode::GPUFFTCC_CPUICGN;
+	if (ui.CPU_FFTCC_ICGNradioButton->isChecked()) return ComputationMode::CPUFFTCC_ICGN;
 	
-	return ComputationMode::GPUFFTCC; 
+	return ComputationMode::GPUFFTCC_ICGN; 
 }
 
 int CamParamDialog::ComputeNumberofPOIs()

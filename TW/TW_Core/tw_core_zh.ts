@@ -94,68 +94,85 @@
     </message>
     <message>
         <location filename="camparamdialog.ui" line="265"/>
-        <source>Small-scale measurement</source>
-        <translation type="unfinished">小规模测量计算</translation>
+        <source>Variant 2 (GPU Int + GPU Sub)</source>
+        <translation type="unfinished">变形2(GPU整像素 + GPU亚像素)</translation>
     </message>
     <message>
         <location filename="camparamdialog.ui" line="275"/>
+        <source>Variant 3 (GPU Int + CPU Sub)</source>
+        <translation type="unfinished">变形3(GPU整像素 + CPU亚像素)</translation>
+    </message>
+    <message>
+        <location filename="camparamdialog.ui" line="305"/>
+        <source>Variant 4 (CPU Int + GPU Sub)</source>
+        <translation type="unfinished">变形4(CPU整像素 + GPU亚像素)</translation>
+    </message>
+    <message>
+        <location filename="camparamdialog.ui" line="315"/>
+        <source>Variant 5 (CPU Int + CPU Sub)</source>
+        <translation type="unfinished">变形5(CPU整像素 + CPU亚像素)</translation>
+    </message>
+    <message>
+        <source>Small-scale measurement</source>
+        <translation type="obsolete">小规模测量计算</translation>
+    </message>
+    <message>
         <source>Int-pixel with sub-pixel
 compensation</source>
-        <translation type="unfinished">整像素+亚像素修正</translation>
+        <translation type="obsolete">整像素+亚像素修正</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="283"/>
         <source>Int-pixel + sub-pixel</source>
-        <translation type="unfinished">整像素+亚像素</translation>
+        <translation type="obsolete">整像素+亚像素</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="290"/>
+        <location filename="camparamdialog.ui" line="282"/>
         <source>Number of ICGN Threads:</source>
         <translation type="unfinished">用于计算ICGN的线程数</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="313"/>
+        <location filename="camparamdialog.ui" line="322"/>
         <source>Drop Frames if Image 
 Buffer is Full</source>
         <translation type="unfinished">在图片缓存满的时候丢帧吗？</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="343"/>
+        <location filename="camparamdialog.ui" line="352"/>
         <source>OK</source>
         <translation type="unfinished">确定</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="350"/>
+        <location filename="camparamdialog.ui" line="359"/>
         <source>Cancel</source>
         <translation type="unfinished">取消</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="382"/>
+        <location filename="camparamdialog.ui" line="391"/>
         <source>  Camera Device ID:</source>
         <translation type="unfinished">相机编号</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="411"/>
+        <location filename="camparamdialog.ui" line="420"/>
         <source> Camera Resolution:</source>
         <translation type="unfinished">相机分辨率</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="446"/>
+        <location filename="camparamdialog.ui" line="455"/>
         <source>      Mouse Cursor:</source>
         <translation type="unfinished">鼠标指针位置</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="481"/>
+        <location filename="camparamdialog.ui" line="490"/>
         <source> Camera Frame Rate:</source>
         <translation type="unfinished">相机帧率</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="516"/>
+        <location filename="camparamdialog.ui" line="525"/>
         <source>  Number of Frames: </source>
         <translation type="unfinished">帧数</translation>
     </message>
     <message>
-        <location filename="camparamdialog.ui" line="551"/>
+        <location filename="camparamdialog.ui" line="560"/>
         <source>Region of Interest:</source>
         <translation type="unfinished">感兴趣区域</translation>
     </message>
