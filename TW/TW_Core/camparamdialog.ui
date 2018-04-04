@@ -260,9 +260,9 @@
           <number>10</number>
          </property>
          <item>
-          <widget class="QRadioButton" name="GPUFFTCCradioButton">
+          <widget class="QRadioButton" name="GPUFFTCC_ICGNradioButton">
            <property name="text">
-            <string>Small-scale measurement</string>
+            <string>Variant 2</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -272,15 +272,7 @@
          <item>
           <widget class="QRadioButton" name="GPUFFTCC_CPUICGNradioButton">
            <property name="text">
-            <string>Int-pixel with sub-pixel
-compensation</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="GPUFFTCC_ICGNradioButton">
-           <property name="text">
-            <string>Int-pixel + sub-pixel</string>
+            <string>Variant 3</string>
            </property>
           </widget>
          </item>
@@ -304,6 +296,23 @@ compensation</string>
            </property>
            <property name="maximum">
             <number>8</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="GPUFFTCCradioButton">
+           <property name="text">
+            <string>Variant 4</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="CPU_FFTCC_ICGNradioButton">
+           <property name="text">
+            <string>Variant 5</string>
            </property>
           </widget>
          </item>
