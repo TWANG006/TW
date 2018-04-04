@@ -1,0 +1,22 @@
+Margin (X-axis): 200 [pixel]
+Margin (Y-axis): 200 [pixel]
+Interval (X-axis): 5 [pixel]
+Interval (Y-axis): 5 [pixel]
+Number of POI: 11084 = 326 X 34
+Subset dimension: 21x21 pixels
+Time for img load: 12665.6 [millisec]
+Time for Device Alloc: 30.4521 [millisec]Time for Host Alloc: 1.28276 [millisec]
+Time for Device Free: 4.41605 [millisec]Time for Host Free: 0.880516 [millisec]
+Time for cufft Preparation: 348.609 [millisec]Time for fft Destroy: 3.39793 [millisec]
+Time comsumed: 44.167 [millisec]
+Time for copy: 1.67373 [millisec]
+Time for all integral-pixel registration: 5.65856 [millisec]
+Time for Pre-computation: 14.4591 [millisec]
+Time for all sub-pixel registration: 21.6977 [millisec]
+Time for all icgn hessian part: 10.1362 [millisec]
+Time for all icgn iteration part: 11.5615 [millisec]
+Time for integral-pixel registration: 0.000510516 [millisec]
+Time for sub-pixel registration: 0.00195757 [millisec] for average iteration steps of 2.59888
+2046, 586, 5, 5, 200, 200, 326, 34
+11084, 44.167, 1.67373
+5.65856	21.6977
