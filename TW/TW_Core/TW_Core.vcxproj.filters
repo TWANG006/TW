@@ -130,6 +130,15 @@
     <ClCompile Include="icgnworkerthread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cpufftccicgnworkderthread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_cpufftccicgnworkderthread.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_cpufftccicgnworkderthread.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="tw_coremainwindow.h">
@@ -172,6 +181,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="icgnworkerthread.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="cpufftccicgnworkderthread.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
