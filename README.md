@@ -23,4 +23,4 @@ This repository provides a pipelined real-time DIC system implementation that un
 
 [[2] Wang, T., Jiang, Z., Kemao, Q., Lin, F., & Soon, S. H. (2016). GPU accelerated digital volume correlation. Experimental Mechanics, 56(2), 297-309.](https://link.springer.com/article/10.1007/s11340-015-0091-4)
 
-[[3]] Wang, T., Kemao, Q., Lin, F., Seah, HS. (2018) A Flexible Hegerogeneous Real-Time Digital Image Correlation System, Optics and Lasers in Engineering, Peer Review.
+[[3] Wang, T., Kemao, Q., Seah, H. S., & Lin, F. (2018). A flexible heterogeneous real-time digital image correlation system. Optics and Lasers in Engineering, 110, 7-17.](https://www.sciencedirect.com/science/article/pii/S0143816618302549)
