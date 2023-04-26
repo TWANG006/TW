@@ -1,0 +1,5 @@
+
+*.db
+*.db-shm
+*.db-wal
+TW/.vs/TW/v17/.suo
